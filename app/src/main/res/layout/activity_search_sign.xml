@@ -27,16 +27,15 @@
             android:layout_height="wrap_content"
             android:id="@+id/textView"
             android:textSize="@dimen/aText"
-            android:padding="5dp"
-            android:textColor="@color/Acolor" />
+            android:textColor="@color/Acolor"
+            android:layout_marginLeft="20dp" />
 
         <SeekBar
-            android:layout_width="184dp"
-            android:layout_height="wrap_content"
+            android:layout_width="158dp"
+            android:layout_height="match_parent"
             android:id="@+id/seekBar"
             android:padding="5dp"
-            android:layout_weight="6.20"
-            android:layout_marginLeft="20dp" />
+            android:layout_marginLeft="5dp" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -54,7 +53,7 @@
             android:id="@+id/textView3"
             android:textSize="@dimen/aText"
             android:padding="5dp"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="5dp"
             android:textColor="@color/Acolor" />
     </LinearLayout>
 
