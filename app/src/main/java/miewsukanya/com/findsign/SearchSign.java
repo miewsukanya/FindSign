@@ -1,12 +1,16 @@
 package miewsukanya.com.findsign;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 public class SearchSign extends AppCompatActivity {
     //Explicit
+    private ImageView searchSignAllImageView,searchSign45ImageView,searchSign60ImageView, searchSign80ImageView;
     private SeekBar seekBar;
     public TextView txtValueTextView;
     int seekBarValue;
@@ -21,6 +25,12 @@ public class SearchSign extends AppCompatActivity {
         //Bind widget
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         txtValueTextView = (TextView) findViewById(R.id.txtValue);
+
+        searchSignAllImageView = (ImageView) findViewById(R.id.SearchSignAll);
+        searchSign45ImageView = (ImageView) findViewById(R.id.SearchSign45);
+        searchSign60ImageView = (ImageView) findViewById(R.id.SearchSign60);
+        searchSign80ImageView = (ImageView) findViewById(R.id.SearchSign80);
+
 
         //SeekBarController
         seekBar.setMax(seekBarMax);
@@ -44,8 +54,39 @@ public class SearchSign extends AppCompatActivity {
 
             }
         });//SeekBar
-        
+
+        //SearchSignAll
+        searchSignAllImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SearchSign.this,SelectTypeSearch.class));
+            }
+        });
+        //SearchSign45
+        searchSign45ImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SearchSign.this,SelectTypeSearch.class));
+            }
+        });
+        //SearchSign60
+        searchSign60ImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SearchSign.this,SelectTypeSearch.class));
+            }
+        });
+        //SearchSign80
+        searchSign80ImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(SearchSign.this,SelectTypeSearch.class));
+            }
+        });
+
 
     }//Main Method
+
+
 
 }//Main Class
