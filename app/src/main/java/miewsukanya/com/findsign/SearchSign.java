@@ -1,8 +1,8 @@
 package miewsukanya.com.findsign;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -16,6 +16,7 @@ public class SearchSign extends AppCompatActivity {
     int seekBarValue;
     int seekBarMax = 100;
     int seekBarStart = 50;
+    //CameraDevice cameraDevice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,7 +87,6 @@ public class SearchSign extends AppCompatActivity {
 
 
     }//Main Method
-
 
 
 }//Main Class
