@@ -120,6 +120,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            
         }
     }//get json
 
