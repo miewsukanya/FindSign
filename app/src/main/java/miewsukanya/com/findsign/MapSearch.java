@@ -28,17 +28,14 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     private static final String TAG = "myapp";
     //Explicit
     //private String[] SignID, SignName,Latitude,Longitude;
     private  String[] SignIDStrings, SignNameStrings,LatitudeStrings,LongitudeStrings;
-    private Double Latitude = 0.00;
-    private Double Longitude = 0.00;
-    ArrayList<HashMap<String, String>> location = null;
+    //private Double Latitude = 0.00;
+    //private Double Longitude = 0.00;
+    //ArrayList<HashMap<String, String>> location = null;
     GoogleMap mGoogleMap;
     GoogleApiClient mGoogleClient;
     TextView textJsonTextView;
@@ -92,8 +89,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             Log.d("24novV1", "Json ==>" + s);
             try {
                 JSONArray jsonArray = new JSONArray(s);
-                location = new ArrayList<HashMap<String, String>>();
-                HashMap<String, String> map;
+                /*location = new ArrayList<HashMap<String, String>>();
+                HashMap<String, String> map;*/
                 SignIDStrings = new String[jsonArray.length()];
                 SignNameStrings = new String[jsonArray.length()];
                 LatitudeStrings = new String[jsonArray.length()];
@@ -102,25 +99,27 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 for (int i=0;i<jsonArray.length();i++){
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-                   // SignIDStrings[i] = jsonObject.getString("SignID");
-                   // SignNameStrings[i] = jsonObject.getString("SignName");
-                   // LatitudeStrings[i] = jsonObject.getString("Latitude");
-                   // LongitudeStrings[i] = jsonObject.getString("Longitude");
+                    SignIDStrings[i] = jsonObject.getString("SignID");
+                    SignNameStrings[i] = jsonObject.getString("SignName");
+                    LatitudeStrings[i] = jsonObject.getString("Latitude");
+                    LongitudeStrings[i] = jsonObject.getString("Longitude");
 
-
-
-                    map = new HashMap<String, String>();
+                    /*map = new HashMap<String, String>();
+                    map.put("SignID", jsonObject.getString("SignID"));
+                    map.put("SignName", jsonObject.getString("SignName"));
                     map.put("Latitude", jsonObject.getString("Latitude"));
                     map.put("Longitude", jsonObject.getString("Longitude"));
-                    map.put("SignName", jsonObject.getString("SignName"));
-                    location.add(map);
+                    location.add(map);*/
+
                     Log.d("24novV1", "Latitude (" + LatitudeStrings[i] + ")" + ",(" + LongitudeStrings[i] + ")");
+
+
                 }
 
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            
+
         }
     }//get json
 
@@ -147,29 +146,33 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
-        Latitude = Double.parseDouble(location.get(0).get("Latitude").toString());
+
+        /*Latitude = Double.parseDouble(location.get(0).get("Latitude").toString());
         Longitude = Double.parseDouble(location.get(0).get("Longitude").toString());
         LatLng coordinate = new LatLng(Latitude, Longitude);
-        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 17));
+        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 17));*/
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         //latlng sc06
        // LatLng comsci = new LatLng(lat, lng);
-        //LatLng drom8 = new LatLng(16.4795142, 102.809175);
+        LatLng drom8 = new LatLng(16.4795142, 102.809175);
 
-       // mGoogleMap.addMarker(new MarkerOptions()
-                    //.position(drom8)
-                    //.title("comsci"));
+        mGoogleMap.addMarker(new MarkerOptions()
+                    .position(drom8)
+                    .title("comsci"));
             //  แพนเลื่อนแผนที่ไปพิกัดที่ระบุ
-       // mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(drom8));
-           // goToLocationZoom(16.4795142, 102.809175, 15);
-        for (int i = 0; i < location.size(); i++) {
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(drom8));
+        goToLocationZoom(16.4795142, 102.809175, 15);
+        /*for (int i = 0; i < location.size(); i++) {
             Latitude = Double.parseDouble(location.get(i).get("Latitude").toString());
             Longitude = Double.parseDouble(location.get(i).get("Longitude").toString());
             String name = location.get(i).get("SignName").toString();
-            MarkerOptions marker = new MarkerOptions().position(new LatLng(Latitude, Longitude)).title(name);
-            mGoogleMap.addMarker(marker);
-        }
+            mGoogleMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(Latitude, Longitude))
+                    .title(name));
+            //mGoogleMap.addMarker(marker);
+        }*/
     }//onMapReady
+
 
     //class zoom map
     private void goToLocationZoom(double lat, double lng, float zoom) {
