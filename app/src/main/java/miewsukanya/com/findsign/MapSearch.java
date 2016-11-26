@@ -82,7 +82,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     String strSignName = jsonObject.getString("SignName");
                     String strLat = jsonObject.getString("Latitude");
                     String strLng = jsonObject.getString("Longitude");
-                    
+
                     //Create Marker Shop
                     mGoogleMap.addMarker(new MarkerOptions()
                             .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
