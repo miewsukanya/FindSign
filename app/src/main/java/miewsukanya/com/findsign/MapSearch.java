@@ -30,7 +30,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     GoogleMap mGoogleMap;
     GoogleApiClient mGoogleClient;
     TextView txtJson;
-    private MyConstant myConstant;
+    //private MyConstant myConstant;
+    //MyAdapter myAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,9 +39,10 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             Toast.makeText(this, "Perfect!!", Toast.LENGTH_LONG).show();
             setContentView(R.layout.activity_map_search);
             //getjson();
-            myConstant = new MyConstant();
+            //myConstant = new MyConstant();
+            //myAdapter = new MyAdapter();
             SynUser synUser = new SynUser(MapSearch.this);
-            synUser.execute(myConstant.getUrlGetJSON());
+            synUser.execute();
             initMap();
 
         } else {
@@ -86,21 +88,24 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         requestQueue.add(jsonArrayRequest);
     }//getJson*/
 
-    private class SynUser extends AsyncTask<String, Void, String> {
+    private class SynUser extends AsyncTask<Void, Void, String> {
+        //Explicit
+        //private String[] SingNameStrings,LatitudeStrings, LongitudeStrings;
+       // private int[] SingIDInts;
         //Explicit
         private Context context;
-        private String[] SingNameStrings,LatitudeStrings, LongitudeStrings;
-        private int[] SingIDInts;
+        private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getlatlong.php";
+
 
         public SynUser(Context context) {
             this.context = context;
         }
         @Override
-        protected String doInBackground(String... params) {
+        protected String doInBackground(Void... params) {
             try {
                 OkHttpClient okHttpClient = new OkHttpClient();
                 Request.Builder builder = new Request.Builder();
-                Request request = builder.url(params[0]).build();
+                Request request = builder.url(urlJSON).build();
                 com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
                 return response.body().string();
 
@@ -110,6 +115,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             }
             //return null;
         }//doInBack
+
         @Override
         protected void onPostExecute(String s) {
 
@@ -117,7 +123,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             try {
                 JSONArray jsonArray = new JSONArray(s);
 
-                SingIDInts = new int[jsonArray.length()];
+                /*SingIDInts = new int[jsonArray.length()];
                 SingNameStrings = new String[jsonArray.length()];
                 LatitudeStrings = new String[jsonArray.length()];
                 LongitudeStrings = new String[jsonArray.length()];
@@ -133,14 +139,26 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     txtJson = (TextView) findViewById(R.id.textJson);
                     txtJson.setText(+SingIDInts[i]+"\n");
 
-                    Log.d("26novV1", "name(" + i + ") ==>" + SingIDInts[i]);
+                    Log.d("26novV1", "name(" + i + ") ==>" + SingIDInts[i]);*/
+                for (int i = 0; i < jsonArray.length(); i += 1) {
 
-                }//for
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                    String strSignID = jsonObject.getString("SignID");
+                    String strSignName = jsonObject.getString("SignName");
+                    String strLat = jsonObject.getString("Latitude");
+                    String strLng = jsonObject.getString("Longitude");
+
+                    //Create Marker Shop
+                    mGoogleMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
+                            .title(strSignID+","+strSignName));
+                }// for
+               // }//for
             } catch (Exception e) {
                 e.printStackTrace();
             }
             //super.onPostExecute(s);
-
         }//onPost
     }//SnyUser
 
