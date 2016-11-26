@@ -6,12 +6,10 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,21 +26,16 @@ import org.json.JSONObject;
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     //Explicit
     GoogleMap mGoogleMap;
-    GoogleApiClient mGoogleClient;
-    TextView txtJson;
-    //private MyConstant myConstant;
-    //MyAdapter myAdapter;
+    //GoogleApiClient mGoogleClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (googleServicesAvailable()) {
             Toast.makeText(this, "Perfect!!", Toast.LENGTH_LONG).show();
             setContentView(R.layout.activity_map_search);
-            //getjson();
-            //myConstant = new MyConstant();
-            //myAdapter = new MyAdapter();
-            SynUser synUser = new SynUser(MapSearch.this);
-            synUser.execute();
+
+            GetMap getMap = new GetMap(MapSearch.this);
+            getMap.execute();
             initMap();
 
         } else {
@@ -50,54 +43,12 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         }
     }//Main Method
 
-    /*public void getjson() {
-        txtJson = (TextView) findViewById(R.id.textJson);
-        String JsonUrl = "http://202.28.94.32/2559/563020232-9/getlatlong.php";
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(JsonUrl, new Response.Listener<JSONArray>() {
-            @Override
-            public void onResponse(JSONArray response) {
-                JSONObject jsonObject;
-
-                for (int i = 0; i < response.length(); i++) {
-                    try {
-
-                        jsonObject = response.getJSONObject(i);
-                        int SignID = jsonObject.getInt("SignID");
-                        String SignName = jsonObject.getString("SignName");
-                        String Latitude = jsonObject.getString("Latitude");
-                        String Longitude = jsonObject.getString("Longitude");
-
-                        Log.d("Json", SignID + "," + SignName + "," + Latitude + "," + Longitude);
-
-                        txtJson.setText(SignID+"\n"+SignName+"\n"+Latitude+"\n"+Longitude+"\n");
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        txtJson.setText("onErrorRespone():"+error.getMessage());
-                    }
-                }
-        );
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(jsonArrayRequest);
-    }//getJson*/
-
-    private class SynUser extends AsyncTask<Void, Void, String> {
-        //Explicit
-        //private String[] SingNameStrings,LatitudeStrings, LongitudeStrings;
-       // private int[] SingIDInts;
+    private class GetMap extends AsyncTask<Void, Void, String> {
         //Explicit
         private Context context;
         private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getlatlong.php";
 
-
-        public SynUser(Context context) {
+        public GetMap(Context context) {
             this.context = context;
         }
         @Override
@@ -123,42 +74,26 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             try {
                 JSONArray jsonArray = new JSONArray(s);
 
-                /*SingIDInts = new int[jsonArray.length()];
-                SingNameStrings = new String[jsonArray.length()];
-                LatitudeStrings = new String[jsonArray.length()];
-                LongitudeStrings = new String[jsonArray.length()];
-                for (int i=0;i<jsonArray.length();i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-
-                    SingIDInts[i] = jsonObject.getInt("SignID");
-                    SingNameStrings[i] = jsonObject.getString("SignName");
-                    LatitudeStrings[i] = jsonObject.getString("Latitude");
-                    LongitudeStrings[i] = jsonObject.getString("Longitude");
-
-
-                    txtJson = (TextView) findViewById(R.id.textJson);
-                    txtJson.setText(+SingIDInts[i]+"\n");
-
-                    Log.d("26novV1", "name(" + i + ") ==>" + SingIDInts[i]);*/
                 for (int i = 0; i < jsonArray.length(); i += 1) {
-
+                    //Get Json from Database
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
 
                     String strSignID = jsonObject.getString("SignID");
                     String strSignName = jsonObject.getString("SignName");
                     String strLat = jsonObject.getString("Latitude");
                     String strLng = jsonObject.getString("Longitude");
-
+                    
                     //Create Marker Shop
                     mGoogleMap.addMarker(new MarkerOptions()
                             .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
                             .title(strSignID+","+strSignName));
+                    LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
+                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
+
                 }// for
-               // }//for
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            //super.onPostExecute(s);
         }//onPost
     }//SnyUser
 
@@ -186,13 +121,13 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        LatLng comsci = new LatLng(16.4795142,102.809175);
+        /*LatLng comsci = new LatLng(16.4795142,102.809175);
         mGoogleMap.addMarker(new MarkerOptions()
                 .position(comsci)
                 .title("comsci"));
         //  แพนเลื่อนแผนที่ไปพิกัดที่ระบุ
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(comsci));
-        goToLocationZoom(16.4795142, 102.809175, 15);
+        goToLocationZoom(16.4795142, 102.809175, 15);*/
     }//onMapReady
 
     private void goToLocationZoom(double lat, double lng, float zoom) {
