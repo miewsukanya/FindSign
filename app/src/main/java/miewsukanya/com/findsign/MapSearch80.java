@@ -23,7 +23,7 @@ import com.squareup.okhttp.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
+public class MapSearch80 extends AppCompatActivity implements OnMapReadyCallback {
     //Explicit
     GoogleMap mGoogleMap;
     //GoogleApiClient mGoogleClient;
@@ -31,10 +31,10 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (googleServicesAvailable()) {
-           // Toast.makeText(this, "Perfect!!", Toast.LENGTH_LONG).show();
+            // Toast.makeText(this, "Perfect!!", Toast.LENGTH_LONG).show();
             setContentView(R.layout.activity_map_search);
 
-            GetMap getMap = new GetMap(MapSearch.this);
+            GetMap getMap = new GetMap(MapSearch80.this);
             getMap.execute();
             initMap();
 
@@ -46,7 +46,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     private class GetMap extends AsyncTask<Void, Void, String> {
         //Explicit
         private Context context;
-        private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getlatlong.php";
+        private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getsign80.php";
 
         public GetMap(Context context) {
             this.context = context;
@@ -84,18 +84,18 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     String strLng = jsonObject.getString("Longitude");
                     //String strIcon = jsonObject.getString("IConID");
 
-                   // MapIcon mapIcon = new MapIcon(context, Integer.parseInt(strIcon));
+                    // MapIcon mapIcon = new MapIcon(context, Integer.parseInt(strIcon));
                     //Create Marker Shop
                     mGoogleMap.addMarker(new MarkerOptions()
                             .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
                             .title(strSignName));
-                            //.icon(BitmapDescriptorFactory.fromResource(mapIcon.showIcon())));
+                    //.icon(BitmapDescriptorFactory.fromResource(mapIcon.showIcon())));
 
                     mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
                     mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
                     goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));
-                  //  Log.d("Data", strIcon);
+                    //  Log.d("Data", strIcon);
                 }// for
             } catch (Exception e) {
                 e.printStackTrace();

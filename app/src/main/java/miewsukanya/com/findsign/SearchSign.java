@@ -60,28 +60,28 @@ public class SearchSign extends AppCompatActivity {
         searchSignAllImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SearchSign.this,SelectTypeSearch.class));
+                startActivity(new Intent(SearchSign.this,MapSearch.class));
             }
         });
         //SearchSign45
         searchSign45ImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SearchSign.this,SelectTypeSearch.class));
+                startActivity(new Intent(SearchSign.this,MapSearch45.class));
             }
         });
         //SearchSign60
         searchSign60ImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SearchSign.this,SelectTypeSearch.class));
+                startActivity(new Intent(SearchSign.this,MapSearch60.class));
             }
         });
         //SearchSign80
         searchSign80ImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SearchSign.this,SelectTypeSearch.class));
+                startActivity(new Intent(SearchSign.this,MapSearch80.class));
             }
         });
 
