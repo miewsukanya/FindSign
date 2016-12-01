@@ -15,6 +15,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.okhttp.OkHttpClient;
@@ -43,6 +44,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         }
     }//Main Method
 
+    //Search Map All
     private class GetMap extends AsyncTask<Void, Void, String> {
         //Explicit
         private Context context;
@@ -85,12 +87,30 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     //String strIcon = jsonObject.getString("IConID");
 
                    // MapIcon mapIcon = new MapIcon(context, Integer.parseInt(strIcon));
-                    //Create Marker Shop
-                    mGoogleMap.addMarker(new MarkerOptions()
+                    //Create Marker Sign
+                    if (strSignName.equals("sign45")) {
+                        mGoogleMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
+                                .title(strSignName))
+                                .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign45_s));
+
+                    } else if (strSignName.equals("sign60")) {
+                        mGoogleMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
+                                .title(strSignName))
+                                .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign60_s));
+                    } else {
+                        //(strSignName.equals(strSignName.equals("sign80") || strSignName.equals("Sign80"))) //{
+                        mGoogleMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
+                                .title(strSignName))
+                                .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign80_s));
+                    }
+                    //}else
+                        /*mGoogleMap.addMarker(new MarkerOptions()
                             .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
                             .title(strSignName));
-                            //.icon(BitmapDescriptorFactory.fromResource(mapIcon.showIcon())));
-
+                            //.icon(BitmapDescriptorFactory.fromResource(mapIcon.showIcon())));*/
                     mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
                     mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
