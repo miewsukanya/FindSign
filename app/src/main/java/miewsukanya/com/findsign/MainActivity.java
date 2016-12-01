@@ -21,20 +21,20 @@ public class MainActivity extends AppCompatActivity {
         searchSignImageView = (ImageView) findViewById(R.id.SearchSign);
         knowLedgeImageView = (ImageView) findViewById(R.id.Knowledge);
 
-
-        //search sign controller
-        searchSignImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,SearchSign.class));
-
-            }
-        });
         //search quick controller
         searchQuickImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(MainActivity.this,SearchQuick.class));
+            }
+        });
+
+        //search sign controller
+        searchSignImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,SelectTypeSearch.class));
+
             }
         });
 
