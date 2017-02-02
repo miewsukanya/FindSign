@@ -85,7 +85,7 @@ public class MapSearch45 extends AppCompatActivity implements OnMapReadyCallback
                     String strLng = jsonObject.getString("Longitude");
                     //String strIcon = jsonObject.getString("IConID");
 
-                    // MapIcon mapIcon = new MapIcon(context, Integer.parseInt(strIcon));
+
                     //Create Marker Shop
                     mGoogleMap.addMarker(new MarkerOptions()
                             .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
