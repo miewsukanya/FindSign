@@ -1,5 +1,8 @@
 package miewsukanya.com.findsign;
 
+/**
+ * Created by Sukanya Boonpun on 19/12/2559.
+ */
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -104,7 +107,7 @@ public class OverlayView extends View implements SensorEventListener,
 
         targetPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         targetPaint.setColor(Color.GREEN);
-        img = BitmapFactory.decodeResource(getResources(), R.drawable.iconbindry);
+        img = BitmapFactory.decodeResource(getResources(), R.drawable.but_45);
 
     }
 

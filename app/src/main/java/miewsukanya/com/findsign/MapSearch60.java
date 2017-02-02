@@ -89,8 +89,9 @@ public class MapSearch60 extends AppCompatActivity implements OnMapReadyCallback
                     //Create Marker Shop
                     mGoogleMap.addMarker(new MarkerOptions()
                             .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
-                            .title(strSignName))
-                            .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign60_s));
+                            .title(strSignName)
+                            .snippet(strSignID))
+                            .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign60_ss));
 
                     mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));

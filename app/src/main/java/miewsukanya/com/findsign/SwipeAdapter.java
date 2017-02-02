@@ -14,9 +14,10 @@ import android.widget.LinearLayout;
  */
 
 public class SwipeAdapter extends PagerAdapter{
-    private int[] image_resource = new int[] {R.drawable.kn_0,
-            R.drawable.kn_1, R.drawable.kn_2,
-            R.drawable.kn_3, R.drawable.kn_4,R.drawable.kn_5
+    private int[] image_resource = new int[] {R.drawable.page6,R.drawable.page6_2,
+            R.drawable.page6_3,R.drawable.page6_4,
+            R.drawable.page6_5,R.drawable.page6_6,
+            R.drawable.page6_7
             };
     private Context context;
     private LayoutInflater layoutInflater;

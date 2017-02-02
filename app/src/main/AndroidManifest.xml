@@ -65,17 +65,20 @@
         <activity
             android:name=".SelectTypeSearch"
             android:screenOrientation="portrait" />
-        <activity android:name=".MapSearch" />
-        <activity android:name=".ArViewActivity"></activity>
+        <activity android:name=".ArViewActivity" />
+
         <meta-data
             android:name="com.google.android.gms.vision"
-            android:value="@integer/google_play_services_version"
-            />
+            android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBHZoc24OHbF9570tH9TRc-e4UJI-ueUBQ"
-            />
-    </application>
+            android:value="AIzaSyBHZoc24OHbF9570tH9TRc-e4UJI-ueUBQ" />
 
+        <activity android:name=".MapSearch" />
+        <activity android:name=".SearchSignAR" />
+        <activity android:name=".MapSearch45" />
+        <activity android:name=".MapSearch60" />
+        <activity android:name=".MapSearch80" />
+    </application>
 
 </manifest>

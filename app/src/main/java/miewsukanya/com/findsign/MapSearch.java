@@ -84,33 +84,29 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     String strSignName = jsonObject.getString("SignName");
                     String strLat = jsonObject.getString("Latitude");
                     String strLng = jsonObject.getString("Longitude");
-                    //String strIcon = jsonObject.getString("IConID");
 
-                   // MapIcon mapIcon = new MapIcon(context, Integer.parseInt(strIcon));
                     //Create Marker Sign
-                    if (strSignName.equals("sign45")) {
+                    if (strSignName.equals("Sign45") || strSignName.equals("sign45")) {
                         mGoogleMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
-                                .title(strSignName))
-                                .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign45_s));
+                                .title(strSignName)
+                                .snippet(strSignID))
+                                .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign45_ss));
 
-                    } else if (strSignName.equals("sign60")) {
+                    } else if (strSignName.equals("Sign60") || strSignName.equals("sign60")) {
                         mGoogleMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
-                                .title(strSignName))
-                                .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign60_s));
+                                .title(strSignName)
+                                .snippet(strSignID))
+                                .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign60_ss));
                     } else {
-                        //(strSignName.equals(strSignName.equals("sign80") || strSignName.equals("Sign80"))) //{
                         mGoogleMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
-                                .title(strSignName))
-                                .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign80_s));
+                                .title(strSignName)
+                                .snippet(strSignID))
+                                .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign80_ss));
                     }
-                    //}else
-                        /*mGoogleMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
-                            .title(strSignName));
-                            //.icon(BitmapDescriptorFactory.fromResource(mapIcon.showIcon())));*/
+
                     mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
                     mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
@@ -154,12 +150,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        /*LatLng comsci = new LatLng(16.4795142,102.809175);
-        mGoogleMap.addMarker(new MarkerOptions()
-                .position(comsci)
-                .title("comsci"));
-        //  แพนเลื่อนแผนที่ไปพิกัดที่ระบุ
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(comsci));
-        goToLocationZoom(16.4795142, 102.809175, 15);*/
+
     }//onMapReady
 }//Main Class
