@@ -3,6 +3,7 @@ package miewsukanya.com.findsign;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -14,8 +15,8 @@ public class SearchSign extends AppCompatActivity {
     private SeekBar seekBar;
     public TextView txtValueTextView;
     int seekBarValue;
-    int seekBarMax = 100;
-    int seekBarStart = 50;
+    int seekBarMax = 1000;
+    int seekBarStart = 100;
     //CameraDevice cameraDevice;
 
     @Override
@@ -60,7 +61,15 @@ public class SearchSign extends AppCompatActivity {
         searchSignAllImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SearchSign.this,MapSearch.class));
+                //send distant to MapSearch 03/02/2017
+                String distant = txtValueTextView.getText().toString();
+                Intent intent = new Intent(getApplicationContext(), MapSearch.class);
+                intent.putExtra("distant", distant);
+                Log.d("Distant","Select distant :"+ distant);
+                //  intent.putExtra(MESSAGE_KEY, message);
+                startActivity(intent);
+                finish();
+              //  startActivity(new Intent(SearchSign.this,MapSearch.class));
             }
         });
         //SearchSign45
