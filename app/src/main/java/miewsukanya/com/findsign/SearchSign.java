@@ -15,8 +15,8 @@ public class SearchSign extends AppCompatActivity {
     private SeekBar seekBar;
     public TextView txtValueTextView;
     int seekBarValue;
-    int seekBarMax = 1000;
-    int seekBarStart = 100;
+    int seekBarMax = 100;
+    int seekBarStart = 50;
     //CameraDevice cameraDevice;
 
     @Override
