@@ -98,10 +98,11 @@
                 android:textSize="20dp"/>
 
             <TextView
-                android:text=""
+                android:text="---"
                 android:layout_width="159dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/txt_speed"
+                android:textColor="@android:color/black"
                 android:textSize="20dp"/>
 
             <TextView

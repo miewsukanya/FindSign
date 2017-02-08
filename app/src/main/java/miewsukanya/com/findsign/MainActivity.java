@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 public class MainActivity extends AppCompatActivity {
+
     //Explicit
 
     private ImageView searchQuickImageView,searchSignImageView, knowLedgeImageView;

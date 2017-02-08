@@ -44,7 +44,7 @@ public final class GPSTracker implements LocationListener {
 
     /**
      * Function to get the user's current location
-     * 
+     *
      * @return
      */
     public Location getLocation() {
@@ -148,7 +148,7 @@ public final class GPSTracker implements LocationListener {
 
     /**
      * Function to check GPS/wifi enabled
-     * 
+     *
      * @return boolean
      * */
     public boolean canGetLocation() {

@@ -1,8 +1,13 @@
 package miewsukanya.com.findsign;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -10,12 +15,12 @@ import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,19 +44,26 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
+    //value about calculate speed
+    static ProgressDialog locate;
+    static int p=0;
+    static long endTime;
+    static long startTime;
+    static TextView speed;
+    LocationService myService;
+    static boolean status;
     //Explicit
     GPSTracker gps;
     private LocationManager locationManager;
     private LocationListener listener;
     GoogleMap mGoogleMap;
-    EditText edt_distance;
-    TextView txtView_gpsLat,txtView_gpsLng,txtView_mapLat, txtView_mapLng,txt_Distance,txt_space,txtDistance;
+    TextView txtView_gpsLat,txtView_gpsLng,txt_Distance,txtDistance;
     //GoogleApiClient mGoogleClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (googleServicesAvailable()) {
-           // Toast.makeText(this, "Perfect!!", Toast.LENGTH_LONG).show();
+            // Toast.makeText(this, "Perfect!!", Toast.LENGTH_LONG).show();
             setContentView(R.layout.activity_map_search);
 
             GetMap getMap = new GetMap(MapSearch.this);
@@ -63,8 +75,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         }
 
         //get distant from SearchSign 03/02/2017
-        //TextView textView = (TextView) findViewById(R.id.txt_Distant);
-        //EditText editText = (EditText) findViewById(R.id.edt_distance);
         TextView textView = (TextView) findViewById(R.id.txtDistance);
         Intent intent = getIntent();
         String distance = intent.getStringExtra("distant");
@@ -74,11 +84,23 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
         txtView_gpsLat = (TextView) findViewById(R.id.txtView_gpsLat);
         txtView_gpsLng = (TextView) findViewById(R.id.txtView_gpsLng);
-       // txtView_mapLat = (TextView) findViewById(R.id.txtView_mapLat);
-      //  txtView_mapLng = (TextView) findViewById(R.id.txtView_mapLng);
         txt_Distance = (TextView) findViewById(R.id.txt_distance);
-      //  edt_distance = (EditText) findViewById(R.id.edt_distance);
         txtDistance = (TextView) findViewById(R.id.txtDistance);
+        speed=(TextView)findViewById(R.id.txt_speed);
+
+        checkGps();
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(status==false)
+            bindService();
+        locate=new ProgressDialog(MapSearch.this);
+        locate.setIndeterminate(true);
+        locate.setCancelable(false);
+        locate.setMessage("Getting Location...");
+        locate.show();
 
         //get lat lng location device
         listener = new LocationListener() {
@@ -115,8 +137,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             }
             configure_button();
         }//listener
-
-
     }//Main Method
 
     @Override
@@ -212,9 +232,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                             + " Meter   " + meterInDec +":"+seekBar);
                     //ถ้าค่ารัศมีเท่ากับค่ารัศมีที่คำนวณจากดาต้าเบสเท่ากันหรือน้อยกว่า ก็จะวนลูปปักหมุด
                     if (meterInDec <= seekBar) {
-                         //Create Marker Sign
+                        //Create Marker Sign
                         if (strSignName.equals("Sign45") || strSignName.equals("sign45")) {
-                         mGoogleMap.addMarker(new MarkerOptions()
+                            mGoogleMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
                                     .title(strSignName)
                                     .snippet(String.valueOf(meterInDec)))
@@ -222,14 +242,14 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
 
                         } else if (strSignName.equals("Sign60") || strSignName.equals("sign60")) {
-                          mGoogleMap.addMarker(new MarkerOptions()
+                            mGoogleMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
                                     .title(strSignName)
                                     .snippet(String.valueOf(meterInDec)))
                                     .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign60_ss));
 
                         } else {
-                          mGoogleMap.addMarker(new MarkerOptions()
+                            mGoogleMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
                                     .title(strSignName)
                                     .snippet(String.valueOf(meterInDec)))
@@ -242,7 +262,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
                         goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));
 
-                       // txt_Distance.setText((int) valueResult);
+                        // txt_Distance.setText((int) valueResult);
 
                     }//if check distance
 
@@ -262,7 +282,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                             .position(new LatLng(gps.getLatitude(), gps.getLongitude()));
                     marker = mGoogleMap.addMarker(options);
 
-                  //  marker.setPosition(results[0].geometry.location);
+                    //  marker.setPosition(results[0].geometry.location);
                     marker.showInfoWindow();
                     LatLng coordinate = new LatLng (gps.getLatitude(),gps.getLongitude());
                     mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
@@ -270,7 +290,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     Log.d("01FebV2", "Marker" + "Lat:" + gps.getLatitude() + "Lng:" + gps.getLongitude());
                 }// for
 
-               // txt_Distance.setText(marker.getSnippet());
+                // txt_Distance.setText(marker.getSnippet());
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -334,21 +354,114 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 TextView tvLocality = (TextView) v.findViewById(R.id.tv_locality);
                 TextView tvLat = (TextView) v.findViewById(R.id.tv_lat);
                 TextView tvLng = (TextView) v.findViewById(R.id.tv_lng);
-               // TextView tvSnippet = (TextView) v.findViewById(R.id.tv_snippet);
+                // TextView tvSnippet = (TextView) v.findViewById(R.id.tv_snippet);
 
                 LatLng latLng = marker.getPosition();
                 tvLocality.setText(marker.getTitle());
                 tvLat.setText("Latitude: "+latLng.latitude);
                 tvLng.setText("Longitude: "+latLng.longitude);
-              //  tvSnippet.setText(marker.getSnippet());
+                //  tvSnippet.setText(marker.getSnippet());
                 txt_Distance.setText(marker.getSnippet());
 
                 //show lat long in edit text
-               // lat.setText(latLng.latitude+"");
-               // lng.setText(latLng.longitude+"");
+                // lat.setText(latLng.latitude+"");
+                // lng.setText(latLng.longitude+"");
                 return v;
             }
         });
 
     }//onMapReady
+
+
+    void checkGps()
+    {
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
+
+            showGPSDisabledAlertToUser();
+        }
+    }//void checkGps
+
+    void bindService()
+    {
+        if(status==true)
+            return;
+        Intent i=new Intent(getApplicationContext(),LocationService.class);
+        bindService(i, sc, BIND_AUTO_CREATE);
+        status=true;
+        startTime=System.currentTimeMillis();
+    }//bindService
+
+    void unbindService()
+    {
+        if(status==false)
+            return;
+        Intent i=new Intent(getApplicationContext(),LocationService.class);
+        unbindService(sc);
+        status=false;
+    }//unbindService
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }//onResume
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(status==true)
+            unbindService();
+    }//onDestroy
+
+    @Override
+    public void onBackPressed() {
+        if(status==false)
+            super.onBackPressed();
+        else
+            moveTaskToBack(true);
+    }//onBackPressed
+
+    private ServiceConnection sc=new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            LocationService.LocalBinder binder=(LocationService.LocalBinder)service;
+            myService=binder.getService();
+            status=true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            status=false;
+        }
+    };//ServiceConnection
+
+    private void showGPSDisabledAlertToUser(){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setMessage("Enable GPS to use application")
+                .setCancelable(false)
+                .setPositiveButton("Enable GPS",
+                        new DialogInterface.OnClickListener(){
+                            public void onClick(DialogInterface dialog, int id){
+                                Intent callGPSSettingIntent = new Intent(
+                                        android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                startActivity(callGPSSettingIntent);
+                            }
+                        });
+        alertDialogBuilder.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int id){
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
+    }//showGPSDisabledAlertToUser
+
 }//Main Class
