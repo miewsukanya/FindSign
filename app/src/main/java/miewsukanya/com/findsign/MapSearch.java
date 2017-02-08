@@ -44,7 +44,7 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
-    //value about calculate speed
+    //value about calculate speeds
     static ProgressDialog locate;
     static int p=0;
     static long endTime;
