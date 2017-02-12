@@ -17,7 +17,6 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import java.text.DecimalFormat;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by vipul on 12/13/2015.
@@ -120,10 +119,10 @@ public class LocationService extends Service implements
     //update speed in txt_speed
     private void updateUI() {
         if(MapSearch.p==0) {
-            distance = distance + (lStart.distanceTo(lEnd) / 1000.00);
+           // distance = distance + (lStart.distanceTo(lEnd) / 1000.00);
             MapSearch.endTime= System.currentTimeMillis();
             long diff=MapSearch.endTime-MapSearch.startTime;
-            diff= TimeUnit.MILLISECONDS.toMinutes(diff);
+           // diff= TimeUnit.MILLISECONDS.toMinutes(diff);
             // MainActivity.time.setText("Total Time: " + diff + " minutes");
             if(speed>0.0)
                 MapSearch.speed.setText(new DecimalFormat("#.##").format(speed));

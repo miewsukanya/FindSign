@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -33,6 +34,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -43,6 +46,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
+
+import static android.R.attr.type;
 
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -125,12 +130,16 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 double lng = location.getLongitude();
 
                 //ปักหมุดพิกัดของเครื่อง
-                //  if (marker != null) {
-                //     marker.remove();
-                //  }
+                //ถ้ามีการปักหมุดอยู่แล้ว จะลบหมุดอันเดิมออกจากแผนที่
+                  if (marker != null && circle != null) {
+                      marker.remove();
+                      circle.remove();
+                  }
                 MarkerOptions options = new MarkerOptions()
                         .position(new LatLng(lat,lng));
                 marker = mGoogleMap.addMarker(options);
+                //add circle in marker
+                circle = drawCircle(new LatLng(lat, lng));
                 marker.showInfoWindow();
                 LatLng coordinate = new LatLng (lat,lng);
                 mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
@@ -189,6 +198,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     }
 
     Marker marker;
+    Circle circle;
     //Search Map All
     private class GetMap extends AsyncTask<Void, Void, String> {
         //Explicit
@@ -346,6 +356,16 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         return false;
     }//googleServicesAvailable
 
+
+    private Circle drawCircle(LatLng latLng) {
+        CircleOptions circleOptions = new CircleOptions()
+                .center(latLng)
+                .radius(100)
+                .fillColor(0x6633b5e5)
+                .strokeColor(Color.BLUE)
+                .strokeWidth(1);
+        return mGoogleMap.addCircle(circleOptions);
+    }//drawCircle
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
