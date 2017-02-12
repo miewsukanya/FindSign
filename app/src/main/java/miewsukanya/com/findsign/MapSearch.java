@@ -1,6 +1,5 @@
 package miewsukanya.com.findsign;
 
-import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
@@ -16,11 +15,13 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -44,7 +45,8 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
-    //value about calculate speeds
+
+    //about calculate speed
     static ProgressDialog locate;
     static int p=0;
     static long endTime;
@@ -53,11 +55,16 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     LocationService myService;
     static boolean status;
     //Explicit
+    private String[] perms = {"android.permission.ACCESS_COARSE_LOCATION",
+            "android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.INTERNET"};
     GPSTracker gps;
     private LocationManager locationManager;
-    private LocationListener listener;
+    private LocationListener locationListener;
     GoogleMap mGoogleMap;
-    TextView txtView_gpsLat,txtView_gpsLng,txt_Distance,txtDistance;
+    EditText edt_distance;
+    //Button btn_return;
+    TextView txtView_gpsLat,txtView_gpsLng,txtView_mapLat, txtView_mapLng,txt_Distance,txt_space,txtDistance;
     //GoogleApiClient mGoogleClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,10 +91,11 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
         txtView_gpsLat = (TextView) findViewById(R.id.txtView_gpsLat);
         txtView_gpsLng = (TextView) findViewById(R.id.txtView_gpsLng);
+        // btn_return = (Button) findViewById(R.id.btn_return);
         txt_Distance = (TextView) findViewById(R.id.txt_distance);
         txtDistance = (TextView) findViewById(R.id.txtDistance);
-        speed=(TextView)findViewById(R.id.txt_speed);
 
+        /*calculate speed
         checkGps();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
@@ -100,65 +108,85 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         locate.setIndeterminate(true);
         locate.setCancelable(false);
         locate.setMessage("Getting Location...");
-        locate.show();
+        locate.show();*/
 
         //get lat lng location device
-        listener = new LocationListener() {
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
 
-            }
+                //set marker when lat && lng changed
+                txtView_gpsLat.setText(location.getLatitude()+"");
+                txtView_gpsLng.setText(location.getLongitude()+"");
+                Log.d("Location", "Lat:" + location.getLatitude() + "Lng:" + location.getLongitude());
+
+                double lat = location.getLatitude();
+                double lng = location.getLongitude();
+
+                //ปักหมุดพิกัดของเครื่อง
+                //  if (marker != null) {
+                //     marker.remove();
+                //  }
+                MarkerOptions options = new MarkerOptions()
+                        .position(new LatLng(lat,lng));
+                marker = mGoogleMap.addMarker(options);
+                marker.showInfoWindow();
+                LatLng coordinate = new LatLng (lat,lng);
+                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
+                goToLocationZoom(lat,lng,15);
+
+            }//on locationChanged
+
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
 
             }
+
             @Override
             public void onProviderEnabled(String provider) {
 
             }
+
             @Override
             public void onProviderDisabled(String provider) {
-
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
             }
-        };{
-            gps = new GPSTracker(MapSearch.this);
+        };
 
-            if(gps.canGetLocation()){
+        //call permission
+        requestPermissions(perms, 1);
+        //update location in 0 minute distance 1 meter
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 1, locationListener);
+       //configureButton();
 
-                double latitude = gps.getLatitude();
-                double longitude = gps.getLongitude();
-                txtView_gpsLat.setText(latitude+"");
-                txtView_gpsLng.setText(longitude+"");
 
-                Log.d("01FebV1", "Marker" + "Lat:" + latitude + "Lng:" + longitude);
+    }//Main method
 
-            }else{
-                // txtLocation.setText("อุปกรณ์์ของคุณ ปิด GPS");
-            }
-            configure_button();
-        }//listener
-    }//Main Method
+    private void configureButton() {
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 1, locationListener);
+    }
+
+    private boolean shouldAskPermission(){
+        return(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+    }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        switch (requestCode){
-            case 10:
-                configure_button();
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 1 :
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    configureButton();
+                } else {
+                    Toast.makeText(MapSearch.this, "Location Denied", Toast.LENGTH_SHORT)
+                            .show();
+                }
                 break;
             default:
-                break;
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
-    void configure_button(){
-        // first check for permissions
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.INTERNET}
-                        ,10);
-            }
-            return;
-        }
-    }//onRequestPermissionsResult
 
     Marker marker;
     //Search Map All
@@ -202,10 +230,17 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     String strLat = jsonObject.getString("Latitude");
                     String strLng = jsonObject.getString("Longitude");
 
+
+                    gps = new GPSTracker(MapSearch.this);
+                    gps.canGetLocation();
+                    double latitude = gps.getLatitude();
+                    double longitude = gps.getLongitude();
+                    Log.d("01FebV1", "Marker" + "Lat:" + latitude + "Lng:" + longitude);
+
                     int Radius = 6371; // radius of earth in Km
                     double lat2, lng2;
-                    double lat1 = gps.getLatitude(); //start Lat พิกัดจาก gps มือถือ
-                    double lng1 = gps.getLongitude(); //start Lng พิกัดจาก gps มือถือ
+                    double lat1 = latitude; //start Lat พิกัดจาก gps มือถือ
+                    double lng1 = longitude; //start Lng พิกัดจาก gps มือถือ
 
                     lat2 = Double.parseDouble(strLat); //end Lat พิกัดที่ดึงจากดาต้าเบส แปลงสตริงให้เป็น double
                     lng2 = Double.parseDouble(strLng); //eng Lng พิกัดที่ดึงจากดาต้าเบส แปลงสตริงให้เป็น double
@@ -266,31 +301,10 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
                     }//if check distance
 
-                    /*ถ้าไม่มีป้ายบริเวณที่ค้นหา ก้จะไม่แสดง Marker
-                    mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                    LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
-                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
-                    goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));*/
+                    //ถ้าไม่มีป้ายบริเวณที่ค้นหา ก้จะไม่แสดง Marker
                     mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng),15);
-                    //remove marker
-                    if (marker != null) {
-                        marker.remove();
-                    }
-                    //set marker from gps device
-                    MarkerOptions options = new MarkerOptions()
-                            .position(new LatLng(gps.getLatitude(), gps.getLongitude()));
-                    marker = mGoogleMap.addMarker(options);
-
-                    //  marker.setPosition(results[0].geometry.location);
-                    marker.showInfoWindow();
-                    LatLng coordinate = new LatLng (gps.getLatitude(),gps.getLongitude());
-                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
-                    goToLocationZoom(gps.getLatitude(),gps.getLongitude(),15);
-                    Log.d("01FebV2", "Marker" + "Lat:" + gps.getLatitude() + "Lng:" + gps.getLongitude());
                 }// for
-
-                // txt_Distance.setText(marker.getSnippet());
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -369,10 +383,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 return v;
             }
         });
-
     }//onMapReady
 
-
+    //Calculate Speed
     void checkGps()
     {
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -383,7 +396,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             showGPSDisabledAlertToUser();
         }
     }//void checkGps
-
     void bindService()
     {
         if(status==true)
@@ -393,7 +405,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         status=true;
         startTime=System.currentTimeMillis();
     }//bindService
-
     void unbindService()
     {
         if(status==false)
@@ -402,7 +413,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         unbindService(sc);
         status=false;
     }//unbindService
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -412,14 +422,12 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     protected void onStart() {
         super.onStart();
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if(status==true)
             unbindService();
     }//onDestroy
-
     @Override
     public void onBackPressed() {
         if(status==false)
@@ -427,7 +435,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         else
             moveTaskToBack(true);
     }//onBackPressed
-
     private ServiceConnection sc=new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -441,7 +448,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             status=false;
         }
     };//ServiceConnection
-
     private void showGPSDisabledAlertToUser(){
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
         alertDialogBuilder.setMessage("Enable GPS to use application")
@@ -463,5 +469,13 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         AlertDialog alert = alertDialogBuilder.create();
         alert.show();
     }//showGPSDisabledAlertToUser
+    public void returnOnclick() {
+        //  if(status==true)
+        //      unbindService();
+        //  p=0;
+        // startActivity(new Intent(MapSearch.this,SearchSign.class));
+        Intent i = new Intent(MapSearch.this, SearchSign.class);
+        startActivity(i);
 
+    }//returnOnclick
 }//Main Class

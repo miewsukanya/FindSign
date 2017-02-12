@@ -29,10 +29,10 @@ public final class GPSTracker implements LocationListener {
     double longitude; // longitude
 
     // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 1; // 10 meters
 
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 1; // 1 minute 1 วินาที
+    private static final long MIN_TIME_BW_UPDATES = 1000; // 1 minute
 
     // Declaring a Location Manager
     protected LocationManager locationManager;
@@ -40,6 +40,7 @@ public final class GPSTracker implements LocationListener {
     public GPSTracker(Context context) {
         this.mContext = context;
         getLocation();
+        stopUsingGPS();
     }
 
     /**
@@ -71,9 +72,7 @@ public final class GPSTracker implements LocationListener {
                 if (isNetworkEnabled) {
                     location=null;
                     locationManager.requestLocationUpdates(
-                            LocationManager.NETWORK_PROVIDER,
-                            MIN_TIME_BW_UPDATES,
-                            MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                            LocationManager.NETWORK_PROVIDER, 0, 1, this);
                     Log.d("Network", "Network");
                     if (locationManager != null) {
                         location = locationManager
@@ -89,9 +88,7 @@ public final class GPSTracker implements LocationListener {
                     location=null;
                     if (location == null) {
                         locationManager.requestLocationUpdates(
-                                LocationManager.GPS_PROVIDER,
-                                MIN_TIME_BW_UPDATES,
-                                MIN_DISTANCE_CHANGE_FOR_UPDATES, this);
+                                LocationManager.GPS_PROVIDER, 0, 1, this);
                         Log.d("GPS Enabled", "GPS Enabled");
                         if (locationManager != null) {
                             location = locationManager
@@ -111,6 +108,7 @@ public final class GPSTracker implements LocationListener {
 
         return location;
     }
+
 
     /**
      * Stop using GPS listener Calling this function will stop using GPS in your
@@ -193,6 +191,7 @@ public final class GPSTracker implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
+
     }
 
     @Override

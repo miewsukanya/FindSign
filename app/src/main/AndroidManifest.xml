@@ -73,7 +73,7 @@
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBHZoc24OHbF9570tH9TRc-e4UJI-ueUBQ" />
-        <service android:name=".LocationService"></service>
+
         <activity android:name=".MapSearch" />
         <activity android:name=".SearchSignAR" />
         <activity android:name=".MapSearch45" />
