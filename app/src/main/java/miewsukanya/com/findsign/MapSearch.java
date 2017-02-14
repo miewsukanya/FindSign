@@ -131,10 +131,10 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
                 //ปักหมุดพิกัดของเครื่อง
                 //ถ้ามีการปักหมุดอยู่แล้ว จะลบหมุดอันเดิมออกจากแผนที่
-                  if (marker != null && circle != null) {
-                      marker.remove();
-                      circle.remove();
-                  }
+                if (marker != null && circle != null) {
+                    marker.remove();
+                    circle.remove();
+                }
                 MarkerOptions options = new MarkerOptions()
                         .position(new LatLng(lat,lng));
                 marker = mGoogleMap.addMarker(options);
@@ -168,7 +168,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         requestPermissions(perms, 1);
         //update location in 0 minute distance 1 meter
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 1, locationListener);
-       //configureButton();
+        //configureButton();
 
 
     }//Main method

@@ -10,7 +10,7 @@ public class MainActivity extends AppCompatActivity {
 
     //Explicit
 
-    private ImageView searchQuickImageView,searchSignImageView, knowLedgeImageView;
+    private ImageView searchQuickImageView,searchSignImageView, knowLedgeImageView,btn_setting;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +21,15 @@ public class MainActivity extends AppCompatActivity {
         searchQuickImageView = (ImageView) findViewById(R.id.SearchSignQuick);
         searchSignImageView = (ImageView) findViewById(R.id.SearchSign);
         knowLedgeImageView = (ImageView) findViewById(R.id.Knowledge);
+        btn_setting = (ImageView) findViewById(R.id.btn_setting);
+
+        //setting controller
+        btn_setting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(MainActivity.this,SettingActivity.class));
+            }
+        });
 
         //search quick controller
         searchQuickImageView.setOnClickListener(new View.OnClickListener() {
