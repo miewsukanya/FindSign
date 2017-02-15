@@ -62,14 +62,14 @@
 
             <TextView
                 android:text="ระยะห่าง : "
-                android:layout_width="107dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView5"
                 android:textSize="20dp" />
 
             <TextView
                 android:text=""
-                android:layout_width="170dp"
+                android:layout_width="136dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/txt_distance"
                 android:textSize="20dp"
@@ -93,14 +93,14 @@
 
             <TextView
                 android:text="ความเร็ว : "
-                android:layout_width="117dp"
+                android:layout_width="100dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView6"
                 android:textSize="20dp"/>
 
             <TextView
                 android:text=""
-                android:layout_width="159dp"
+                android:layout_width="127dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/txt_speed"
                 android:textColor="@android:color/black"
@@ -112,6 +112,14 @@
                 android:layout_height="wrap_content"
                 android:id="@+id/textView8"
                 android:textSize="20dp"/>
+
+            <Button
+                android:text=""
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/btn_getLatLng"
+                android:background="@color/Acolor"
+                android:layout_weight="1" />
         </LinearLayout>
 
     </LinearLayout>

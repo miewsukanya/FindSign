@@ -12,19 +12,19 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text=""
             android:textSize="15dp"
             android:id="@+id/tv_locality"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text=""
             android:textSize="10dp"
             android:id="@+id/tv_lat"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="TextView"
+            android:text=""
             android:textSize="10dp"
             android:id="@+id/tv_lng"/>
         <TextView

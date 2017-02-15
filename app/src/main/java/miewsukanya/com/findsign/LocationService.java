@@ -26,8 +26,8 @@ public class LocationService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener{
 
-    private static final long INTERVAL = 1;
-    private static final long FASTEST_INTERVAL =1;
+    private static final long INTERVAL = 1000* 2;
+    private static final long FASTEST_INTERVAL = 1000 *1;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
     Location mCurrentLocation,lStart,lEnd;
