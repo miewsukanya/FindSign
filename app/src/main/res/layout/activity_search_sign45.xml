@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_map_search"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="miewsukanya.com.findsign.MapSearch"
-    android:paddingLeft="10dp"
-    android:paddingRight="10dp"
-    android:paddingTop="10dp">
-
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:orientation="vertical"
@@ -123,13 +116,5 @@
                 android:layout_marginLeft="40dp" />
         </LinearLayout>
 
-        <Button
-            android:text="ย้อนกลับ"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/btn_return"
-            android:onClick="returnOnclick" />
-
     </LinearLayout>
-
 </RelativeLayout>

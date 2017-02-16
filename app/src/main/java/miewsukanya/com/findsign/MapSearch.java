@@ -70,8 +70,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     private LocationListener locationListener;
     GoogleMap mGoogleMap;
     EditText edt_distance;
-   Button btn_getLatLng;
-    TextView txtView_gpsLat,txtView_gpsLng,txtView_mapLat, txtView_mapLng,txt_Distance,txt_space,txtDistance;
+    Button btn_getLatLng,btn_return;
+    TextView txtView_gpsLat,txtView_gpsLng,txtView_mapLat, txtView_mapLng,txt_Distance,txt_space,txtDistance,txt_speed;
     //GoogleApiClient mGoogleClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +102,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         btn_getLatLng = (Button) findViewById(R.id.btn_getLatLng);
         txt_Distance = (TextView) findViewById(R.id.txt_distance);
         txtDistance = (TextView) findViewById(R.id.txtDistance);
+        txt_speed = (TextView) findViewById(R.id.txt_speed);
+        btn_return = (Button) findViewById(R.id.btn_return);
         speed=(TextView)findViewById(R.id.txt_speed);
 
         //get lat lng location device
@@ -133,6 +135,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 CalculateDistance calculatedistance = new CalculateDistance(MapSearch.this);
                 calculatedistance.execute();
 
+                //double speed = location.getSpeed() * 18 / 5;
+                //txt_speed.setText(speed+"");
+
             }//on locationChanged
 
             @Override
@@ -153,6 +158,19 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
         };
 
+        //Get gps from device
+        gps = new GPSTracker(MapSearch.this);
+
+        if(gps.canGetLocation()){
+
+            double latitude = gps.getLatitude();
+            double longitude = gps.getLongitude();
+
+            Log.d("16FebV1", "Marker" + "Lat:" + latitude + "Lng:" + longitude);
+
+        }else{
+            // txtLocation.setText("อุปกรณ์์ของคุณ ปิด GPS");
+        }
         //call permission
         requestPermissions(perms, 1);
         //update location in 0 minute distance 1 meter
@@ -164,7 +182,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
-       //* checkGps();
+        checkGps();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
@@ -177,6 +195,14 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         locate.setCancelable(false);
         locate.setMessage("Getting Location...");
         locate.show();//*/
+
+        btn_return.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MapSearch.this, SearchSign.class);
+                startActivity(i);
+            }
+        });
     }//Main method
 
     private void configureButton() {
@@ -335,9 +361,19 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                         // txt_Distance.setText((int) valueResult);
 
                     }//if check distance
-                    //ถ้าไม่มีป้ายบริเวณที่ค้นหา ก้จะไม่แสดง Marker
                     mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng),15);
+
+                    //set marker from gps device 16/02/17
+                    MarkerOptions options = new MarkerOptions()
+                            .position(new LatLng(gps.getLatitude(), gps.getLongitude()));
+                    marker = mGoogleMap.addMarker(options);
+                    LatLng coordinate = new LatLng (gps.getLatitude(),gps.getLongitude());
+                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
+                    goToLocationZoom(gps.getLatitude(),gps.getLongitude(),15);
+                    Log.d("16FebV2", "Marker" + "Lat:" + gps.getLatitude() + "Lng:" + gps.getLongitude());
+                    //ปักหมุดในครั้งแรกที่เปิดหน้าแมพ แล้วลบหมุดออกถ้าแลตลองเปลี่ยน
+                    marker.remove();
                 }// for
 
             } catch (Exception e) {
@@ -375,6 +411,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
             Log.d("26novV1", "Json ==>" + s);
             try {
+
                 JSONArray jsonArray = new JSONArray(s);
 
                 for (int i = 0; i < jsonArray.length(); i += 1) {
@@ -419,28 +456,66 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     int seekBar; //ค่ารัศมีที่รับมาจากค่า seekBar
                     seekBar = Integer.parseInt(txtDistance.getText().toString());
 
+
                     if (meterInDec <= seekBar) {
 
                         if (strSignName.equals("Sign45")) {
                             txt_Distance.setText(meterInDec+"");
-                        } else if (strSignName.equals("Sign60")) {
-                            txt_Distance.setText(meterInDec + "");
-                        } else {
-                            txt_Distance.setText(meterInDec+"");
-                        }
 
+                        } else if (strSignName.equals("Sign60") ) {
+                           txt_Distance.setText(meterInDec+"");
+
+                       }else  txt_Distance.setText(meterInDec+"");
+                    }
+                    /*//int num[] = {jsonArray.length()};
+                    //int temp = 0;
+                    if (meterInDec <= seekBar) {
+                        for (i=0;i<jsonArray.length();i++) {
+
+                            if (num[i] > num[i + 1]) {
+                                meterInDec = num[i + 1];
+                                num[i + 1] = num[i];
+                                num[i] = meterInDec;
+                                //ถ้าค่ารัศมีเท่ากับค่ารัศมีที่คำนวณจากดาต้าเบสเท่ากันหรือน้อยกว่า ก็จะวนลูปปักหมุด
+
+                                if (strSignName.equals("Sign45") ) {
+                                    txt_Distance.setText(meterInDec+"");
+
+                                } else if (strSignName.equals("Sign60")) {
+                                    txt_Distance.setText(meterInDec+"");
+
+                                }else  txt_Distance.setText(meterInDec+"");
+
+                                Log.d("15FebV2", "Distance:" + meterInDec);
+                            }
+                            Log.d("04FebV2", "" + valueResult + "   KM  " + kmInDec
+                                    + " Meter   " + meterInDec +":"+seekBar+":"+strSignID);
+
+                            Log.d("12FebV1", "Lat:" + lat1 + "" + "Lng:" + lng1);
+                        }//for
+                    }//if*/
+                    /*int num[] = {meterInDec};
+                    int temp=0;
+                    if (meterInDec <= seekBar) {
+                        for (i = 0; i<=jsonArray.length()-1; i++) {
+                            if (num[i] > num[i + 1]) {
+                                temp = num[i + 1];
+                                num[i + 1] = num[i];
+                                num[i] = temp;
+                            }
+                        }
                         Log.d("04FebV2", "" + valueResult + "   KM  " + kmInDec
                                 + " Meter   " + meterInDec +":"+seekBar+":"+strSignID);
 
                         Log.d("12FebV1", "Lat:" + lat1 + "" + "Lng:" + lng1);
 
                         //ถ้าค่ารัศมีเท่ากับค่ารัศมีที่คำนวณจากดาต้าเบสเท่ากันหรือน้อยกว่า ก็จะวนลูปปักหมุด
-                        txt_Distance.setText(meterInDec);
-
+                        txt_Distance.setText(temp);
                         Log.d("15FebV2", "Distance:" + meterInDec);
-                    }
-                }// for
+                    }*/
 
+
+                }// for
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -615,13 +690,5 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         AlertDialog alert = alertDialogBuilder.create();
         alert.show();
     }//showGPSDisabledAlertToUser
-    public void returnOnclick() {
-        //  if(status==true)
-        //      unbindService();
-        //  p=0;
-        // startActivity(new Intent(MapSearch.this,SearchSign.class));
-        Intent i = new Intent(MapSearch.this, SearchSign.class);
-        startActivity(i);
 
-    }//returnOnclick
 }//Main Class

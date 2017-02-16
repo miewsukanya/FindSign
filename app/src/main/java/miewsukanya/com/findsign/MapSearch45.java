@@ -1,11 +1,31 @@
 package miewsukanya.com.findsign;
 
+import android.Manifest;
 import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -16,7 +36,10 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -24,9 +47,33 @@ import com.squareup.okhttp.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
+
+import static miewsukanya.com.findsign.R.id.btn_return;
+
 public class MapSearch45 extends AppCompatActivity implements OnMapReadyCallback {
+
+
+    //about calculate speed
+    static ProgressDialog locate;
+    static int p=0;
+    static long endTime;
+    static long startTime;
+    static TextView speed;
+    LocationService myService;
+    static boolean status;
+    private static final int MY_PERMISSION_REQUEST = 5;
     //Explicit
+    private String[] perms = {"android.permission.ACCESS_COARSE_LOCATION",
+            "android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.INTERNET"};
+    GPSTracker gps;
+    private LocationManager locationManager;
+    private LocationListener locationListener;
     GoogleMap mGoogleMap;
+    EditText edt_distance;
+    Button btn_getLatLng,btn_return;
+    TextView txtView_gpsLat,txtView_gpsLng,txtView_mapLat, txtView_mapLng,txt_Distance,txt_space,txtDistance,txt_speed;
     //GoogleApiClient mGoogleClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +86,170 @@ public class MapSearch45 extends AppCompatActivity implements OnMapReadyCallback
             getMap.execute();
             initMap();
 
+
         } else {
             //No google map layout
         }
-    }//Main Method
 
+        //get distant from SearchSign 03/02/2017
+        TextView textView = (TextView) findViewById(R.id.txtDistance);
+        Intent intent = getIntent();
+        String distance = intent.getStringExtra("distant");
+        textView.setText(distance);
+        textView.setTextSize(20);
+        Log.d("03FebV2", "distance from SearchSign :" + distance);
+
+        txtView_gpsLat = (TextView) findViewById(R.id.txtView_gpsLat);
+        txtView_gpsLng = (TextView) findViewById(R.id.txtView_gpsLng);
+        btn_getLatLng = (Button) findViewById(R.id.btn_getLatLng);
+        txt_Distance = (TextView) findViewById(R.id.txt_distance);
+        txtDistance = (TextView) findViewById(R.id.txtDistance);
+        txt_speed = (TextView) findViewById(R.id.txt_speed);
+        speed=(TextView)findViewById(R.id.txt_speed);
+        btn_return = (Button) findViewById(R.id.btn_return);
+        //get lat lng location device
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+
+                //set marker when lat && lng changed
+                txtView_gpsLat.setText(location.getLatitude()+"");
+                txtView_gpsLng.setText(location.getLongitude()+"");
+                Log.d("Location", "Lat:" + location.getLatitude() + "Lng:" + location.getLongitude());
+
+                double lat = location.getLatitude();
+                double lng = location.getLongitude();
+
+                //ปักหมุดพิกัดของเครื่อง
+                //ถ้ามีการปักหมุดอยู่แล้ว จะลบหมุดอันเดิมออกจากแผนที่
+                if (marker != null && circle != null) {
+                    marker.remove();
+                    circle.remove();
+                }
+                MarkerOptions options = new MarkerOptions()
+                        .position(new LatLng(lat,lng));
+                marker = mGoogleMap.addMarker(options);
+                //add circle in marker
+                circle = drawCircle(new LatLng(lat, lng));
+
+                CalculateDistance calculatedistance = new CalculateDistance(MapSearch45.this);
+                calculatedistance.execute();
+
+                //double speed = location.getSpeed() * 18 / 5;
+                //txt_speed.setText(speed+"");
+
+            }//on locationChanged
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(intent);
+            }
+
+        };
+
+        //Get gps from device
+        gps = new GPSTracker(MapSearch45.this);
+
+        if(gps.canGetLocation()){
+
+            double latitude = gps.getLatitude();
+            double longitude = gps.getLongitude();
+
+            Log.d("16FebV1", "Marker" + "Lat:" + latitude + "Lng:" + longitude);
+
+        }else{
+            // txtLocation.setText("อุปกรณ์์ของคุณ ปิด GPS");
+        }
+        //call permission
+        requestPermissions(perms, 1);
+        //update location in 0 minute distance 1 meter
+        //*calculate speed
+        btn_getLatLng.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 1, locationListener);
+            }
+        });
+
+        checkGps();
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if(status==false)
+            bindService();
+        locate=new ProgressDialog(MapSearch45.this);
+        locate.setIndeterminate(true);
+        locate.setCancelable(false);
+        locate.setMessage("Getting Location...");
+        locate.show();//*/
+
+        btn_return.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MapSearch45.this, SearchSign.class);
+                startActivity(i);
+            }
+        });
+    }//Main method
+
+    private void configureButton() {
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 1, locationListener);
+    }
+
+    private boolean shouldAskPermission(){
+        return(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 1 :
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    //case เกี่ยวกับอัพเดท latitude and longitude
+                    configureButton();
+
+                } else {
+
+                }
+                break;
+            default:
+                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+            case MY_PERMISSION_REQUEST:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+                    //  readLocation();
+                    //case เกี่ยวกับ อัพเดท Location calculate speed
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION) &&
+                            ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)) {
+                        new android.app.AlertDialog.Builder(this)
+                                .setTitle("check Location")
+                                .setMessage("you need to grant location");
+                    } else {
+
+                    }
+                }
+        }
+    }//onRequestPermissionsResult
+
+    Marker marker;
+    Circle circle;
+    //Search Map All
     private class GetMap extends AsyncTask<Void, Void, String> {
         //Explicit
         private Context context;
@@ -83,21 +289,164 @@ public class MapSearch45 extends AppCompatActivity implements OnMapReadyCallback
                     String strSignName = jsonObject.getString("SignName");
                     String strLat = jsonObject.getString("Latitude");
                     String strLng = jsonObject.getString("Longitude");
-                    //String strIcon = jsonObject.getString("IConID");
 
 
-                    //Create Marker Shop
-                    mGoogleMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
-                            .title(strSignName)
-                            .snippet(strSignID))
-                            .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign45_ss));
+                    gps = new GPSTracker(MapSearch45.this);
+                    gps.canGetLocation();
+                    double latitude = gps.getLatitude();
+                    double longitude = gps.getLongitude();
+                    Log.d("01FebV1", "Marker" + "Lat:" + latitude + "Lng:" + longitude);
 
+                    int Radius = 6371; // radius of earth in Km
+                    double lat2, lng2;
+                    double lat1 = latitude; //start Lat พิกัดจาก gps มือถือ
+                    double lng1 = longitude; //start Lng พิกัดจาก gps มือถือ
+
+                    lat2 = Double.parseDouble(strLat); //end Lat พิกัดที่ดึงจากดาต้าเบส แปลงสตริงให้เป็น double
+                    lng2 = Double.parseDouble(strLng); //eng Lng พิกัดที่ดึงจากดาต้าเบส แปลงสตริงให้เป็น double
+
+                    //สูตรคำนวณระยะห่างระหว่างพิกัดมือถือกับพิกัดป้ายจากดาต้าเบส
+                    double dLat = Math.toRadians(lat2 - lat1);
+                    double dLon = Math.toRadians(lng2 - lng1);
+                    double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                            + Math.cos(Math.toRadians(lat1))
+                            * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
+                            * Math.sin(dLon / 2);
+                    double c = 2 * Math.asin(Math.sqrt(a));
+                    double valueResult = Radius * c*1000;
+                    double km = valueResult / 1;
+                    DecimalFormat newFormat = new DecimalFormat("####");
+                    int kmInDec = Integer.valueOf(newFormat.format(km));
+                    double meter = valueResult % 1000;
+                    int meterInDec = Integer.valueOf(newFormat.format(meter));
+
+                    int seekBar; //ค่ารัศมีที่รับมาจากค่า seekBar
+                    seekBar = Integer.parseInt(txtDistance.getText().toString());
+
+                    Log.d("04FebV2", "" + valueResult + "   KM  " + kmInDec
+                            + " Meter   " + meterInDec +":"+seekBar);
+
+                    Log.d("12FebV1", "Lat:" + lat1 + "" + "Lng:" + lng1);
+
+                    //ถ้าค่ารัศมีเท่ากับค่ารัศมีที่คำนวณจากดาต้าเบสเท่ากันหรือน้อยกว่า ก็จะวนลูปปักหมุด
+                    if (meterInDec <= seekBar) {
+                        //Create Marker Sign
+
+                            mGoogleMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
+                                    //.title(strSignName)
+                                    .snippet(String.valueOf(meterInDec)))
+                                    .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign45_ss));
+
+                        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                        LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
+                        goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));
+
+                    }//if check distance
                     mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                    LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
+                    goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng),15);
+
+                    //set marker from gps device 16/02/17
+                    MarkerOptions options = new MarkerOptions()
+                            .position(new LatLng(gps.getLatitude(), gps.getLongitude()));
+                    marker = mGoogleMap.addMarker(options);
+                    LatLng coordinate = new LatLng (gps.getLatitude(),gps.getLongitude());
                     mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
-                    goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));
-                    //  Log.d("Data", strIcon);
+                    goToLocationZoom(gps.getLatitude(),gps.getLongitude(),15);
+                    Log.d("16FebV2", "Marker" + "Lat:" + gps.getLatitude() + "Lng:" + gps.getLongitude());
+                    //ปักหมุดในครั้งแรกที่เปิดหน้าแมพ แล้วลบหมุดออกถ้าแลตลองเปลี่ยน
+                    marker.remove();
+                }// for
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }//onPost
+    }//SnyUser
+
+    private class CalculateDistance extends AsyncTask<Void, Void, String> {
+        //Explicit
+        private Context context;
+        private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getsign45.php";
+
+        public CalculateDistance (Context context) {
+            this.context = context;
+        }
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request.Builder builder = new Request.Builder();
+                Request request = builder.url(urlJSON).build();
+                com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
+                return response.body().string();
+
+            } catch (Exception e) {
+                Log.d("26novV1", "e doIn==>" + e.toString());
+                return null;
+            }
+            //return null;
+        }//doInBack
+
+        @Override
+        protected void onPostExecute(String s) {
+
+            Log.d("26novV1", "Json ==>" + s);
+            try {
+
+                JSONArray jsonArray = new JSONArray(s);
+
+                for (int i = 0; i < jsonArray.length(); i += 1) {
+                    //Get Json from Database
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                    String strSignID = jsonObject.getString("SignID");
+                    String strSignName = jsonObject.getString("SignName");
+                    String strLat = jsonObject.getString("Latitude");
+                    String strLng = jsonObject.getString("Longitude");
+
+
+                    gps = new GPSTracker(MapSearch45.this);
+                    gps.canGetLocation();
+                    double latitude = gps.getLatitude();
+                    double longitude = gps.getLongitude();
+                    Log.d("01FebV1", "Marker" + "Lat:" + latitude + "Lng:" + longitude);
+
+                    int Radius = 6371; // radius of earth in Km
+                    double lat2, lng2;
+                    double lat1 = latitude; //start Lat พิกัดจาก gps มือถือ
+                    double lng1 = longitude; //start Lng พิกัดจาก gps มือถือ
+
+                    lat2 = Double.parseDouble(strLat); //end Lat พิกัดที่ดึงจากดาต้าเบส แปลงสตริงให้เป็น double
+                    lng2 = Double.parseDouble(strLng); //eng Lng พิกัดที่ดึงจากดาต้าเบส แปลงสตริงให้เป็น double
+
+                    //สูตรคำนวณระยะห่างระหว่างพิกัดมือถือกับพิกัดป้ายจากดาต้าเบส
+                    double dLat = Math.toRadians(lat2 - lat1);
+                    double dLon = Math.toRadians(lng2 - lng1);
+                    double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                            + Math.cos(Math.toRadians(lat1))
+                            * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
+                            * Math.sin(dLon / 2);
+                    double c = 2 * Math.asin(Math.sqrt(a));
+                    double valueResult = Radius * c*1000;
+                    double km = valueResult / 1;
+                    DecimalFormat newFormat = new DecimalFormat("####");
+                    int kmInDec = Integer.valueOf(newFormat.format(km));
+                    double meter = valueResult % 1000;
+                    int meterInDec = Integer.valueOf(newFormat.format(meter));
+
+                    int seekBar; //ค่ารัศมีที่รับมาจากค่า seekBar
+                    seekBar = Integer.parseInt(txtDistance.getText().toString());
+
+
+                    if (meterInDec <= seekBar) {
+
+                        if (strSignName.equals("Sign45")) {
+                            txt_Distance.setText(meterInDec+"");
+                        }
+                    }//if
+
                 }// for
             } catch (Exception e) {
                 e.printStackTrace();
@@ -105,10 +454,18 @@ public class MapSearch45 extends AppCompatActivity implements OnMapReadyCallback
         }//onPost
     }//SnyUser
 
+
     //ZoomMap
     private void goToLocationZoom(double v, double v1) {
         LatLng latlng = new LatLng(v, v1);
         CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latlng,15);
+        mGoogleMap.moveCamera(update);
+    }//goToLocationZoom
+
+    //class zoom map
+    private void goToLocationZoom(double lat, double lng, float zoom) {
+        LatLng latlng = new LatLng(lat, lng);
+        CameraUpdate update = CameraUpdateFactory.newLatLngZoom(latlng, zoom);
         mGoogleMap.moveCamera(update);
     }//goToLocationZoom
 
@@ -132,16 +489,147 @@ public class MapSearch45 extends AppCompatActivity implements OnMapReadyCallback
         return false;
     }//googleServicesAvailable
 
+
+    private Circle drawCircle(LatLng latLng) {
+        CircleOptions circleOptions = new CircleOptions()
+                .center(latLng)
+                .radius(100)
+                .fillColor(0x6633b5e5)
+                .strokeColor(Color.BLUE)
+                .strokeWidth(1);
+        return mGoogleMap.addCircle(circleOptions);
+    }//drawCircle
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        /*LatLng comsci = new LatLng(16.4795142,102.809175);
-        mGoogleMap.addMarker(new MarkerOptions()
-                .position(comsci)
-                .title("comsci"));
-        //  แพนเลื่อนแผนที่ไปพิกัดที่ระบุ
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(comsci));
-        goToLocationZoom(16.4795142, 102.809175, 15);*/
+
+/*
+        mGoogleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+            @Override
+            public View getInfoWindow(Marker marker) {
+                return null;
+            }
+            @Override
+            public View getInfoContents(Marker marker) {
+                //blind widget
+                //final EditText lat = (EditText) findViewById(R.id.edt_lat);
+                //final EditText lng = (EditText) findViewById(R.id.edt_lng);
+                //final EditText signName = (EditText) findViewById(R.id.edtSignName);
+
+                View v = getLayoutInflater().inflate(R.layout.info_window,null);
+                TextView tvLocality = (TextView) v.findViewById(R.id.tv_locality);
+                TextView tvLat = (TextView) v.findViewById(R.id.tv_lat);
+                TextView tvLng = (TextView) v.findViewById(R.id.tv_lng);
+                // TextView tvSnippet = (TextView) v.findViewById(R.id.tv_snippet);
+
+               // LatLng latLng = marker.getPosition();
+               // tvLocality.setText(marker.getTitle());
+               // tvLat.setText("Latitude: "+latLng.latitude);
+              //  tvLng.setText("Longitude: "+latLng.longitude);
+                //  tvSnippet.setText(marker.getSnippet());
+                txt_Distance.setText(marker.getSnippet());
+
+                //show lat long in edit text
+                // lat.setText(latLng.latitude+"");
+                // lng.setText(latLng.longitude+"");
+                return v;
+            }
+        });*/
     }//onMapReady
+
+    //Calculate Speed
+    void checkGps()
+    {
+        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+
+        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
+
+            showGPSDisabledAlertToUser();
+        }
+    }//void checkGps
+    void bindService()
+    {
+        if(status==true)
+            return;
+        Intent i=new Intent(getApplicationContext(),LocationService.class);
+        bindService(i, sc, BIND_AUTO_CREATE);
+        status=true;
+        startTime=System.currentTimeMillis();
+    }//bindService
+    void unbindService()
+    {
+        if(status==false)
+            return;
+        Intent i=new Intent(getApplicationContext(),LocationService.class);
+        unbindService(sc);
+        status=false;
+    }//unbindService
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }//onResume
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(status==true)
+            unbindService();
+    }//onDestroy
+    @Override
+    public void onBackPressed() {
+        if(status==false)
+            super.onBackPressed();
+        else
+            moveTaskToBack(true);
+    }//onBackPressed
+    private ServiceConnection sc=new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            LocationService.LocalBinder binder=(LocationService.LocalBinder)service;
+            myService=binder.getService();
+            status=true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            status=false;
+        }
+    };//ServiceConnection
+    private void showGPSDisabledAlertToUser(){
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+        alertDialogBuilder.setMessage("Enable GPS to use application")
+                .setCancelable(false)
+                .setPositiveButton("Enable GPS",
+                        new DialogInterface.OnClickListener(){
+                            public void onClick(DialogInterface dialog, int id){
+                                Intent callGPSSettingIntent = new Intent(
+                                        android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                startActivity(callGPSSettingIntent);
+                            }
+                        });
+        alertDialogBuilder.setNegativeButton("Cancel",
+                new DialogInterface.OnClickListener(){
+                    public void onClick(DialogInterface dialog, int id){
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog alert = alertDialogBuilder.create();
+        alert.show();
+    }//showGPSDisabledAlertToUser
+
+    public void returnOnclick() {
+        //  if(status==true)
+        //      unbindService();
+        //  p=0;
+        // startActivity(new Intent(MapSearch.this,SearchSign.class));
+        Intent i = new Intent(MapSearch45.this, SearchSign.class);
+        startActivity(i);
+
+    }//returnOnclick
 }//Main Class

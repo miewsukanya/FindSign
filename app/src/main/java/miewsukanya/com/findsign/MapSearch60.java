@@ -2,10 +2,13 @@ package miewsukanya.com.findsign;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -27,6 +30,7 @@ import org.json.JSONObject;
 public class MapSearch60 extends AppCompatActivity implements OnMapReadyCallback {
     //Explicit
     GoogleMap mGoogleMap;
+    Button btn_return;
     //GoogleApiClient mGoogleClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,15 @@ public class MapSearch60 extends AppCompatActivity implements OnMapReadyCallback
         } else {
             //No google map layout
         }
+
+        btn_return = (Button) findViewById(R.id.btn_return);
+        btn_return.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(MapSearch60.this, SearchSign.class);
+                startActivity(i);
+            }
+        });
     }//Main Method
 
     private class GetMap extends AsyncTask<Void, Void, String> {
