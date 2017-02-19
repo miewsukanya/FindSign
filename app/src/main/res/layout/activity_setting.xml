@@ -43,7 +43,7 @@
                     android:layout_height="wrap_content" >
 
                     <RadioButton
-                        android:text="แจ้งเตือนป้าย 45 ขึ้นไป"
+                        android:text="แจ้งเตือนก่อน 300 เมตร"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/radioButton"
@@ -53,7 +53,7 @@
                         android:padding="10dp" />
 
                     <RadioButton
-                        android:text="แจ้งเตือนป้าย 60 ขึ้นไป"
+                        android:text="แจ้งเตือนก่อน 400 เมตร"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/radioButton2"
@@ -62,7 +62,7 @@
                         android:padding="10dp" />
 
                     <RadioButton
-                        android:text="แจ้งเตือนป้าย 80 "
+                        android:text="แจ้งเตือนก่อน 500 เมตร"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:id="@+id/radioButton3"

@@ -47,7 +47,7 @@
             android:textColor="@color/Acolor" />
 
         <TextView
-            android:text="ม."
+            android:text="กม."
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/textView3"

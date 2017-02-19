@@ -30,6 +30,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.location.internal.LocationRequestUpdateData;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -47,7 +48,14 @@ import com.squareup.okhttp.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
+import java.util.Arrays;
+
+import static android.R.attr.focusable;
+import static android.R.attr.max;
+import static android.os.Build.ID;
+import static miewsukanya.com.findsign.LocationService.distance;
 
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -104,7 +112,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         txtDistance = (TextView) findViewById(R.id.txtDistance);
         txt_speed = (TextView) findViewById(R.id.txt_speed);
         btn_return = (Button) findViewById(R.id.btn_return);
-        speed=(TextView)findViewById(R.id.txt_speed);
+      // speed=(TextView)findViewById(R.id.txt_speed);
 
         //get lat lng location device
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -135,8 +143,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 CalculateDistance calculatedistance = new CalculateDistance(MapSearch.this);
                 calculatedistance.execute();
 
-                //double speed = location.getSpeed() * 18 / 5;
-                //txt_speed.setText(speed+"");
+                double speed = location.getSpeed() * 18 / 5;
+                txt_speed.setText(speed+"");
 
             }//on locationChanged
 
@@ -152,7 +160,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
             @Override
             public void onProviderDisabled(String provider) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+               Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(intent);
             }
 
@@ -182,7 +190,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
-        checkGps();
+       /* checkGps();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
@@ -194,11 +202,15 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         locate.setIndeterminate(true);
         locate.setCancelable(false);
         locate.setMessage("Getting Location...");
-        locate.show();//*/
+        locate.show();
+        locate.dismiss();//*/
 
         btn_return.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                 if(status==true)
+                    unbindService();
+                 p=0;
                 Intent i = new Intent(MapSearch.this, SearchSign.class);
                 startActivity(i);
             }
@@ -318,37 +330,39 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     int kmInDec = Integer.valueOf(newFormat.format(km));
                     double meter = valueResult % 1000;
                     int meterInDec = Integer.valueOf(newFormat.format(meter));
-
+                    //convert meter to km
+                    double meterInKm = meter / 1000;
+                    int mKm = Integer.valueOf(newFormat.format(meterInKm));
                     int seekBar; //ค่ารัศมีที่รับมาจากค่า seekBar
                     seekBar = Integer.parseInt(txtDistance.getText().toString());
 
                     Log.d("04FebV2", "" + valueResult + "   KM  " + kmInDec
-                            + " Meter   " + meterInDec +":"+seekBar);
+                            + " Meter   " + meterInDec +":"+mKm+":"+seekBar);
 
                     Log.d("12FebV1", "Lat:" + lat1 + "" + "Lng:" + lng1);
 
                     //ถ้าค่ารัศมีเท่ากับค่ารัศมีที่คำนวณจากดาต้าเบสเท่ากันหรือน้อยกว่า ก็จะวนลูปปักหมุด
-                    if (meterInDec <= seekBar) {
+                    if (mKm <= seekBar) {
                         //Create Marker Sign
                         if (strSignName.equals("Sign45") || strSignName.equals("sign45")) {
                             mGoogleMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
+                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
                                     //.title(strSignName)
-                                    .snippet(String.valueOf(meterInDec)))
+                                   // .snippet(String.valueOf(meterInKm)))
                                     .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign45_ss));
 
                         } else if (strSignName.equals("Sign60") || strSignName.equals("sign60")) {
                             mGoogleMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
-                                    .title(strSignName)
-                                    .snippet(String.valueOf(meterInDec)))
+                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
+                                    //.title(strSignName)
+                                    //.snippet(String.valueOf(meterInKm)))
                                     .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign60_ss));
 
                         } else {
                             mGoogleMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng)))
-                                    .title(strSignName)
-                                    .snippet(String.valueOf(meterInDec)))
+                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
+                                   // .title(strSignName)
+                                   // .snippet(String.valueOf(meterInKm)))
                                     .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign80_ss));
 
                         }
@@ -423,7 +437,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     String strLat = jsonObject.getString("Latitude");
                     String strLng = jsonObject.getString("Longitude");
 
-
                     gps = new GPSTracker(MapSearch.this);
                     gps.canGetLocation();
                     double latitude = gps.getLatitude();
@@ -450,71 +463,32 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     double km = valueResult / 1;
                     DecimalFormat newFormat = new DecimalFormat("####");
                     int kmInDec = Integer.valueOf(newFormat.format(km));
-                    double meter = valueResult % 1000;
+                    double meter = valueResult;
                     int meterInDec = Integer.valueOf(newFormat.format(meter));
 
+                    //convert meter to km
+                    int meterInKm = (int) (meter / 1000);
+                    int mKm = Integer.valueOf(newFormat.format(meterInKm));
                     int seekBar; //ค่ารัศมีที่รับมาจากค่า seekBar
                     seekBar = Integer.parseInt(txtDistance.getText().toString());
 
-
-                    if (meterInDec <= seekBar) {
-
-                        if (strSignName.equals("Sign45")) {
-                            txt_Distance.setText(meterInDec+"");
-
-                        } else if (strSignName.equals("Sign60") ) {
-                           txt_Distance.setText(meterInDec+"");
-
-                       }else  txt_Distance.setText(meterInDec+"");
-                    }
-                    /*//int num[] = {jsonArray.length()};
-                    //int temp = 0;
-                    if (meterInDec <= seekBar) {
-                        for (i=0;i<jsonArray.length();i++) {
-
-                            if (num[i] > num[i + 1]) {
-                                meterInDec = num[i + 1];
-                                num[i + 1] = num[i];
-                                num[i] = meterInDec;
-                                //ถ้าค่ารัศมีเท่ากับค่ารัศมีที่คำนวณจากดาต้าเบสเท่ากันหรือน้อยกว่า ก็จะวนลูปปักหมุด
-
-                                if (strSignName.equals("Sign45") ) {
-                                    txt_Distance.setText(meterInDec+"");
-
-                                } else if (strSignName.equals("Sign60")) {
-                                    txt_Distance.setText(meterInDec+"");
-
-                                }else  txt_Distance.setText(meterInDec+"");
-
-                                Log.d("15FebV2", "Distance:" + meterInDec);
-                            }
-                            Log.d("04FebV2", "" + valueResult + "   KM  " + kmInDec
-                                    + " Meter   " + meterInDec +":"+seekBar+":"+strSignID);
-
-                            Log.d("12FebV1", "Lat:" + lat1 + "" + "Lng:" + lng1);
-                        }//for
-                    }//if*/
-                    /*int num[] = {meterInDec};
-                    int temp=0;
-                    if (meterInDec <= seekBar) {
-                        for (i = 0; i<=jsonArray.length()-1; i++) {
-                            if (num[i] > num[i + 1]) {
-                                temp = num[i + 1];
-                                num[i + 1] = num[i];
-                                num[i] = temp;
+                    //เก็บค่า meterInDec เป็นอาเรย์
+                    int[] exIntArray = new int[jsonArray.length()] ;
+                    exIntArray[i] = meterInDec;
+                    int[] distance = new int[]{exIntArray[i]};
+                    Log.d("20FebV1", "arr:" + exIntArray[i]+"id:"+strSignID);
+                    //ถ้าค่ารัศมีเท่ากับค่ารัศมีที่คำนวณจากดาต้าเบสเท่ากันหรือน้อยกว่า ก็จะวนลูปเปรียบเทียบ
+                    if (exIntArray[i] <= seekBar) {
+                        //เปรียบเทียบหาค่าที่น้อยที่สุด
+                        int min = Integer.MAX_VALUE;
+                        for (int number : distance) {
+                            if (number < min) {
+                                min = number;
                             }
                         }
-                        Log.d("04FebV2", "" + valueResult + "   KM  " + kmInDec
-                                + " Meter   " + meterInDec +":"+seekBar+":"+strSignID);
-
-                        Log.d("12FebV1", "Lat:" + lat1 + "" + "Lng:" + lng1);
-
-                        //ถ้าค่ารัศมีเท่ากับค่ารัศมีที่คำนวณจากดาต้าเบสเท่ากันหรือน้อยกว่า ก็จะวนลูปปักหมุด
-                        txt_Distance.setText(temp);
-                        Log.d("15FebV2", "Distance:" + meterInDec);
-                    }*/
-
-
+                        txt_Distance.setText(min+"");
+                        Log.d("20FebV2", "arr:" + distance+"min:"+min+"ID:"+strSignID);
+                    }//if
                 }// for
             } catch (Exception e) {
                 e.printStackTrace();

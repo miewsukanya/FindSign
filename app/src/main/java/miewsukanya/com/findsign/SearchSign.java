@@ -15,8 +15,8 @@ public class SearchSign extends AppCompatActivity {
     private SeekBar seekBar;
     public TextView txtValueTextView;
     int seekBarValue;
-    int seekBarMax = 100;
-    int seekBarStart = 50;
+    int seekBarMax = 10000;
+    int seekBarStart = 5000;
     //CameraDevice cameraDevice;
 
     @Override
@@ -76,7 +76,14 @@ public class SearchSign extends AppCompatActivity {
         searchSign45ImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SearchSign.this,MapSearch45.class));
+                //send distance to MapSearch 03/02/2017
+                String distant = txtValueTextView.getText().toString();
+                Intent intent = new Intent(getApplicationContext(), MapSearch45.class);
+                intent.putExtra("distant", distant);
+                Log.d("Distant","Select distant :"+ distant);
+                //  intent.putExtra(MESSAGE_KEY, message);
+                startActivity(intent);
+                finish();
             }
         });
         //SearchSign60
