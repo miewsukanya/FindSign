@@ -92,6 +92,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             getMap.execute();
             initMap();
 
+            CalculateDistance calculatedistance = new CalculateDistance(MapSearch.this);
+            calculatedistance.execute();
 
         } else {
             //No google map layout
@@ -301,6 +303,11 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     String strLat = jsonObject.getString("Latitude");
                     String strLng = jsonObject.getString("Longitude");
 
+                   /* String[] latArr = new String[jsonArray.length()];
+                    latArr[i] = strLat;
+                    String[] lngArr = new String[jsonArray.length()];
+                    lngArr[i] = strLng;
+                    Log.d("20FebV5", "Marker" + "Lat:" + latArr[i] + "Lng:" + lngArr[i]);*/
 
                     gps = new GPSTracker(MapSearch.this);
                     gps.canGetLocation();
@@ -328,10 +335,10 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     double km = valueResult / 1;
                     DecimalFormat newFormat = new DecimalFormat("####");
                     int kmInDec = Integer.valueOf(newFormat.format(km));
-                    double meter = valueResult % 1000;
+                    double meter = valueResult;
                     int meterInDec = Integer.valueOf(newFormat.format(meter));
                     //convert meter to km
-                    double meterInKm = meter / 1000;
+                    double meterInKm = meterInDec / 1000;
                     int mKm = Integer.valueOf(newFormat.format(meterInKm));
                     int seekBar; //ค่ารัศมีที่รับมาจากค่า seekBar
                     seekBar = Integer.parseInt(txtDistance.getText().toString());
@@ -343,6 +350,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
                     //ถ้าค่ารัศมีเท่ากับค่ารัศมีที่คำนวณจากดาต้าเบสเท่ากันหรือน้อยกว่า ก็จะวนลูปปักหมุด
                     if (mKm <= seekBar) {
+
+                        Log.d("04FebV3", "" + valueResult + "   KM  " + kmInDec
+                                + " Meter   " + meterInDec +":"+mKm+":"+seekBar);
                         //Create Marker Sign
                         if (strSignName.equals("Sign45") || strSignName.equals("sign45")) {
                             mGoogleMap.addMarker(new MarkerOptions()
@@ -401,9 +411,10 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         private Context context;
         private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getlatlong.php";
 
-        public CalculateDistance (Context context) {
+        public CalculateDistance(Context context) {
             this.context = context;
         }
+
         @Override
         protected String doInBackground(Void... params) {
             try {
@@ -427,6 +438,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             try {
 
                 JSONArray jsonArray = new JSONArray(s);
+
+                double max = 0;
+                double min = 100;
 
                 for (int i = 0; i < jsonArray.length(); i += 1) {
                     //Get Json from Database
@@ -459,38 +473,41 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                             * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
                             * Math.sin(dLon / 2);
                     double c = 2 * Math.asin(Math.sqrt(a));
-                    double valueResult = Radius * c*1000;
+                    double valueResult = Radius * c * 1000;
                     double km = valueResult / 1;
                     DecimalFormat newFormat = new DecimalFormat("####");
                     int kmInDec = Integer.valueOf(newFormat.format(km));
-                    double meter = valueResult;
-                    int meterInDec = Integer.valueOf(newFormat.format(meter));
-
-                    //convert meter to km
-                    int meterInKm = (int) (meter / 1000);
-                    int mKm = Integer.valueOf(newFormat.format(meterInKm));
+                    double meter = valueResult / 1000;
+                    DecimalFormat newFormat2 = new DecimalFormat("#.##");
+                    double meterInKm = Double.valueOf(newFormat2.format(meter));
                     int seekBar; //ค่ารัศมีที่รับมาจากค่า seekBar
                     seekBar = Integer.parseInt(txtDistance.getText().toString());
 
+                    Log.d("20FebV3", "" + valueResult + "   KM  " + kmInDec
+                            + " Meter   " + meterInKm + ":" + seekBar);
+
+                    Log.d("12FebV1", "Lat:" + lat1 + "" + "Lng:" + lng1);
+
                     //เก็บค่า meterInDec เป็นอาเรย์
-                    int[] exIntArray = new int[jsonArray.length()] ;
-                    exIntArray[i] = meterInDec;
-                    int[] distance = new int[]{exIntArray[i]};
-                    Log.d("20FebV1", "arr:" + exIntArray[i]+"id:"+strSignID);
-                    //ถ้าค่ารัศมีเท่ากับค่ารัศมีที่คำนวณจากดาต้าเบสเท่ากันหรือน้อยกว่า ก็จะวนลูปเปรียบเทียบ
-                    if (exIntArray[i] <= seekBar) {
-                        //เปรียบเทียบหาค่าที่น้อยที่สุด
-                        int min = Integer.MAX_VALUE;
-                        for (int number : distance) {
-                            if (number < min) {
-                                min = number;
-                            }
-                        }
-                        txt_Distance.setText(min+"");
-                        Log.d("20FebV2", "arr:" + distance+"min:"+min+"ID:"+strSignID);
-                    }//if
-                }// for
-            } catch (Exception e) {
+                    double[] exIntArray = new double[jsonArray.length()];
+                    exIntArray[i] = meterInKm;
+                    double distance[] = {exIntArray[i]};
+                    //เปรียบเทียบค่าระยะห่างระหว่างป้ายกกับตัวผู้ใช้ แล้วแสดงให้ผู้ใช้เห็นว่าป้ายยที่ใกล้ที่ที่สุดห่างเท่าไหร่
+                    if (exIntArray[i] < seekBar) {
+                        if (exIntArray[i]>max)
+                            max = exIntArray[i];
+                        if (exIntArray[i]<min)
+                            min = exIntArray[i];
+
+                        Log.d("22FebV2", "distance:" + distance[0]+"id: "+strSignID);
+                    }
+                }//for
+                //แสดงค่าระยะห่างใน textView
+                txt_Distance.setText(min+"");
+                Log.d("22FebV1", "distance:" + min);
+
+            }
+            catch (Exception e) {
                 e.printStackTrace();
             }
         }//onPost
