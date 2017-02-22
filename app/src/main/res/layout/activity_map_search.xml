@@ -53,7 +53,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/txtDistance"
-            android:textColor="@color/Acolor" />
+             />
 
         <LinearLayout
             android:orientation="horizontal"
@@ -76,7 +76,7 @@
                 android:textColor="@android:color/black"/>
 
             <TextView
-                android:text="ม."
+                android:text="กม."
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/textView7"

@@ -40,37 +40,48 @@
 
                 <RadioGroup
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" >
+                    android:layout_height="wrap_content"
+                    android:id="@+id/RadGroupDistance">
 
                     <RadioButton
                         android:text="แจ้งเตือนก่อน 300 เมตร"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/radioButton"
+                        android:id="@+id/rad300"
                         android:textSize="20dp"
                         android:textColor="#ffffff"
                         android:layout_marginTop="5dp"
-                        android:padding="10dp" />
+                        android:padding="10dp"
+                        android:onClick="onDistance"/>
 
                     <RadioButton
                         android:text="แจ้งเตือนก่อน 400 เมตร"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/radioButton2"
+                        android:id="@+id/rad400"
                         android:textSize="20dp"
                         android:textColor="#ffffff"
-                        android:padding="10dp" />
+                        android:padding="10dp"
+                        android:onClick="onDistance"/>
 
                     <RadioButton
                         android:text="แจ้งเตือนก่อน 500 เมตร"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:id="@+id/radioButton3"
+                        android:id="@+id/rad500"
                         android:textSize="20dp"
                         android:textColor="#ffffff"
-                        android:padding="10dp" />
+                        android:padding="10dp"
+                        android:onClick="onDistance"/>
                 </RadioGroup>
+
             </LinearLayout>
+
+            <TextView
+                android:text="TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/txtDistanceSetting" />
 
         </LinearLayout>
 

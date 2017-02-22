@@ -114,7 +114,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         txtDistance = (TextView) findViewById(R.id.txtDistance);
         txt_speed = (TextView) findViewById(R.id.txt_speed);
         btn_return = (Button) findViewById(R.id.btn_return);
-      // speed=(TextView)findViewById(R.id.txt_speed);
+        speed=(TextView)findViewById(R.id.txt_speed);
 
         //get lat lng location device
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -145,8 +145,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 CalculateDistance calculatedistance = new CalculateDistance(MapSearch.this);
                 calculatedistance.execute();
 
-                double speed = location.getSpeed() * 18 / 5;
-                txt_speed.setText(speed+"");
+               // double speed = location.getSpeed() * 18 / 5;
+               // txt_speed.setText(speed+"");
 
             }//on locationChanged
 
@@ -192,7 +192,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
-       /* checkGps();
+       checkGps();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
@@ -205,14 +205,23 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         locate.setCancelable(false);
         locate.setMessage("Getting Location...");
         locate.show();
-        locate.dismiss();//*/
+        //locate.dismiss();//*/
 
         btn_return.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 if(status==true)
-                    unbindService();
-                 p=0;
+                 //if(status==true)
+                  //  unbindService();
+                // p=0;
+
+                checkGps();
+                locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                    //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+              //  pause.setText("Pause");
+                p = 0;
                 Intent i = new Intent(MapSearch.this, SearchSign.class);
                 startActivity(i);
             }
@@ -488,7 +497,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
                     Log.d("12FebV1", "Lat:" + lat1 + "" + "Lng:" + lng1);
 
-                    //เก็บค่า meterInDec เป็นอาเรย์
+                    //เก็บค่า meterInKm เป็นอาเรย์
                     double[] exIntArray = new double[jsonArray.length()];
                     exIntArray[i] = meterInKm;
                     double distance[] = {exIntArray[i]};

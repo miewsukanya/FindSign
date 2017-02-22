@@ -102,7 +102,7 @@ public class LocationService extends Service implements
         }
         else
             lEnd=mCurrentLocation;
-        //updateUI();
+        updateUI();
        // updateUI45();
         speed=location.getSpeed()*18/5;
     }
@@ -127,13 +127,18 @@ public class LocationService extends Service implements
             long diff=MapSearch.endTime-MapSearch.startTime;
             // diff= TimeUnit.MILLISECONDS.toMinutes(diff);
             // MainActivity.time.setText("Total Time: " + diff + " minutes");
-            if (speed > 0.0) {
-             MapSearch.speed.setText(new DecimalFormat("#.##").format(speed));
-            } else {
-            MapSearch.speed.setText("0");
-              lStart = lEnd;
-               // p = 0;
-            }
+           // try {
+                if (speed > 0.0) {
+                    MapSearch.speed.setText(new DecimalFormat("#.##").format(speed));
+                } else {
+                    MapSearch.speed.setText("0");
+                    lStart = lEnd;
+                    // p = 0;
+                }
+          //  } catch (Exception e) {
+
+          //  }
+
         }
     }//updateUI
 
