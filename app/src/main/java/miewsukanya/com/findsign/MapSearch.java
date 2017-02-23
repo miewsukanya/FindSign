@@ -53,9 +53,11 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 
 import static android.R.attr.focusable;
+import static android.R.attr.id;
 import static android.R.attr.max;
 import static android.os.Build.ID;
 import static miewsukanya.com.findsign.LocationService.distance;
+import static miewsukanya.com.findsign.R.id.txt_speed;
 
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -79,7 +81,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     GoogleMap mGoogleMap;
     EditText edt_distance;
     Button btn_getLatLng,btn_return;
-    TextView txtView_gpsLat,txtView_gpsLng,txtView_mapLat, txtView_mapLng,txt_Distance,txt_space,txtDistance,txt_speed;
+    TextView txtView_gpsLat,txtView_gpsLng,txtView_mapLat, txtView_mapLng,txt_Distance,txt_space,txtDistance,txt_speed,txtidMap,txtSetting;
     //GoogleApiClient mGoogleClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +109,22 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         textView.setTextSize(20);
         Log.d("03FebV2", "distance from SearchSign :" + distance);
 
+        //get distant from SearchSign 23/02/2017
+        TextView textView2 = (TextView) findViewById(R.id.txtIDMap);
+        intent = getIntent();
+        String idMap = intent.getStringExtra("idMap");
+        textView2.setText(idMap);
+        textView2.setTextSize(20);
+        Log.d("23FebV2", "idMap from SearchSign :" + idMap);
+
+        //get distant from SearchSign 23/02/2017
+        TextView textView3 = (TextView) findViewById(R.id.txtSetting);
+        intent = getIntent();
+        String idSetting = intent.getStringExtra("idSetting");
+        textView3.setText(idSetting);
+        textView3.setTextSize(20);
+        Log.d("23FebV3", "idMap from SearchSign :" + idSetting);
+
         txtView_gpsLat = (TextView) findViewById(R.id.txtView_gpsLat);
         txtView_gpsLng = (TextView) findViewById(R.id.txtView_gpsLng);
         btn_getLatLng = (Button) findViewById(R.id.btn_getLatLng);
@@ -115,6 +133,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         txt_speed = (TextView) findViewById(R.id.txt_speed);
         btn_return = (Button) findViewById(R.id.btn_return);
         speed=(TextView)findViewById(R.id.txt_speed);
+
+        txtidMap = (TextView) findViewById(R.id.txtIDMap);
+        txtSetting = (TextView) findViewById(R.id.txtSetting);
 
         //get lat lng location device
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -210,9 +231,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         btn_return.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 //if(status==true)
-                  //  unbindService();
-                // p=0;
+                 if(status==true)
+                   unbindService();
+                 p=0;
 
                 checkGps();
                 locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -227,6 +248,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
     }//Main method
+
 
     private void configureButton() {
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 1, locationListener);
@@ -340,41 +362,36 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                             * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
                             * Math.sin(dLon / 2);
                     double c = 2 * Math.asin(Math.sqrt(a));
-                    double valueResult = Radius * c*1000;
+                    double valueResult = Radius * c * 1000;
                     double km = valueResult / 1;
                     DecimalFormat newFormat = new DecimalFormat("####");
                     int kmInDec = Integer.valueOf(newFormat.format(km));
-                    double meter = valueResult;
-                    int meterInDec = Integer.valueOf(newFormat.format(meter));
-                    //convert meter to km
-                    double meterInKm = meterInDec / 1000;
-                    int mKm = Integer.valueOf(newFormat.format(meterInKm));
+                    double meter = valueResult / 1000;
+                    DecimalFormat newFormat2 = new DecimalFormat("#.##");
+                    double meterInKm = Double.valueOf(newFormat2.format(meter));
                     int seekBar; //ค่ารัศมีที่รับมาจากค่า seekBar
                     seekBar = Integer.parseInt(txtDistance.getText().toString());
 
+                    int idMap;
+                    idMap = Integer.parseInt(txtidMap.getText().toString());
+
                     Log.d("04FebV2", "" + valueResult + "   KM  " + kmInDec
-                            + " Meter   " + meterInDec +":"+mKm+":"+seekBar);
+                            + " Meter   " + meterInKm +":"+seekBar);
 
                     Log.d("12FebV1", "Lat:" + lat1 + "" + "Lng:" + lng1);
 
-                    //ถ้าค่ารัศมีเท่ากับค่ารัศมีที่คำนวณจากดาต้าเบสเท่ากันหรือน้อยกว่า ก็จะวนลูปปักหมุด
-                    if (mKm <= seekBar) {
+                    //ถ้าค่ารัศมีเท่ากับค่ารัศมีที่คำนวณจากดาต้าเบสเท่ากันหรือน้อยกว่า ก็จะวนลูปปักหมุด && Checked idMap
+                    if (meterInKm <= seekBar && idMap == 1) {
 
-                        Log.d("04FebV3", "" + valueResult + "   KM  " + kmInDec
-                                + " Meter   " + meterInDec +":"+mKm+":"+seekBar);
                         //Create Marker Sign
                         if (strSignName.equals("Sign45") || strSignName.equals("sign45")) {
                             mGoogleMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
-                                    //.title(strSignName)
-                                   // .snippet(String.valueOf(meterInKm)))
                                     .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign45_ss));
 
                         } else if (strSignName.equals("Sign60") || strSignName.equals("sign60")) {
                             mGoogleMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
-                                    //.title(strSignName)
-                                    //.snippet(String.valueOf(meterInKm)))
                                     .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign60_ss));
 
                         } else {
@@ -383,17 +400,41 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                                    // .title(strSignName)
                                    // .snippet(String.valueOf(meterInKm)))
                                     .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign80_ss));
-
                         }
-
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                         LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
                         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
                         goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));
 
-                        // txt_Distance.setText((int) valueResult);
+                    } else if (meterInKm <= seekBar &&  idMap == 2 && strSignName.equals("Sign45")) {
+                        mGoogleMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
+                                    .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign45_ss));
+                        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                        LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
+                        goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));
 
-                    }//if check distance
+                    } else if (meterInKm <= seekBar && idMap == 3 && strSignName.equals("Sign60")) {
+                        mGoogleMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
+                                    .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign60_ss));
+                        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                        LatLng coordinate = new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng));
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
+                        goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));
+
+                    } else if (meterInKm <= seekBar &&  idMap == 4 && strSignName.equals("Sign80")) {
+                        mGoogleMap.addMarker(new MarkerOptions()
+                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
+                                    .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign80_ss));
+                        mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                        LatLng coordinate = new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng));
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
+                        goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));
+                    }//if check distance && checked idMap
+
+                    Log.d("04FebV3", "" + meterInKm +":"+seekBar+":"+idMap+":"+strSignID+":"+strSignName);
                     mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                     goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng),15);
 
@@ -492,6 +533,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     int seekBar; //ค่ารัศมีที่รับมาจากค่า seekBar
                     seekBar = Integer.parseInt(txtDistance.getText().toString());
 
+                    int idMap;
+                    idMap = Integer.parseInt(txtidMap.getText().toString());
+
                     Log.d("20FebV3", "" + valueResult + "   KM  " + kmInDec
                             + " Meter   " + meterInKm + ":" + seekBar);
 
@@ -501,20 +545,40 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     double[] exIntArray = new double[jsonArray.length()];
                     exIntArray[i] = meterInKm;
                     double distance[] = {exIntArray[i]};
-                    //เปรียบเทียบค่าระยะห่างระหว่างป้ายกกับตัวผู้ใช้ แล้วแสดงให้ผู้ใช้เห็นว่าป้ายยที่ใกล้ที่ที่สุดห่างเท่าไหร่
-                    if (exIntArray[i] < seekBar) {
-                        if (exIntArray[i]>max)
-                            max = exIntArray[i];
+                    //เปรียบเทียบค่าระยะห่างระหว่างป้ายกกับตัวผู้ใช้ แล้วแสดงให้ผู้ใช้เห็นว่าป้ายยที่ใกล้ที่ที่สุดห่างเท่าไหร่   idMap 1 คือหาทุกป้าย ,2 หาแค่ป้าย45 , 3 หาแค่ป้าย60 ,4 หาแค่ป้าย80
+                    if (exIntArray[i] <= seekBar && idMap == 1) {
                         if (exIntArray[i]<min)
                             min = exIntArray[i];
+                        //แสดงค่าระยะห่างใน textView
+                        txt_Distance.setText(min+"");
+                        Log.d("23FebV2", "distance:" + distance[0]+"id: "+strSignID+"signName:"+strSignName);
 
-                        Log.d("22FebV2", "distance:" + distance[0]+"id: "+strSignID);
+                    } else if (exIntArray[i] <= seekBar && idMap == 2 && strSignName.equals("Sign45")) {
+                        if (exIntArray[i]<min)
+                            min = exIntArray[i];
+                        //แสดงค่าระยะห่างใน textView
+                        txt_Distance.setText(min+"");
+                        Log.d("23FebV3", "distance:" + distance[0]+"id: "+strSignID+"signName:"+strSignName);
+
+                    } else if (exIntArray[i] <= seekBar && idMap == 3 && strSignName.equals("Sign60")) {
+                        if (exIntArray[i] < min)
+                            min = exIntArray[i];
+                        //แสดงค่าระยะห่างใน textView
+                        txt_Distance.setText(min+"");
+                        Log.d("23FebV4", "distance:" + distance[0] + "id: " + strSignID+"signName:"+strSignName);
+
+                    } else if (exIntArray[i] <= seekBar && idMap == 4 && strSignName.equals("Sign80")) {
+                        // if (exIntArray[i] > max)
+                        //     max = exIntArray[i];
+                        if (exIntArray[i] < min)
+                            min = exIntArray[i];
+                        //แสดงค่าระยะห่างใน textView
+                        txt_Distance.setText(min+"");
+                        Log.d("23FebV5", "distance:" + distance[0] + "id: " + strSignID+"signName:"+strSignName);
                     }
                 }//for
-                //แสดงค่าระยะห่างใน textView
-                txt_Distance.setText(min+"");
-                Log.d("22FebV1", "distance:" + min);
 
+                Log.d("22FebV1", "distance:" + min);
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -581,9 +645,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             @Override
             public View getInfoContents(Marker marker) {
                 //blind widget
-                //final EditText lat = (EditText) findViewById(R.id.edt_lat);
-                //final EditText lng = (EditText) findViewById(R.id.edt_lng);
-                //final EditText signName = (EditText) findViewById(R.id.edtSignName);
+                final EditText lat = (EditText) findViewById(R.id.edt_lat);
+                final EditText lng = (EditText) findViewById(R.id.edt_lng);
+               final EditText signName = (EditText) findViewById(R.id.edtSignName);
 
                 View v = getLayoutInflater().inflate(R.layout.info_window,null);
                 TextView tvLocality = (TextView) v.findViewById(R.id.tv_locality);
@@ -591,16 +655,16 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 TextView tvLng = (TextView) v.findViewById(R.id.tv_lng);
                 // TextView tvSnippet = (TextView) v.findViewById(R.id.tv_snippet);
 
-               // LatLng latLng = marker.getPosition();
-               // tvLocality.setText(marker.getTitle());
-               // tvLat.setText("Latitude: "+latLng.latitude);
-              //  tvLng.setText("Longitude: "+latLng.longitude);
-                //  tvSnippet.setText(marker.getSnippet());
+                LatLng latLng = marker.getPosition();
+                tvLocality.setText(marker.getTitle());
+                tvLat.setText("Latitude: "+latLng.latitude);
+                tvLng.setText("Longitude: "+latLng.longitude);
+                tvSnippet.setText(marker.getSnippet());
                 txt_Distance.setText(marker.getSnippet());
 
                 //show lat long in edit text
-                // lat.setText(latLng.latitude+"");
-                // lng.setText(latLng.longitude+"");
+                lat.setText(latLng.latitude+"");
+                lng.setText(latLng.longitude+"");
                 return v;
             }
         });*/

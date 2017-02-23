@@ -61,27 +61,30 @@ public class SearchSign extends AppCompatActivity {
         searchSignAllImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //send distant to MapSearch 03/02/2017
+                //send distant to MapSearch 23/02/2017
                 String distant = txtValueTextView.getText().toString();
+                String idMap = "1";
                 Intent intent = new Intent(getApplicationContext(), MapSearch.class);
                 intent.putExtra("distant", distant);
+                intent.putExtra("idMap", idMap);
                 Log.d("Distant","Select distant :"+ distant);
-                //  intent.putExtra(MESSAGE_KEY, message);
+                Log.d("23FebV1","Select idMap :"+ idMap);
                 startActivity(intent);
                 finish();
-              //  startActivity(new Intent(SearchSign.this,MapSearch.class));
             }
         });
         //SearchSign45
         searchSign45ImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //send distance to MapSearch 03/02/2017
+                //send distant to MapSearch 23/02/2017
                 String distant = txtValueTextView.getText().toString();
-                Intent intent = new Intent(getApplicationContext(), MapSearch45.class);
+                String idMap = "2";
+                Intent intent = new Intent(getApplicationContext(), MapSearch.class);
                 intent.putExtra("distant", distant);
+                intent.putExtra("idMap", idMap);
                 Log.d("Distant","Select distant :"+ distant);
-                //  intent.putExtra(MESSAGE_KEY, message);
+                Log.d("23FebV1","Select idMap :"+ idMap);
                 startActivity(intent);
                 finish();
             }
@@ -90,14 +93,32 @@ public class SearchSign extends AppCompatActivity {
         searchSign60ImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SearchSign.this,MapSearch60.class));
+                //send distant to MapSearch 23/02/2017
+                String distant = txtValueTextView.getText().toString();
+                String idMap = "3";
+                Intent intent = new Intent(getApplicationContext(), MapSearch.class);
+                intent.putExtra("distant", distant);
+                intent.putExtra("idMap", idMap);
+                Log.d("Distant","Select distant :"+ distant);
+                Log.d("23FebV1","Select idMap :"+ idMap);
+                startActivity(intent);
+                finish();
             }
         });
         //SearchSign80
         searchSign80ImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(SearchSign.this,MapSearch80.class));
+                //send distant to MapSearch 23/02/2017
+                String distant = txtValueTextView.getText().toString();
+                String idMap = "4";
+                Intent intent = new Intent(getApplicationContext(), MapSearch.class);
+                intent.putExtra("distant", distant);
+                intent.putExtra("idMap", idMap);
+                Log.d("Distant","Select distant :"+ distant);
+                Log.d("23FebV1","Select idMap :"+ idMap);
+                startActivity(intent);
+                finish();
             }
         });
 

@@ -3,6 +3,10 @@ package miewsukanya.com.findsign;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -27,7 +31,11 @@ public class MainActivity extends AppCompatActivity {
         btn_setting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this,SettingActivity.class));
+
+                registerForContextMenu(v);
+                openContextMenu(v);
+                //startActivity(new Intent(MainActivity.this,SettingActivity.class));
+
             }
         });
 
@@ -56,5 +64,36 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
     }//Main Method
+
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu,v,menuInfo);
+
+        MenuInflater menuInflater = getMenuInflater();
+        menuInflater.inflate(R.menu.setting_menu,menu);
+
+    }//onCreateContextMenu
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.distance300sign45:
+                String idSetting = "1";
+                Intent intent = new Intent(getApplicationContext(), MapSearch.class);
+                intent.putExtra("idSetting", idSetting);
+                startActivity(intent);
+                finish();
+                Log.d("24FebV1","Select idSetting :"+ idSetting);
+
+            case R.id.distance400sign45:
+                idSetting = "2";
+                intent = new Intent(getApplicationContext(), MapSearch.class);
+                intent.putExtra("idSetting", idSetting);
+                Log.d("24FebV2","Select idSetting :"+ idSetting);
+
+        }
+        return super.onContextItemSelected(item);
+    }
 }//Main Class

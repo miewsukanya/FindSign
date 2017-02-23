@@ -77,9 +77,6 @@
 
         <activity android:name=".MapSearch" />
         <activity android:name=".SearchSignAR" />
-        <activity android:name=".MapSearch45" />
-        <activity android:name=".MapSearch60" />
-        <activity android:name=".MapSearch80" />
         <activity android:name=".SettingActivity"></activity>
     </application>
 

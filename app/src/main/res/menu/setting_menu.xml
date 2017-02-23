@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item android:id="@+id/distance300sign45" android:title="แจ้งเตือนป้าย45 ระยะ 300 ม." />
+        <item android:id="@+id/distance300sign60" android:title="แจ้งเตือนป้าย60 ระยะ 300 ม." />
+        <item android:id="@+id/distance300sign80" android:title="แจ้งเตือนป้าย80 ระยะ 300 ม." />
+
+        <item android:id="@+id/distance400sign45" android:title="แจ้งเตือนป้าย45 ระยะ 400 ม." />
+        <item android:id="@+id/distance400sign60" android:title="แจ้งเตือนป้าย60 ระยะ 400 ม." />
+        <item android:id="@+id/distance400sign80" android:title="แจ้งเตือนป้าย80 ระยะ 400 ม." />
+
+        <item android:id="@+id/distance500sign45" android:title="แจ้งเตือนป้าย45 ระยะ 500 ม." />
+        <item android:id="@+id/distance500sign60" android:title="แจ้งเตือนป้าย60 ระยะ 500 ม." />
+        <item android:id="@+id/distance500sign80" android:title="แจ้งเตือนป้าย80 ระยะ 500 ม." />
+    </group>
+</menu>

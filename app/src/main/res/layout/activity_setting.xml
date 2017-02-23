@@ -41,7 +41,8 @@
                 <RadioGroup
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/RadGroupDistance">
+                    android:id="@+id/RadGroupDistance"
+                    android:onClick="onDistance">
 
                     <RadioButton
                         android:text="แจ้งเตือนก่อน 300 เมตร"

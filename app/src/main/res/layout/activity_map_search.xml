@@ -26,6 +26,21 @@
             android:layout_centerHorizontal="false"
             android:layout_gravity="center_horizontal" />
 
+        <TextView
+            android:text="TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtIDMap"
+            android:layout_marginLeft="200dp"
+            android:textColor="@color/Acolor"/>
+
+        <TextView
+            android:text="TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtSetting"
+            android:layout_marginLeft="200dp" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -39,21 +54,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/txtView_gpsLat"
-            />
+            android:textColor="@color/Acolor"/>
 
         <TextView
             android:text="TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/txtView_gpsLng"
-            />
+            android:textColor="@color/Acolor"/>
 
         <TextView
             android:text="TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/txtDistance"
-             />
+            android:textColor="@color/Acolor" />
 
         <LinearLayout
             android:orientation="horizontal"
