@@ -34,6 +34,13 @@
             android:layout_height="@dimen/size_button3"
             android:layout_gravity="center" />
 
+        <TextView
+            android:text="TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtSetting"
+            android:layout_weight="1" />
+
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="wrap_content"
@@ -52,6 +59,7 @@
                 app:srcCompat="@drawable/btn_know"
                 android:id="@+id/Knowledge"
                 android:layout_marginLeft="25dp" />
+
         </LinearLayout>
     </LinearLayout>
 </RelativeLayout>
