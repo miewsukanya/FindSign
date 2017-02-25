@@ -19,27 +19,18 @@
 
         <fragment
             android:layout_width="match_parent"
-            android:layout_height="399dp"
+            android:layout_height="360dp"
             android:name="com.google.android.gms.maps.MapFragment"
             android:id="@+id/mapFragment"
             android:layout_alignParentBottom="false"
             android:layout_centerHorizontal="false"
             android:layout_gravity="center_horizontal" />
 
-        <TextView
-            android:text="TextView"
+        <Button
+            android:text="AR"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/txtIDMap"
-            android:layout_marginLeft="200dp"
-            android:textColor="@color/Acolor"/>
-
-        <TextView
-            android:text="TextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/txtSetting"
-            android:layout_marginLeft="200dp" />
+            android:id="@+id/btnAR" />
 
     </LinearLayout>
 
@@ -47,28 +38,7 @@
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="400dp">
-
-        <TextView
-            android:text="TextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/txtView_gpsLat"
-            android:textColor="@color/Acolor"/>
-
-        <TextView
-            android:text="TextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/txtView_gpsLng"
-            android:textColor="@color/Acolor"/>
-
-        <TextView
-            android:text="TextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/txtDistance"
-            android:textColor="@color/Acolor" />
+        android:layout_marginTop="410dp">
 
         <LinearLayout
             android:orientation="horizontal"
@@ -144,6 +114,60 @@
             android:layout_height="wrap_content"
             android:id="@+id/btn_return"
             android:onClick="returnOnclick" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="540dp">
+
+        <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtView_gpsLat"
+            android:textColor="@color/Acolor"
+            android:layout_marginLeft="5dp" />
+
+        <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtView_gpsLng"
+            android:textColor="@color/Acolor"
+            android:layout_marginLeft="5dp" />
+
+        <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtDistance"
+            android:textColor="@color/Acolor"
+            android:layout_marginLeft="5dp" />
+
+        <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtidSignSetting"
+            android:layout_marginLeft="5dp" />
+
+        <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtidDistSetting"
+            android:layout_marginLeft="5dp" />
+
+        <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtIDMap"
+            android:layout_marginLeft="10dp"
+            android:textColor="@android:color/black"
+             />
 
     </LinearLayout>
 

@@ -57,6 +57,10 @@ import static android.R.attr.id;
 import static android.R.attr.max;
 import static android.os.Build.ID;
 import static miewsukanya.com.findsign.LocationService.distance;
+import static miewsukanya.com.findsign.R.array.idDistance;
+import static miewsukanya.com.findsign.R.array.idSign;
+import static miewsukanya.com.findsign.R.id.seekBar;
+import static miewsukanya.com.findsign.R.id.textView;
 import static miewsukanya.com.findsign.R.id.txt_speed;
 
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
@@ -81,7 +85,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     GoogleMap mGoogleMap;
     EditText edt_distance;
     Button btn_getLatLng,btn_return;
-    TextView txtView_gpsLat,txtView_gpsLng,txtView_mapLat, txtView_mapLng,txt_Distance,txt_space,txtDistance,txt_speed,txtidMap,txtSetting;
+    TextView txtView_gpsLat,txtView_gpsLng,txt_Distance,txtDistance,txt_speed,txtidMap;
+    TextView txtidSignSetting, txtidDistSetting;
     //GoogleApiClient mGoogleClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,30 +106,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             //No google map layout
         }
 
-        //get distant from SearchSign 03/02/2017
-        TextView textView = (TextView) findViewById(R.id.txtDistance);
-        Intent intent = getIntent();
-        String distance = intent.getStringExtra("distant");
-        textView.setText(distance);
-        textView.setTextSize(20);
-        Log.d("03FebV2", "distance from SearchSign :" + distance);
-
-        //get distant from SearchSign 23/02/2017
-        TextView textView2 = (TextView) findViewById(R.id.txtIDMap);
-        intent = getIntent();
-        String idMap = intent.getStringExtra("idMap");
-        textView2.setText(idMap);
-        textView2.setTextSize(20);
-        Log.d("23FebV2", "idMap from SearchSign :" + idMap);
-
-        //get distant from SearchSign 23/02/2017
-        TextView textView3 = (TextView) findViewById(R.id.txtSetting);
-        intent = getIntent();
-        String idSetting = intent.getStringExtra("idSetting");
-        textView3.setText(idSetting);
-        textView3.setTextSize(20);
-        Log.d("23FebV3", "idMap from SearchSign :" + idSetting);
-
         txtView_gpsLat = (TextView) findViewById(R.id.txtView_gpsLat);
         txtView_gpsLng = (TextView) findViewById(R.id.txtView_gpsLng);
         btn_getLatLng = (Button) findViewById(R.id.btn_getLatLng);
@@ -135,7 +116,34 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         speed=(TextView)findViewById(R.id.txt_speed);
 
         txtidMap = (TextView) findViewById(R.id.txtIDMap);
-        txtSetting = (TextView) findViewById(R.id.txtSetting);
+        txtidSignSetting = (TextView) findViewById(R.id.txtidSignSearchSign);
+        txtidDistSetting = (TextView) findViewById(R.id.txtidDistSetting);
+
+        //get distant from SearchSign 03/02/2017
+        TextView textView = (TextView) findViewById(R.id.txtDistance);
+        Intent intent = getIntent();
+        String distance = intent.getStringExtra("distant");
+        textView.setText(distance);
+        textView.setTextSize(20);
+        //get distant from SearchSign 23/02/2017
+        TextView textView2 = (TextView) findViewById(R.id.txtIDMap);
+        intent = getIntent();
+        String idMap = intent.getStringExtra("idMap");
+        textView2.setText(idMap);
+        textView2.setTextSize(20);
+        //get distant from SearchSign 26/02/2017
+        TextView textView3 = (TextView) findViewById(R.id.txtidSignSetting);
+        intent = getIntent();
+        String idSign = intent.getStringExtra("idSign");
+        textView3.setText(idSign);
+        textView3.setTextSize(20);
+        //get distant from SearchSign 26/02/2017
+        TextView textView4 = (TextView) findViewById(R.id.txtidDistSetting);
+        intent = getIntent();
+        String idDistance = intent.getStringExtra("idDistance");
+        textView4.setText(idDistance);
+        textView4.setTextSize(20);
+        Log.d("26FebV6", "distance:" + distance+"idMap:"+idMap+"idSign:"+idSign+"idDist:"+idDistance);
 
         //get lat lng location device
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -534,7 +542,12 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     seekBar = Integer.parseInt(txtDistance.getText().toString());
 
                     int idMap;
+                   // int idSign, idDistance;
+                    //double speed;
                     idMap = Integer.parseInt(txtidMap.getText().toString());
+                   // idSign = Integer.parseInt(txtidSignSetting.getText().toString());
+                   // idDistance = Integer.parseInt(txtidDistSetting.getText().toString());
+                   // speed = Double.parseDouble(txt_speed.getText().toString());
 
                     Log.d("20FebV3", "" + valueResult + "   KM  " + kmInDec
                             + " Meter   " + meterInKm + ":" + seekBar);
@@ -547,11 +560,11 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     double distance[] = {exIntArray[i]};
                     //เปรียบเทียบค่าระยะห่างระหว่างป้ายกกับตัวผู้ใช้ แล้วแสดงให้ผู้ใช้เห็นว่าป้ายยที่ใกล้ที่ที่สุดห่างเท่าไหร่   idMap 1 คือหาทุกป้าย ,2 หาแค่ป้าย45 , 3 หาแค่ป้าย60 ,4 หาแค่ป้าย80
                     if (exIntArray[i] <= seekBar && idMap == 1) {
-                        if (exIntArray[i]<min)
+                        if (exIntArray[i] < min)
                             min = exIntArray[i];
                         //แสดงค่าระยะห่างใน textView
-                        txt_Distance.setText(min+"");
-                        Log.d("23FebV2", "distance:" + distance[0]+"id: "+strSignID+"signName:"+strSignName);
+                        txt_Distance.setText(min +"");
+                        Log.d("23FebV2", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName);
 
                     } else if (exIntArray[i] <= seekBar && idMap == 2 && strSignName.equals("Sign45")) {
                         if (exIntArray[i]<min)

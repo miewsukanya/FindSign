@@ -35,4 +35,26 @@
             android:padding="5dp"
             android:layout_margin="10dp" />
     </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtidSignSelect"
+            android:layout_weight="1"
+            android:padding="10dp" />
+
+        <TextView
+            android:text="TextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtidDistSelect"
+            android:layout_weight="1"
+            android:padding="10dp" />
+    </LinearLayout>
 </RelativeLayout>

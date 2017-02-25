@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <PreferenceCategory
+            android:title="ตั้งค่าการแจ้งเตือน"
+            android:key="pref_display_group">
+
+            <ListPreference
+                android:key="idSign"
+                android:title="เลือกป้าย"
+                android:summary="ป้ายที่ต้องการแจ้งเตือน"
+                android:dialogTitle="เลือกป้าย"
+                android:dialogIcon="@drawable/iconapp"
+                android:entries="@array/idSign"
+                android:entryValues="@array/idSign_value"
+                android:defaultValue="1"
+                />
+
+            <ListPreference
+                android:key="idDistance"
+                android:title="เลือกระยะห่างการแจ้งเตือน"
+                android:summary="ระยะห่างการแจ้งเตือน"
+                android:dialogTitle="เลือกป้าย"
+                android:dialogIcon="@drawable/iconapp"
+                android:entries="@array/idDistance"
+                android:entryValues="@array/idDistance_value"
+                android:defaultValue="1"
+                />
+
+        </PreferenceCategory>
+</PreferenceScreen>

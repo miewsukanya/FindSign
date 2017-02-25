@@ -38,8 +38,14 @@
             android:text="TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/txtSetting"
+            android:id="@+id/txtidSignPref"
             android:layout_weight="1" />
+
+        <TextView
+            android:text="TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/txtidDistancePref" />
 
         <LinearLayout
             android:orientation="horizontal"
