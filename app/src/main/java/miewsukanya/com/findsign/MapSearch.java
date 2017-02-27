@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -116,9 +117,12 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         speed=(TextView)findViewById(R.id.txt_speed);
 
         txtidMap = (TextView) findViewById(R.id.txtIDMap);
-        txtidSignSetting = (TextView) findViewById(R.id.txtidSignSearchSign);
+        txtidSignSetting = (TextView) findViewById(R.id.txtidSignSetting);
         txtidDistSetting = (TextView) findViewById(R.id.txtidDistSetting);
 
+
+        //sound alert
+        final MediaPlayer mp = MediaPlayer.create(this, R.raw.dog);
         //get distant from SearchSign 03/02/2017
         TextView textView = (TextView) findViewById(R.id.txtDistance);
         Intent intent = getIntent();
@@ -174,8 +178,186 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 CalculateDistance calculatedistance = new CalculateDistance(MapSearch.this);
                 calculatedistance.execute();
 
-               // double speed = location.getSpeed() * 18 / 5;
-               // txt_speed.setText(speed+"");
+                int idMap2;
+                int idSign2, idDistance2,seekbarDist;
+                double speed,dist;
+                idMap2 = Integer.parseInt(txtidMap.getText().toString());
+                idSign2 = Integer.parseInt(txtidSignSetting.getText().toString());
+                idDistance2 = Integer.parseInt(txtidDistSetting.getText().toString());
+                speed = Double.valueOf(txt_speed.getText().toString());
+                dist = Double.valueOf(txt_Distance.getText().toString());
+                seekbarDist = Integer.parseInt(txtDistance.getText().toString());
+
+                //ค้นหาทุกป้าย แต่เลือกการแจ้งเตือนว่าจะแจ้งป้ายไหน
+                if (dist >= seekbarDist) {
+                    //-----------------All Sign-----------//
+                    if (idMap2 == 1 && idSign2 == 1 && idDistance2 == 1) {
+                        //แจ้งเตือนป้าย 45 ขึ้นไป คือทุกป้าย ระยะ 300 m.
+                        if (speed >= 45.0 || speed >= 60.0 || speed >= 80 && dist <= 0.3) {
+                            mp.start();
+                            Log.d("27FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    } else if (idMap2 == 1 && idSign2 == 1 && idDistance2 == 2) {
+                        //แจ้งเตือนป้าย 45 ขึ้นไป คือทุกป้าย ระยะ 400 m.
+                        if (speed >= 45.0 || speed >= 60.0 || speed >= 80 && dist <= 0.4) {
+                            mp.start();
+                            Log.d("27FebV2", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    } else if (idMap2 == 1 && idSign2 == 1 && idDistance2 == 3) {
+                        //แจ้งเตือนป้าย 45 ขึ้นไป คือทุกป้าย ระยะ 500 m.
+                        if (speed >= 45.0 || speed >= 60.0 || speed >= 80 && dist <= 0.5) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    }//แจ้งเตือนทุกป้าย เลือกระยะห่าง
+
+                    else if (idMap2 == 1 && idSign2 == 2 && idDistance2 == 1) {
+                        //แจ้งเตือนป้าย 60 ขึ้นไป คือทุกป้าย ระยะ 300 m.
+                        if (speed >= 60.0 || speed >= 80 && dist <= 0.3) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    } else if (idMap2 == 1 && idSign2 == 2 && idDistance2 == 2) {
+                        //แจ้งเตือนป้าย 60 ขึ้นไป คือทุกป้าย ระยะ 400 m.
+                        if (speed >= 60.0 || speed >= 80 && dist <= 0.4) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    } else if (idMap2 == 1 && idSign2 == 2 && idDistance2 == 3) {
+                        //แจ้งเตือนป้าย 60 ขึ้นไป คือทุกป้าย ระยะ 400 m.
+                        if (speed >= 60.0 || speed >= 80 && dist <= 0.5) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    }//แจ้งเตือนป้าย 60 ขึ้นไป แต่เลือกระยะ
+
+                    else if (idMap2 == 1 && idSign2 == 3 && idDistance2 == 1) {
+                        //แจ้งเตือนป้าย 80 ขึ้นไป คือทุกป้าย ระยะ 300 m.
+                        if (speed >= 80 && dist <= 0.3) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    } else if (idMap2 == 1 && idSign2 == 3 && idDistance2 == 2) {
+                        //แจ้งเตือนป้าย 80 ขึ้นไป คือทุกป้าย ระยะ 400 m.
+                        if (speed >= 80 && dist <= 0.4) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    } else if (idMap2 == 1 && idSign2 == 3 && idDistance2 == 3) {
+                        //แจ้งเตือนป้าย 80 ขึ้นไป คือทุกป้าย ระยะ 400 m.
+                        if (speed >= 80 && dist <= 0.5) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    }//แจ้งเตือนป้าย 80 แต่เลือกระยะ
+                    //----------------Sign45----------------------//
+                    else if (idMap2 == 2 && idSign2 == 1 && idDistance2 == 1) {
+                        //แจ้งเตือนป้าย 45  ระยะ 300 m.
+                        if (speed >= 45.0 && dist <= 0.3) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    }//แจ้งเตือนป้าย 45 แต่เลือกระยะ 300 m.
+                    else if (idMap2 == 2 && idSign2 == 1 && idDistance2 == 2) {
+                        //แจ้งเตือนป้าย 45  ระยะ 300 m.
+                        if (speed >= 45.0 && dist <= 0.4) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    }//แจ้งเตือนป้าย 45 แต่เลือกระยะ 400 m.
+                    else if (idMap2 == 2 && idSign2 == 1 && idDistance2 == 3) {
+                        //แจ้งเตือนป้าย 45  ระยะ 500 m.
+                        if (speed >= 45.0 && dist <= 0.5) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    }//แจ้งเตือนป้าย 45 แต่เลือกระยะ 500 m.
+                    //-----------------Sign60---------------------//
+                    else if (idMap2 == 3 && idSign2 == 2 && idDistance2 == 1) {
+                        //แจ้งเตือนป้าย 60  ระยะ 300 m.
+                        if (speed >= 60.0 && dist <= 0.3) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    }//แจ้งเตือนป้าย 60 แต่เลือกระยะ 300 m.
+                    else if (idMap2 == 3 && idSign2 == 2 && idDistance2 == 2) {
+                        //แจ้งเตือนป้าย 60 ระยะ 400 m.
+                        if (speed >= 60.0 && dist <= 0.4) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    }//แจ้งเตือนป้าย 60 แต่เลือกระยะ 400 m.
+                    else if (idMap2 == 3 && idSign2 == 2 && idDistance2 == 3) {
+                        //แจ้งเตือนป้าย 60  ระยะ 500 m.
+                        if (speed >= 60.0 && dist <= 0.5) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    }//แจ้งเตือนป้าย 60 แต่เลือกระยะ 500 m.
+                    //----------------Sign80----------------------//
+                    else if (idMap2 == 4 && idSign2 == 3 && idDistance2 == 1) {
+                        //แจ้งเตือนป้าย 80  ระยะ 300 m.
+                        if (speed >= 80.0 && dist <= 0.3) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    }//แจ้งเตือนป้าย 80 แต่เลือกระยะ 300 m.
+                    else if (idMap2 == 4 && idSign2 == 3 && idDistance2 == 2) {
+                        //แจ้งเตือนป้าย 80 ระยะ 400 m.
+                        if (speed >= 80.0 && dist <= 0.4) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    }//แจ้งเตือนป้าย 80 แต่เลือกระยะ 400 m.
+                    else if (idMap2 == 4 && idSign2 == 3 && idDistance2 == 3) {
+                        //แจ้งเตือนป้าย 80  ระยะ 500 m.
+                        if (speed >= 80.0 && dist <= 0.5) {
+                            mp.start();
+                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+                        } else {
+                            mp.stop();
+                        }
+                    }//แจ้งเตือนป้าย 80 แต่เลือกระยะ 500 m.
+                } else {
+                    txt_Distance.setText("0");
+                } //dist seekbar
+
+
+
 
             }//on locationChanged
 
@@ -191,7 +373,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
             @Override
             public void onProviderDisabled(String provider) {
-               Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(intent);
             }
 
@@ -221,7 +403,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             }
         });
 
-       checkGps();
+        checkGps();
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
@@ -239,9 +421,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         btn_return.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                 if(status==true)
-                   unbindService();
-                 p=0;
+                if(status==true)
+                    unbindService();
+                p=0;
 
                 checkGps();
                 locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -249,7 +431,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
                     return;
                 }
-              //  pause.setText("Pause");
+                //  pause.setText("Pause");
                 p = 0;
                 Intent i = new Intent(MapSearch.this, SearchSign.class);
                 startActivity(i);
@@ -405,8 +587,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                         } else {
                             mGoogleMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
-                                   // .title(strSignName)
-                                   // .snippet(String.valueOf(meterInKm)))
+                                    // .title(strSignName)
+                                    // .snippet(String.valueOf(meterInKm)))
                                     .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign80_ss));
                         }
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -416,8 +598,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
                     } else if (meterInKm <= seekBar &&  idMap == 2 && strSignName.equals("Sign45")) {
                         mGoogleMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
-                                    .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign45_ss));
+                                .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
+                                .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign45_ss));
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                         LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
                         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
@@ -425,8 +607,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
                     } else if (meterInKm <= seekBar && idMap == 3 && strSignName.equals("Sign60")) {
                         mGoogleMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
-                                    .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign60_ss));
+                                .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
+                                .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign60_ss));
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                         LatLng coordinate = new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng));
                         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
@@ -434,8 +616,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
                     } else if (meterInKm <= seekBar &&  idMap == 4 && strSignName.equals("Sign80")) {
                         mGoogleMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
-                                    .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign80_ss));
+                                .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
+                                .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign80_ss));
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                         LatLng coordinate = new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng));
                         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
@@ -542,18 +724,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     seekBar = Integer.parseInt(txtDistance.getText().toString());
 
                     int idMap;
-                   // int idSign, idDistance;
-                    //double speed;
                     idMap = Integer.parseInt(txtidMap.getText().toString());
-                   // idSign = Integer.parseInt(txtidSignSetting.getText().toString());
-                   // idDistance = Integer.parseInt(txtidDistSetting.getText().toString());
-                   // speed = Double.parseDouble(txt_speed.getText().toString());
-
                     Log.d("20FebV3", "" + valueResult + "   KM  " + kmInDec
                             + " Meter   " + meterInKm + ":" + seekBar);
-
-                    Log.d("12FebV1", "Lat:" + lat1 + "" + "Lng:" + lng1);
-
                     //เก็บค่า meterInKm เป็นอาเรย์
                     double[] exIntArray = new double[jsonArray.length()];
                     exIntArray[i] = meterInKm;
@@ -586,8 +759,10 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                         if (exIntArray[i] < min)
                             min = exIntArray[i];
                         //แสดงค่าระยะห่างใน textView
-                        txt_Distance.setText(min+"");
-                        Log.d("23FebV5", "distance:" + distance[0] + "id: " + strSignID+"signName:"+strSignName);
+                        txt_Distance.setText(min + "");
+                        Log.d("23FebV5", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName);
+                    } else {
+                        txt_Distance.setText("0");
                     }
                 }//for
 
@@ -598,7 +773,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             }
         }//onPost
     }//SnyUser
-
 
     //ZoomMap
     private void goToLocationZoom(double v, double v1) {
@@ -634,7 +808,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         return false;
     }//googleServicesAvailable
 
-
     private Circle drawCircle(LatLng latLng) {
         CircleOptions circleOptions = new CircleOptions()
                 .center(latLng)
@@ -661,20 +834,17 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 final EditText lat = (EditText) findViewById(R.id.edt_lat);
                 final EditText lng = (EditText) findViewById(R.id.edt_lng);
                final EditText signName = (EditText) findViewById(R.id.edtSignName);
-
                 View v = getLayoutInflater().inflate(R.layout.info_window,null);
                 TextView tvLocality = (TextView) v.findViewById(R.id.tv_locality);
                 TextView tvLat = (TextView) v.findViewById(R.id.tv_lat);
                 TextView tvLng = (TextView) v.findViewById(R.id.tv_lng);
                 // TextView tvSnippet = (TextView) v.findViewById(R.id.tv_snippet);
-
                 LatLng latLng = marker.getPosition();
                 tvLocality.setText(marker.getTitle());
                 tvLat.setText("Latitude: "+latLng.latitude);
                 tvLng.setText("Longitude: "+latLng.longitude);
                 tvSnippet.setText(marker.getSnippet());
                 txt_Distance.setText(marker.getSnippet());
-
                 //show lat long in edit text
                 lat.setText(latLng.latitude+"");
                 lng.setText(latLng.longitude+"");
@@ -690,7 +860,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
         if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
-
             showGPSDisabledAlertToUser();
         }
     }//void checkGps

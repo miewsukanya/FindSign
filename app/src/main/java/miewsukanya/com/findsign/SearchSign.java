@@ -98,13 +98,15 @@ public class SearchSign extends AppCompatActivity {
                 //send distant to MapSearch 23/02/2017
                 String distant = txtValueTextView.getText().toString();
                 String idMap = "2";
+                String idSign = txtidSign.getText().toString();
+                String idDistance = txtidDist.getText().toString();
                 Intent intent = new Intent(getApplicationContext(), MapSearch.class);
                 intent.putExtra("distant", distant);
                 intent.putExtra("idMap", idMap);
-                Log.d("Distant","Select distant :"+ distant);
-                Log.d("23FebV1","Select idMap :"+ idMap);
+                intent.putExtra("idSign", idSign);
+                intent.putExtra("idDistance", idDistance);
+                Log.d("26FebV6","distance:"+distant+"idMap:"+idMap+"idSign:"+idSign+"idDistance:"+idDistance);
                 startActivity(intent);
-                finish();
             }
         });
         //SearchSign60
@@ -114,13 +116,15 @@ public class SearchSign extends AppCompatActivity {
                 //send distant to MapSearch 23/02/2017
                 String distant = txtValueTextView.getText().toString();
                 String idMap = "3";
+                String idSign = txtidSign.getText().toString();
+                String idDistance = txtidDist.getText().toString();
                 Intent intent = new Intent(getApplicationContext(), MapSearch.class);
                 intent.putExtra("distant", distant);
                 intent.putExtra("idMap", idMap);
-                Log.d("Distant","Select distant :"+ distant);
-                Log.d("23FebV1","Select idMap :"+ idMap);
+                intent.putExtra("idSign", idSign);
+                intent.putExtra("idDistance", idDistance);
+                Log.d("26FebV6","distance:"+distant+"idMap:"+idMap+"idSign:"+idSign+"idDistance:"+idDistance);
                 startActivity(intent);
-                finish();
             }
         });
         //SearchSign80
@@ -130,13 +134,15 @@ public class SearchSign extends AppCompatActivity {
                 //send distant to MapSearch 23/02/2017
                 String distant = txtValueTextView.getText().toString();
                 String idMap = "4";
+                String idSign = txtidSign.getText().toString();
+                String idDistance = txtidDist.getText().toString();
                 Intent intent = new Intent(getApplicationContext(), MapSearch.class);
                 intent.putExtra("distant", distant);
                 intent.putExtra("idMap", idMap);
-                Log.d("Distant","Select distant :"+ distant);
-                Log.d("23FebV1","Select idMap :"+ idMap);
+                intent.putExtra("idSign", idSign);
+                intent.putExtra("idDistance", idDistance);
+                Log.d("26FebV6","distance:"+distant+"idMap:"+idMap+"idSign:"+idSign+"idDistance:"+idDistance);
                 startActivity(intent);
-                finish();
             }
         });
 

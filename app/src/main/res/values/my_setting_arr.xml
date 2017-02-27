@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="idSign">
-        <item>ป้าย 45</item>
-        <item>ป้าย 60</item>
-        <item>ป้าย 80</item>
+        <item>ป้าย 45 ขึ้นไป</item>
+        <item>ป้าย 60 ขึ้นไป</item>
+        <item>ป้าย 80 </item>
     </string-array>
     <string-array name="idSign_value" >
         <item>1</item>
