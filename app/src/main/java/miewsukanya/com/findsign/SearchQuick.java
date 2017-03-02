@@ -1,7 +1,10 @@
 package miewsukanya.com.findsign;
 
+import android.Manifest;
 import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.widget.FrameLayout;
 
 public class SearchQuick extends Activity {
@@ -32,4 +35,24 @@ public class SearchQuick extends Activity {
         super.onResume();
         arContent.onResume();
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+                    //  readLocation();
+                    //case เกี่ยวกับ อัพเดท Location calculate speed
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.CAMERA)) {
+                        new android.app.AlertDialog.Builder(this)
+                                .setTitle("check Location")
+                                .setMessage("you need to grant location");
+                    } else {
+
+                    }
+                }
+        }
+    }//onRequestPermissionsResult
 }

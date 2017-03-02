@@ -31,7 +31,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
-import com.google.android.gms.location.internal.LocationRequestUpdateData;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -49,20 +48,7 @@ import com.squareup.okhttp.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.text.DecimalFormat;
-import java.util.Arrays;
-
-import static android.R.attr.focusable;
-import static android.R.attr.id;
-import static android.R.attr.max;
-import static android.os.Build.ID;
-import static miewsukanya.com.findsign.LocationService.distance;
-import static miewsukanya.com.findsign.R.array.idDistance;
-import static miewsukanya.com.findsign.R.array.idSign;
-import static miewsukanya.com.findsign.R.id.seekBar;
-import static miewsukanya.com.findsign.R.id.textView;
-import static miewsukanya.com.findsign.R.id.txt_speed;
 
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -86,7 +72,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     GoogleMap mGoogleMap;
     EditText edt_distance;
     Button btn_getLatLng,btn_return;
-    TextView txtView_gpsLat,txtView_gpsLng,txt_Distance,txtDistance,txt_speed,txtidMap;
+    TextView txtView_gpsLat,txtView_gpsLng,txt_Distance,txtDistance,txt_speed,txtidMap,txtSignName;
     TextView txtidSignSetting, txtidDistSetting;
     //GoogleApiClient mGoogleClient;
     @Override
@@ -119,6 +105,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         txtidMap = (TextView) findViewById(R.id.txtIDMap);
         txtidSignSetting = (TextView) findViewById(R.id.txtidSignSetting);
         txtidDistSetting = (TextView) findViewById(R.id.txtidDistSetting);
+        txtSignName = (TextView) findViewById(R.id.txt_SignNameMS);
 
 
         //sound alert
@@ -166,13 +153,13 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 //ปักหมุดพิกัดของเครื่อง
                 //ถ้ามีการปักหมุดอยู่แล้ว จะลบหมุดอันเดิมออกจากแผนที่
                 if (marker != null && circle != null) {
-                    marker.remove();
-                    circle.remove();
+                   marker.remove();
+                   circle.remove();
                 }
                 MarkerOptions options = new MarkerOptions()
                         .position(new LatLng(lat,lng));
                 marker = mGoogleMap.addMarker(options);
-                //add circle in marker
+               // add circle in marker
                 circle = drawCircle(new LatLng(lat, lng));
 
                 CalculateDistance calculatedistance = new CalculateDistance(MapSearch.this);
@@ -181,183 +168,56 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 int idMap2;
                 int idSign2, idDistance2,seekbarDist;
                 double speed,dist;
+                String SignName;
                 idMap2 = Integer.parseInt(txtidMap.getText().toString());
                 idSign2 = Integer.parseInt(txtidSignSetting.getText().toString());
                 idDistance2 = Integer.parseInt(txtidDistSetting.getText().toString());
                 speed = Double.valueOf(txt_speed.getText().toString());
                 dist = Double.valueOf(txt_Distance.getText().toString());
                 seekbarDist = Integer.parseInt(txtDistance.getText().toString());
+                SignName = txtSignName.getText().toString();
 
                 //ค้นหาทุกป้าย แต่เลือกการแจ้งเตือนว่าจะแจ้งป้ายไหน
-                if (dist >= seekbarDist) {
-                    //-----------------All Sign-----------//
-                    if (idMap2 == 1 && idSign2 == 1 && idDistance2 == 1) {
-                        //แจ้งเตือนป้าย 45 ขึ้นไป คือทุกป้าย ระยะ 300 m.
-                        if (speed >= 45.0 || speed >= 60.0 || speed >= 80 && dist <= 0.3) {
-                            mp.start();
-                            Log.d("27FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
+               // if (dist >= seekbarDist) {
+                //-----------------All Sign-----------//
+                if (idMap2 == 1 ) {
+                    //แจ้งเตือนป้าย 45 ขึ้นไป
+                    if (idSign2 == 1 && idDistance2 == 1) {
+                        if (dist <= 0.3) {
+                            if (SignName.equals("Sign45")) {
+                                if (speed >= 45.0) {
+                                    // distance <= 300 m. && speed >= 45.0 km/hr.
+                                    mp.start() ;
+                                    Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist+SignName);
+                                } else {
+                                    mp.stop();
+                                }
+                            } else if (SignName.equals("Sign60")) {
+                                if (speed >= 60.0) {
+                                    mp.start();
+                                    Log.d("28FebV2", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist+SignName);
+                                }else {
+                                    mp.stop();
+                                }
+                            } else if (SignName.equals("Sign80")) {
+                                if (speed >= 80.0) {
+                                    mp.start();
+                                    Log.d("28FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist+SignName);
+                                } else {
+                                    mp.stop();
+                                }
+                            }
                         } else {
                             mp.stop();
-                        }
-                    } else if (idMap2 == 1 && idSign2 == 1 && idDistance2 == 2) {
-                        //แจ้งเตือนป้าย 45 ขึ้นไป คือทุกป้าย ระยะ 400 m.
-                        if (speed >= 45.0 || speed >= 60.0 || speed >= 80 && dist <= 0.4) {
-                            mp.start();
-                            Log.d("27FebV2", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    } else if (idMap2 == 1 && idSign2 == 1 && idDistance2 == 3) {
-                        //แจ้งเตือนป้าย 45 ขึ้นไป คือทุกป้าย ระยะ 500 m.
-                        if (speed >= 45.0 || speed >= 60.0 || speed >= 80 && dist <= 0.5) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    }//แจ้งเตือนทุกป้าย เลือกระยะห่าง
+                        }//if check distance
 
-                    else if (idMap2 == 1 && idSign2 == 2 && idDistance2 == 1) {
-                        //แจ้งเตือนป้าย 60 ขึ้นไป คือทุกป้าย ระยะ 300 m.
-                        if (speed >= 60.0 || speed >= 80 && dist <= 0.3) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    } else if (idMap2 == 1 && idSign2 == 2 && idDistance2 == 2) {
-                        //แจ้งเตือนป้าย 60 ขึ้นไป คือทุกป้าย ระยะ 400 m.
-                        if (speed >= 60.0 || speed >= 80 && dist <= 0.4) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    } else if (idMap2 == 1 && idSign2 == 2 && idDistance2 == 3) {
-                        //แจ้งเตือนป้าย 60 ขึ้นไป คือทุกป้าย ระยะ 400 m.
-                        if (speed >= 60.0 || speed >= 80 && dist <= 0.5) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    }//แจ้งเตือนป้าย 60 ขึ้นไป แต่เลือกระยะ
-
-                    else if (idMap2 == 1 && idSign2 == 3 && idDistance2 == 1) {
-                        //แจ้งเตือนป้าย 80 ขึ้นไป คือทุกป้าย ระยะ 300 m.
-                        if (speed >= 80 && dist <= 0.3) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    } else if (idMap2 == 1 && idSign2 == 3 && idDistance2 == 2) {
-                        //แจ้งเตือนป้าย 80 ขึ้นไป คือทุกป้าย ระยะ 400 m.
-                        if (speed >= 80 && dist <= 0.4) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    } else if (idMap2 == 1 && idSign2 == 3 && idDistance2 == 3) {
-                        //แจ้งเตือนป้าย 80 ขึ้นไป คือทุกป้าย ระยะ 400 m.
-                        if (speed >= 80 && dist <= 0.5) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    }//แจ้งเตือนป้าย 80 แต่เลือกระยะ
-                    //----------------Sign45----------------------//
-                    else if (idMap2 == 2 && idSign2 == 1 && idDistance2 == 1) {
-                        //แจ้งเตือนป้าย 45  ระยะ 300 m.
-                        if (speed >= 45.0 && dist <= 0.3) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    }//แจ้งเตือนป้าย 45 แต่เลือกระยะ 300 m.
-                    else if (idMap2 == 2 && idSign2 == 1 && idDistance2 == 2) {
-                        //แจ้งเตือนป้าย 45  ระยะ 300 m.
-                        if (speed >= 45.0 && dist <= 0.4) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    }//แจ้งเตือนป้าย 45 แต่เลือกระยะ 400 m.
-                    else if (idMap2 == 2 && idSign2 == 1 && idDistance2 == 3) {
-                        //แจ้งเตือนป้าย 45  ระยะ 500 m.
-                        if (speed >= 45.0 && dist <= 0.5) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    }//แจ้งเตือนป้าย 45 แต่เลือกระยะ 500 m.
-                    //-----------------Sign60---------------------//
-                    else if (idMap2 == 3 && idSign2 == 2 && idDistance2 == 1) {
-                        //แจ้งเตือนป้าย 60  ระยะ 300 m.
-                        if (speed >= 60.0 && dist <= 0.3) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    }//แจ้งเตือนป้าย 60 แต่เลือกระยะ 300 m.
-                    else if (idMap2 == 3 && idSign2 == 2 && idDistance2 == 2) {
-                        //แจ้งเตือนป้าย 60 ระยะ 400 m.
-                        if (speed >= 60.0 && dist <= 0.4) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    }//แจ้งเตือนป้าย 60 แต่เลือกระยะ 400 m.
-                    else if (idMap2 == 3 && idSign2 == 2 && idDistance2 == 3) {
-                        //แจ้งเตือนป้าย 60  ระยะ 500 m.
-                        if (speed >= 60.0 && dist <= 0.5) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    }//แจ้งเตือนป้าย 60 แต่เลือกระยะ 500 m.
-                    //----------------Sign80----------------------//
-                    else if (idMap2 == 4 && idSign2 == 3 && idDistance2 == 1) {
-                        //แจ้งเตือนป้าย 80  ระยะ 300 m.
-                        if (speed >= 80.0 && dist <= 0.3) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    }//แจ้งเตือนป้าย 80 แต่เลือกระยะ 300 m.
-                    else if (idMap2 == 4 && idSign2 == 3 && idDistance2 == 2) {
-                        //แจ้งเตือนป้าย 80 ระยะ 400 m.
-                        if (speed >= 80.0 && dist <= 0.4) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    }//แจ้งเตือนป้าย 80 แต่เลือกระยะ 400 m.
-                    else if (idMap2 == 4 && idSign2 == 3 && idDistance2 == 3) {
-                        //แจ้งเตือนป้าย 80  ระยะ 500 m.
-                        if (speed >= 80.0 && dist <= 0.5) {
-                            mp.start();
-                            Log.d("27FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist);
-                        } else {
-                            mp.stop();
-                        }
-                    }//แจ้งเตือนป้าย 80 แต่เลือกระยะ 500 m.
-                } else {
-                    txt_Distance.setText("0");
-                } //dist seekbar
+                    }//idSign == 1 idDistance==1
+                }//idMap2 == 1 หน้าค้นหาทุกป้าย
 
 
-
+                //} else {
+                //    txt_Distance.setText("0");
+                // } //dist seekbar
 
             }//on locationChanged
 
@@ -416,7 +276,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         locate.setCancelable(false);
         locate.setMessage("Getting Location...");
         locate.show();
-        //locate.dismiss();//*/
+        locate.dismiss();//*/
 
         btn_return.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -733,25 +593,42 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                     double distance[] = {exIntArray[i]};
                     //เปรียบเทียบค่าระยะห่างระหว่างป้ายกกับตัวผู้ใช้ แล้วแสดงให้ผู้ใช้เห็นว่าป้ายยที่ใกล้ที่ที่สุดห่างเท่าไหร่   idMap 1 คือหาทุกป้าย ,2 หาแค่ป้าย45 , 3 หาแค่ป้าย60 ,4 หาแค่ป้าย80
                     if (exIntArray[i] <= seekBar && idMap == 1) {
-                        if (exIntArray[i] < min)
+                        if (exIntArray[i] < min && strSignName.equals("Sign45")) {
                             min = exIntArray[i];
-                        //แสดงค่าระยะห่างใน textView
-                        txt_Distance.setText(min +"");
-                        Log.d("23FebV2", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName);
+                            //แสดงค่าระยะห่างใน textView
+                            txt_Distance.setText(min +"");
+                            txtSignName.setText(strSignName+"");
+                            Log.d("01MarV1", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap);
+                        } else if (exIntArray[i] < min && strSignName.equals("Sign60")) {
+                            min = exIntArray[i];
+                            //แสดงค่าระยะห่างใน textView
+                            txt_Distance.setText(min +"");
+                            txtSignName.setText(strSignName+"");
+                            Log.d("01MarV2", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap);
+                        } else if (exIntArray[i] < min && strSignName.equals("Sign80")) {
+                            min = exIntArray[i];
+                            //แสดงค่าระยะห่างใน textView
+                            txt_Distance.setText(min +"");
+                            txtSignName.setText(strSignName+"");
+                            Log.d("01MarV3", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap);
+
+                        }
 
                     } else if (exIntArray[i] <= seekBar && idMap == 2 && strSignName.equals("Sign45")) {
                         if (exIntArray[i]<min)
                             min = exIntArray[i];
                         //แสดงค่าระยะห่างใน textView
                         txt_Distance.setText(min+"");
-                        Log.d("23FebV3", "distance:" + distance[0]+"id: "+strSignID+"signName:"+strSignName);
+                        txtSignName.setText(strSignName+"");
+                        Log.d("01MarV2", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap);
 
                     } else if (exIntArray[i] <= seekBar && idMap == 3 && strSignName.equals("Sign60")) {
                         if (exIntArray[i] < min)
                             min = exIntArray[i];
                         //แสดงค่าระยะห่างใน textView
                         txt_Distance.setText(min+"");
-                        Log.d("23FebV4", "distance:" + distance[0] + "id: " + strSignID+"signName:"+strSignName);
+                        txtSignName.setText(strSignName+"");
+                        Log.d("01MarV3", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap);
 
                     } else if (exIntArray[i] <= seekBar && idMap == 4 && strSignName.equals("Sign80")) {
                         // if (exIntArray[i] > max)
@@ -760,7 +637,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                             min = exIntArray[i];
                         //แสดงค่าระยะห่างใน textView
                         txt_Distance.setText(min + "");
-                        Log.d("23FebV5", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName);
+                        txtSignName.setText(strSignName+"");
+                        Log.d("01MarV4", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap);
                     } else {
                         txt_Distance.setText("0");
                     }
@@ -772,7 +650,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 e.printStackTrace();
             }
         }//onPost
-    }//SnyUser
+    }//CalculateDistance
 
     //ZoomMap
     private void goToLocationZoom(double v, double v1) {

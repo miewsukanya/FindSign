@@ -40,8 +40,11 @@ public class OverlayView extends View implements SensorEventListener,
     static {
         //mountWashington.setLatitude(44.27179d);
         //mountWashington.setLongitude(-71.3039d);
-        mountWashington.setLatitude(16.4744428d);
-        mountWashington.setLongitude(102.8230584d);
+       // mountWashington.setLatitude(16.4744428d);
+        //mountWashington.setLongitude(102.8230584d);
+
+        mountWashington.setLatitude(16.47380519669129d);
+        mountWashington.setLongitude(102.82246079295874d);
         //mountWashington.setLatitude(43.998d);
         //mountWashington.setLongitude(-71.2d);
         mountWashington.setAltitude(1916.5d);
@@ -91,6 +94,7 @@ public class OverlayView extends View implements SensorEventListener,
         startGPS();
 
         // get some camera parameters
+       // Camera camera = Camera.open();
         Camera camera = Camera.open();
         Camera.Parameters params = camera.getParameters();
         verticalFOV = params.getVerticalViewAngle();
