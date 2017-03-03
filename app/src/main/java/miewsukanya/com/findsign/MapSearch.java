@@ -50,7 +50,7 @@ import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 
-public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
+public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,LocationListener {
 
 
     //about calculate speed
@@ -62,6 +62,18 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     LocationService myService;
     static boolean status;
     private static final int MY_PERMISSION_REQUEST = 5;
+    //New speed 03/03/17
+    final int update_interval = 500; // milliseconds
+
+    // Data shown to user
+    float speed2 = 0.0f;
+    float speed_max = 0.0f;
+
+    int num_updates = 0; // GPS update counter
+    int no_loc = 0; // Number of null GPS updates
+    int no_speed = 0; // Number of GPS updates which don't have speed
+
+    LocationManager loc_mgr;
     //Explicit
     private String[] perms = {"android.permission.ACCESS_COARSE_LOCATION",
             "android.permission.ACCESS_FINE_LOCATION",
@@ -71,7 +83,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
     private LocationListener locationListener;
     GoogleMap mGoogleMap;
     EditText edt_distance;
-    Button btn_getLatLng,btn_return;
+    Button btn_getLatLng,btn_return,btn_AR;
     TextView txtView_gpsLat,txtView_gpsLng,txt_Distance,txtDistance,txt_speed,txtidMap,txtSignName;
     TextView txtidSignSetting, txtidDistSetting;
     //GoogleApiClient mGoogleClient;
@@ -106,6 +118,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         txtidSignSetting = (TextView) findViewById(R.id.txtidSignSetting);
         txtidDistSetting = (TextView) findViewById(R.id.txtidDistSetting);
         txtSignName = (TextView) findViewById(R.id.txt_SignNameMS);
+        btn_AR = (Button) findViewById(R.id.btnAR);
 
 
         //sound alert
@@ -135,6 +148,11 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         textView4.setText(idDistance);
         textView4.setTextSize(20);
         Log.d("26FebV6", "distance:" + distance+"idMap:"+idMap+"idSign:"+idSign+"idDist:"+idDistance);
+
+        update_speed( 0.0f );
+
+        loc_mgr = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+        loc_mgr.requestLocationUpdates( LocationManager.GPS_PROVIDER, update_interval, 0.0f, this );
 
         //get lat lng location device
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -178,14 +196,14 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 SignName = txtSignName.getText().toString();
 
                 //ค้นหาทุกป้าย แต่เลือกการแจ้งเตือนว่าจะแจ้งป้ายไหน
-               // if (dist >= seekbarDist) {
+                if (dist >= seekbarDist) {
                 //-----------------All Sign-----------//
                 if (idMap2 == 1 ) {
                     //แจ้งเตือนป้าย 45 ขึ้นไป
                     if (idSign2 == 1 && idDistance2 == 1) {
                         if (dist <= 0.3) {
                             if (SignName.equals("Sign45")) {
-                                if (speed >= 45.0) {
+                                if (speed >= 45) {
                                     // distance <= 300 m. && speed >= 45.0 km/hr.
                                     mp.start() ;
                                     Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist+SignName);
@@ -193,14 +211,14 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                                     mp.stop();
                                 }
                             } else if (SignName.equals("Sign60")) {
-                                if (speed >= 60.0) {
+                                if (speed >= 60) {
                                     mp.start();
                                     Log.d("28FebV2", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist+SignName);
                                 }else {
                                     mp.stop();
                                 }
                             } else if (SignName.equals("Sign80")) {
-                                if (speed >= 80.0) {
+                                if (speed >= 80) {
                                     mp.start();
                                     Log.d("28FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist+SignName);
                                 } else {
@@ -215,9 +233,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 }//idMap2 == 1 หน้าค้นหาทุกป้าย
 
 
-                //} else {
-                //    txt_Distance.setText("0");
-                // } //dist seekbar
+               } else {
+                   txt_Distance.setText("0");
+              } //dist seekbar
 
             }//on locationChanged
 
@@ -256,52 +274,120 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         requestPermissions(perms, 1);
         //update location in 0 minute distance 1 meter
         //*calculate speed
-        btn_getLatLng.setOnClickListener(new View.OnClickListener() {
+        //btn_getLatLng.setOnClickListener(new View.OnClickListener() {
+         //   @Override
+         //   public void onClick(View v) {
+         //       locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
+          //  }
+       // });
+
+        btn_AR.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 1, locationListener);
+                Intent intent = new Intent(getApplicationContext(), SearchQuick.class);
+                startActivity(intent);
             }
-        });
+        });//btnAR
 
-        checkGps();
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+       // checkGps();
+       // locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+      //  if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if(status==false)
-            bindService();
-        locate=new ProgressDialog(MapSearch.this);
-        locate.setIndeterminate(true);
-        locate.setCancelable(false);
-        locate.setMessage("Getting Location...");
-        locate.show();
-        locate.dismiss();//*/
+      //      return;
+       // }
+      //  if(status==false)
+      //      bindService();
+      //  locate=new ProgressDialog(MapSearch.this);
+     //   locate.setIndeterminate(true);
+     //   locate.setCancelable(false);
+     //   locate.setMessage("Getting Location...");
+     //   locate.show();
+     //   locate.dismiss();//*/
 
-        btn_return.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(status==true)
-                    unbindService();
-                p=0;
+     //   btn_return.setOnClickListener(new View.OnClickListener() {
+        //    @Override
+      //      public void onClick(View v) {
+       //         if(status==true)
+        //            unbindService();
+         //       p=0;
 
-                checkGps();
-                locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-                if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+          //      checkGps();
+          //      locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+         //       if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+         //           return;
+         //       }
                 //  pause.setText("Pause");
-                p = 0;
-                Intent i = new Intent(MapSearch.this, SearchSign.class);
-                startActivity(i);
-            }
-        });
+         //       p = 0;
+         //       Intent i = new Intent(MapSearch.this, SearchSign.class);
+         //       startActivity(i);
+         //   }
+      //  });
+        configure_button();
+        locationManager.requestLocationUpdates("gps", 3000, 0, locationListener);
     }//Main method
 
+    //New Speed
+    void update_speed( float x )
+    {
+        speed2= x;
 
-    private void configureButton() {
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 1, locationListener);
+        if ( x > speed_max )
+            speed_max = x;
+
+        String s = String.format("%.0f"
+                ,
+                speed2, speed2 * 3.6f,
+                speed_max, speed_max * 3.6f,
+                num_updates,
+                no_loc,
+                no_speed
+        );
+
+        txt_speed.setText( s );
+    }
+
+    public void onLocationChanged( Location loc )
+    {
+        num_updates++;
+
+        if ( loc == null )
+        {
+            no_loc++;
+            return;
+        }
+
+        if ( !loc.hasSpeed() )
+        {
+            no_speed++;
+            return;
+        }
+
+        update_speed( loc.getSpeed() );
+    }
+
+    public void onStatusChanged( String arg0, int arg1, Bundle arg2 ) {}
+    public void onProviderEnabled( String arg0 ) {}
+    public void onProviderDisabled( String arg0 ) {}
+    //NewSpeed
+
+    void configure_button(){
+        // first check for permissions
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.INTERNET}
+                        ,10);
+            }
+            return;
+        }
+        // this code won't execute IF permissions are not allowed, because in the line above there is return statement.
+        btn_getLatLng.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //noinspection MissingPermission
+                locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
+            }
+        });
     }
 
     private boolean shouldAskPermission(){
@@ -314,7 +400,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
             case 1 :
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     //case เกี่ยวกับอัพเดท latitude and longitude
-                    configureButton();
+                   // configureButton();
 
                 } else {
 
@@ -731,7 +817,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
         });*/
     }//onMapReady
 
-    //Calculate Speed
+    /*//Calculate Speed
     void checkGps()
     {
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -813,6 +899,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback {
                 });
         AlertDialog alert = alertDialogBuilder.create();
         alert.show();
-    }//showGPSDisabledAlertToUser
+    }//showGPSDisabledAlertToUser*/
 
 }//Main Class

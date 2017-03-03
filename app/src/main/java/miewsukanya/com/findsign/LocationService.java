@@ -16,8 +16,6 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
-import java.text.DecimalFormat;
-
 import static miewsukanya.com.findsign.MapSearch.p;
 
 /**
@@ -28,7 +26,7 @@ public class LocationService extends Service implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener{
 
-    private static final long INTERVAL = 1000* 2;
+    private static final long INTERVAL = 1000* 1;
     private static final long FASTEST_INTERVAL = 1000 *1;
     LocationRequest mLocationRequest;
     GoogleApiClient mGoogleApiClient;
@@ -55,8 +53,8 @@ public class LocationService extends Service implements
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(INTERVAL);
-        mLocationRequest.setFastestInterval(FASTEST_INTERVAL);
+        mLocationRequest.setInterval(5000);
+        mLocationRequest.setFastestInterval(16);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -129,9 +127,9 @@ public class LocationService extends Service implements
             // MainActivity.time.setText("Total Time: " + diff + " minutes");
             // try {
             if (speed > 0.0) {
-                MapSearch.speed.setText(new DecimalFormat("#.##").format(speed));
+               // MapSearch.speed.setText(new DecimalFormat("#.##").format(speed));
             } else {
-                MapSearch.speed.setText("0");
+              //  MapSearch.speed.setText("0");
                 lStart = lEnd;
                 // p = 0;
             }

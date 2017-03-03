@@ -136,7 +136,7 @@ public class OverlayView extends View implements SensorEventListener,
 
         Log.v(DEBUG_TAG, "Best provider: " + best);
 
-        locationManager.requestLocationUpdates(best, 50, 0, this);
+        locationManager.requestLocationUpdates(best, 500, 0, this);
     }
 
     @Override
