@@ -73,7 +73,7 @@ public final class GPSTracker implements LocationListener {
                 if (isNetworkEnabled) {
                     location=null;
                     locationManager.requestLocationUpdates(
-                            LocationManager.NETWORK_PROVIDER, 1000, 0,this);
+                            LocationManager.NETWORK_PROVIDER, 3000, 0,this);
                     Log.d("Network", "Network");
                     if (locationManager != null) {
                         location = locationManager
@@ -89,7 +89,7 @@ public final class GPSTracker implements LocationListener {
                     location=null;
                     if (location == null) {
                         locationManager.requestLocationUpdates(
-                                LocationManager.GPS_PROVIDER, 1000, 0, this);
+                                LocationManager.GPS_PROVIDER, 3000, 0, this);
                         Log.d("GPS Enabled", "GPS Enabled");
                         if (locationManager != null) {
                             location = locationManager

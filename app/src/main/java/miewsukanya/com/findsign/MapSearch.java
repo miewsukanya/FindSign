@@ -3,24 +3,23 @@ package miewsukanya.com.findsign;
 import android.Manifest;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -63,7 +62,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
     static boolean status;
     private static final int MY_PERMISSION_REQUEST = 5;
     //New speed 03/03/17
-    final int update_interval = 500; // milliseconds
+    final int update_interval = 3000; // milliseconds
 
     // Data shown to user
     float speed2 = 0.0f;
@@ -93,11 +92,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
         if (googleServicesAvailable()) {
             // Toast.makeText(this, "Perfect!!", Toast.LENGTH_LONG).show();
             setContentView(R.layout.activity_map_search);
-
             GetMap getMap = new GetMap(MapSearch.this);
             getMap.execute();
             initMap();
-
             CalculateDistance calculatedistance = new CalculateDistance(MapSearch.this);
             calculatedistance.execute();
 
@@ -105,14 +102,15 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
             //No google map layout
         }
 
+
         txtView_gpsLat = (TextView) findViewById(R.id.txtView_gpsLat);
         txtView_gpsLng = (TextView) findViewById(R.id.txtView_gpsLng);
         btn_getLatLng = (Button) findViewById(R.id.btn_getLatLng);
         txt_Distance = (TextView) findViewById(R.id.txt_distance);
         txtDistance = (TextView) findViewById(R.id.txtDistance);
         txt_speed = (TextView) findViewById(R.id.txt_speed);
-        btn_return = (Button) findViewById(R.id.btn_return);
-        speed=(TextView)findViewById(R.id.txt_speed);
+        // btn_return = (Button) findViewById(R.id.btn_return);
+        // speed=(TextView)findViewById(R.id.txt_speed);
 
         txtidMap = (TextView) findViewById(R.id.txtIDMap);
         txtidSignSetting = (TextView) findViewById(R.id.txtidSignSetting);
@@ -147,12 +145,10 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
         String idDistance = intent.getStringExtra("idDistance");
         textView4.setText(idDistance);
         textView4.setTextSize(20);
-        Log.d("26FebV6", "distance:" + distance+"idMap:"+idMap+"idSign:"+idSign+"idDist:"+idDistance);
+        Log.d("26FebV6", "distance:" + distance + "idMap:" + idMap + "idSign:" + idSign + "idDist:" + idDistance);
 
-        update_speed( 0.0f );
+        update_speed(0.0f); //update speed
 
-        loc_mgr = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-        loc_mgr.requestLocationUpdates( LocationManager.GPS_PROVIDER, update_interval, 0.0f, this );
 
         //get lat lng location device
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
@@ -161,8 +157,8 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
             public void onLocationChanged(Location location) {
 
                 //set marker when lat && lng changed
-                txtView_gpsLat.setText(location.getLatitude()+"");
-                txtView_gpsLng.setText(location.getLongitude()+"");
+                txtView_gpsLat.setText(location.getLatitude() + "");
+                txtView_gpsLng.setText(location.getLongitude() + "");
                 Log.d("Location", "Lat:" + location.getLatitude() + "Lng:" + location.getLongitude());
 
                 double lat = location.getLatitude();
@@ -171,21 +167,25 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                 //ปักหมุดพิกัดของเครื่อง
                 //ถ้ามีการปักหมุดอยู่แล้ว จะลบหมุดอันเดิมออกจากแผนที่
                 if (marker != null && circle != null) {
-                   marker.remove();
-                   circle.remove();
+                    marker.remove();
+                    circle.remove();
                 }
                 MarkerOptions options = new MarkerOptions()
-                        .position(new LatLng(lat,lng));
+                        .position(new LatLng(lat, lng));
                 marker = mGoogleMap.addMarker(options);
-               // add circle in marker
+                // add circle in marker
                 circle = drawCircle(new LatLng(lat, lng));
+                LatLng coordinate = new LatLng(lat, lng);
+                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 16));
+                goToLocationZoom(lat, lng, 16);
 
                 CalculateDistance calculatedistance = new CalculateDistance(MapSearch.this);
                 calculatedistance.execute();
+                //update_speed( 0.0f ); //update speed
 
                 int idMap2;
-                int idSign2, idDistance2,seekbarDist;
-                double speed,dist;
+                int idSign2, idDistance2, seekbarDist;
+                double speed, dist;
                 String SignName;
                 idMap2 = Integer.parseInt(txtidMap.getText().toString());
                 idSign2 = Integer.parseInt(txtidSignSetting.getText().toString());
@@ -196,136 +196,431 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                 SignName = txtSignName.getText().toString();
 
                 //ค้นหาทุกป้าย แต่เลือกการแจ้งเตือนว่าจะแจ้งป้ายไหน
-                if (dist >= seekbarDist) {
-                //-----------------All Sign-----------//
-                if (idMap2 == 1 ) {
-                    //แจ้งเตือนป้าย 45 ขึ้นไป
-                    if (idSign2 == 1 && idDistance2 == 1) {
-                        if (dist <= 0.3) {
-                            if (SignName.equals("Sign45")) {
-                                if (speed >= 45) {
-                                    // distance <= 300 m. && speed >= 45.0 km/hr.
-                                    mp.start() ;
-                                    Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist+SignName);
+                if (dist <= seekbarDist) {
+                    //-----------------All Sign-----------//
+                    if (idMap2 == 1) {
+                        //แจ้งเตือนป้าย 45 ขึ้นไป
+                        if (idSign2 == 1 && idDistance2 == 1) {
+                            if (dist <= 0.3) {
+                                if (SignName.equals("Sign45")) {
+                                    if (speed >= 45.0) {
+
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        //  mp.start() ;
+                                        //  Toast.makeText(getApplicationContext(), "Alert!", Toast.LENGTH_LONG).show();
+                                        //  Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist+SignName);
+                                    } else {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                        // mp.stop();
+                                        //  Log.d("28FebV1.1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist+SignName);
+                                    }
+                                } else if (SignName.equals("Sign60")) {
+                                    if (speed >= 60.0) {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        // mp.start();
+                                        Log.d("28FebV2", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                    }
+                                } else if (SignName.equals("Sign80")) {
+                                    if (speed >= 80.0) {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        //mp.start();
+                                        Log.d("28FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                    }
+                                }
+                            } else {
+                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                mp.stop();
+                            }//if check distance
+
+                        }//idSign == 1 idDistance==1
+                        else if (idSign2 == 1 && idDistance2 == 2) {
+                            if (dist > 0.3 && dist <= 0.4) {
+                                if (SignName.equals("Sign45")) {
+                                    if (speed >= 45.0) {
+                                        // distance <= 300 m. && speed >= 45.0 km/hr.
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        //mp.start() ;
+                                        Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                        // mp.stop();
+                                    }
+                                } else if (SignName.equals("Sign60")) {
+                                    if (speed >= 60.0) {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        // mp.start();
+                                        Log.d("28FebV2", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                        // mp.stop();
+                                    }
+                                } else if (SignName.equals("Sign80")) {
+                                    if (speed >= 80.0) {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        // mp.start();
+                                        Log.d("28FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                    }
+                                }
+                            } else {
+                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                mp.stop();
+                            }//if check distance
+
+                        }//idSign == 1 idDistance==2
+                        else if (idSign2 == 1 && idDistance2 == 3) {
+                            if (dist > 0.4 && dist <= 0.5) {
+                                if (SignName.equals("Sign45")) {
+                                    if (speed >= 45.0) {
+                                        // distance <= 300 m. && speed >= 45.0 km/hr.
+                                        // mp.start() ;
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                        // mp.stop();
+                                    }
+                                } else if (SignName.equals("Sign60")) {
+                                    if (speed >= 60.0) {
+                                        // mp.start();
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        Log.d("28FebV2", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                        // mp.stop();
+                                    }
+                                } else if (SignName.equals("Sign80")) {
+                                    if (speed >= 80.0) {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        // mp.start();
+                                        Log.d("28FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                        //mp.stop();
+                                    }
+                                }
+                            } else {
+                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                mp.start();
+                                // mp.stop();
+                            }//if check distance
+
+                        }//idSign == 1 idDistance==3
+                    }//idMap2 == 1 หน้าค้นหาทุกป้าย
+
+                    else if (idMap2 == 2) {
+                        //แจ้งเตือนป้าย 45
+                        if (idSign2 == 1 && idDistance2 == 1) {
+                            if (dist <= 0.3) {
+                                if (SignName.equals("Sign45")) {
+                                    if (speed >= 45.0) {
+                                        // distance <= 300 m. && speed >= 45.0 km/hr.
+                                        // mp.start() ;
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                        // mp.stop();
+                                    }
+                                }
+                            } else {
+                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                mp.stop();
+                                // mp.stop();
+                            }//if check distance
+                        }//Distance = 300 m.
+                        else if (idSign2 == 1 && idDistance2 == 2) {
+                            if (dist > 0.3 && dist <= 0.4) {
+                                if (SignName.equals("Sign45")) {
+                                    if (speed >= 45.0) {
+                                        // distance <= 300 m. && speed >= 45.0 km/hr.
+                                        //  mp.start() ;
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                        //mp.stop();
+                                    }
+                                }
+                            } else {
+                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                mp.stop();
+                                //  mp.stop();
+                            }//if check distance
+                        }//Distance = 400 m.
+                        else if (idSign2 == 1 && idDistance2 == 3) {
+                            if (dist > 0.4 && dist <= 0.5) {
+                                if (SignName.equals("Sign45")) {
+                                    if (speed >= 45.0) {
+                                        // distance <= 300 m. && speed >= 45.0 km/hr.
+                                        // mp.start() ;
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                        //mp.stop();
+                                    }
+                                }
+                            } else {
+                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                mp.stop();
+                                //mp.stop();
+                            }//if check distance
+                        }//Distance = 500 m.
+                    }//idMap2 == 2 ค้นหาเฉพาะป้าย 45
+
+                    else if (idMap2 == 3) {
+                        //แจ้งเตือนป้าย 60
+                        if (idSign2 == 2 && idDistance2 == 1) {
+                            if (dist <= 0.3) {
+                                if (SignName.equals("Sign60")) {
+                                    if (speed >= 60.0) {
+                                        // distance <= 300 m. && speed >= 45.0 km/hr.
+                                        // mp.start() ;
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        //  mp.stop();
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                    }
+                                }
+                            } else {
+                                //mp.stop();
+                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                mp.stop();
+                            }//if check distance
+                        }//Distance = 300 m.
+                        else if (idSign2 == 2 && idDistance2 == 2) {
+                            if (dist > 0.3 && dist <= 0.4) {
+                                if (SignName.equals("Sign60")) {
+                                    if (speed >= 60.0) {
+                                        // distance <= 300 m. && speed >= 45.0 km/hr.
+                                        //mp.start() ;
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        // mp.stop();
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                    }
+                                }
+                            } else {
+                                //mp.stop();
+                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                mp.stop();
+                            }//if check distance
+                        }//Distance = 400 m.
+                        else if (idSign2 == 2 && idDistance2 == 3) {
+                            if (dist > 0.4 && dist <= 0.5) {
+                                if (SignName.equals("Sign60")) {
+                                    if (speed >= 60.0) {
+                                        // distance <= 300 m. && speed >= 45.0 km/hr.
+                                        // mp.start() ;
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        // mp.stop();
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                    }
+                                }
+                            } else {
+                                // mp.stop();
+                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                mp.stop();
+                            }//if check distance
+                        }//Distance = 500 m.
+                    }//idMap2 == 3 ค้นหาเฉพาะป้าย 60
+
+                    else if (idMap2 == 4) {
+                        //แจ้งเตือนป้าย 60
+                        if (idSign2 == 3 && idDistance2 == 1) {
+                            if (dist <= 0.3) {
+                                if (SignName.equals("Sign80")) {
+                                    if (speed >= 80.0) {
+                                        // distance <= 300 m. && speed >= 45.0 km/hr.
+                                        //mp.start() ;
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        //mp.stop();
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                    }
+                                }
+                            } else {
+                                mp.stop();
+                            }//if check distance
+                        }//Distance = 300 m.
+                        else if (idSign2 == 3 && idDistance2 == 2) {
+                            if (dist > 0.3 && dist <= 0.4) {
+                                if (SignName.equals("Sign80")) {
+                                    if (speed >= 80.0) {
+                                        // distance <= 300 m. && speed >= 45.0 km/hr.
+                                        // mp.start() ;
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.start();
+                                        Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                    } else {
+                                        //mp.stop();
+                                        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                        MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                        mp.stop();
+                                    }
                                 } else {
+                                    //mp.stop();
+                                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                    MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
                                     mp.stop();
-                                }
-                            } else if (SignName.equals("Sign60")) {
-                                if (speed >= 60) {
-                                    mp.start();
-                                    Log.d("28FebV2", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist+SignName);
-                                }else {
-                                    mp.stop();
-                                }
-                            } else if (SignName.equals("Sign80")) {
-                                if (speed >= 80) {
-                                    mp.start();
-                                    Log.d("28FebV3", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist+SignName);
+                                }//if check distance
+                            }//Distance = 400 m.
+                            else if (idSign2 == 3 && idDistance2 == 3) {
+                                if (dist > 0.4 && dist <= 0.5) {
+                                    if (SignName.equals("Sign80")) {
+                                        if (speed >= 80.0) {
+                                            // distance <= 300 m. && speed >= 45.0 km/hr.
+                                            // mp.start() ;
+                                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                            mp.start();
+                                            Log.d("28FebV1", "idSign:" + idSign2 + "idDist:" + idDistance2 + "speed:" + speed + "dist:" + dist + SignName);
+                                        } else {
+                                            //  mp.stop();
+                                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                            mp.stop();
+                                        }
+                                    }
                                 } else {
+                                    //mp.stop();
+                                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                    MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
                                     mp.stop();
-                                }
-                            }
-                        } else {
-                            mp.stop();
-                        }//if check distance
-
-                    }//idSign == 1 idDistance==1
-                }//idMap2 == 1 หน้าค้นหาทุกป้าย
-
-
-               } else {
-                   txt_Distance.setText("0");
-              } //dist seekbar
-
+                                }//if check distance
+                            }//Distance = 500 m.
+                        }//idMap2 == 4 ค้นหาเฉพาะป้าย 80
+                    } else {
+                        txt_Distance.setText("-");
+                    } //dist seekbar
+                }//on locationChanged
             }//on locationChanged
-
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-
             }
-
             @Override
             public void onProviderEnabled(String provider) {
-
             }
-
             @Override
             public void onProviderDisabled(String provider) {
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(intent);
             }
+            //call permission
+            //requestPermissions(perms, 1);
+            //update location in 0 minute distance 1 meter
 
         };
-
-        //Get gps from device
-        gps = new GPSTracker(MapSearch.this);
-
-        if(gps.canGetLocation()){
-
-            double latitude = gps.getLatitude();
-            double longitude = gps.getLongitude();
-
-            Log.d("16FebV1", "Marker" + "Lat:" + latitude + "Lng:" + longitude);
-
-        }else{
-            // txtLocation.setText("อุปกรณ์์ของคุณ ปิด GPS");
-        }
-        //call permission
-        requestPermissions(perms, 1);
-        //update location in 0 minute distance 1 meter
-        //*calculate speed
-        //btn_getLatLng.setOnClickListener(new View.OnClickListener() {
-         //   @Override
-         //   public void onClick(View v) {
-         //       locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
-          //  }
-       // });
-
-        btn_AR.setOnClickListener(new View.OnClickListener() {
+        btn_AR.setOnClickListener(new View.OnClickListener(){
             @Override
-            public void onClick(View v) {
+            public void onClick (View v){
                 Intent intent = new Intent(getApplicationContext(), SearchQuick.class);
                 startActivity(intent);
             }
         });//btnAR
 
-       // checkGps();
-       // locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-      //  if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
-      //      return;
-       // }
-      //  if(status==false)
-      //      bindService();
-      //  locate=new ProgressDialog(MapSearch.this);
-     //   locate.setIndeterminate(true);
-     //   locate.setCancelable(false);
-     //   locate.setMessage("Getting Location...");
-     //   locate.show();
-     //   locate.dismiss();//*/
+          configure_button() ; //call permission
+          getlatlngOnclick();
 
-     //   btn_return.setOnClickListener(new View.OnClickListener() {
-        //    @Override
-      //      public void onClick(View v) {
-       //         if(status==true)
-        //            unbindService();
-         //       p=0;
-
-          //      checkGps();
-          //      locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-         //       if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                    //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
-         //           return;
-         //       }
-                //  pause.setText("Pause");
-         //       p = 0;
-         //       Intent i = new Intent(MapSearch.this, SearchSign.class);
-         //       startActivity(i);
-         //   }
-      //  });
-        configure_button();
-        locationManager.requestLocationUpdates("gps", 3000, 0, locationListener);
+        locationManager.requestLocationUpdates("gps", 3000, 0, locationListener); //get lat lng in 3 ms.
+        loc_mgr = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+        loc_mgr.requestLocationUpdates( LocationManager.GPS_PROVIDER, update_interval, 0.0f, this );
+        GetMap getMap = new GetMap(MapSearch.this);
+        getMap.execute();
+        initMap();
+        CalculateDistance calculatedistance = new CalculateDistance(MapSearch.this);
+        calculatedistance.execute();
     }//Main method
+
+    public void getlatlngOnclick(){
+        locationManager.requestLocationUpdates("gps", 3000, 0, locationListener);
+      //  loc_mgr.requestLocationUpdates( LocationManager.GPS_PROVIDER, update_interval, 0.0f, this );
+    }
 
     //New Speed
     void update_speed( float x )
@@ -337,11 +632,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
 
         String s = String.format("%.0f"
                 ,
-                speed2, speed2 * 3.6f,
-                speed_max, speed_max * 3.6f,
-                num_updates,
-                no_loc,
-                no_speed
+                speed2 * 3.6f
         );
 
         txt_speed.setText( s );
@@ -371,6 +662,17 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
     public void onProviderDisabled( String arg0 ) {}
     //NewSpeed
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case 10:
+                configure_button();
+                break;
+            default:
+                break;
+        }
+    }
+
     void configure_button(){
         // first check for permissions
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -385,47 +687,10 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
             @Override
             public void onClick(View view) {
                 //noinspection MissingPermission
-                locationManager.requestLocationUpdates("gps", 5000, 0, locationListener);
+                locationManager.requestLocationUpdates("gps", 3000, 0, locationListener);
             }
         });
     }
-
-    private boolean shouldAskPermission(){
-        return(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case 1 :
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    //case เกี่ยวกับอัพเดท latitude and longitude
-                   // configureButton();
-
-                } else {
-
-                }
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-            case MY_PERMISSION_REQUEST:
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                } else {
-                    //  readLocation();
-                    //case เกี่ยวกับ อัพเดท Location calculate speed
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION) &&
-                            ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.ACCESS_FINE_LOCATION)) {
-                        new android.app.AlertDialog.Builder(this)
-                                .setTitle("check Location")
-                                .setMessage("you need to grant location");
-                    } else {
-
-                    }
-                }
-        }
-    }//onRequestPermissionsResult
 
     Marker marker;
     Circle circle;
@@ -537,6 +802,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                     // .snippet(String.valueOf(meterInKm)))
                                     .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign80_ss));
                         }
+
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                         LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
                         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
@@ -548,7 +814,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                 .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign45_ss));
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                         LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
-                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 16));
                         goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));
 
                     } else if (meterInKm <= seekBar && idMap == 3 && strSignName.equals("Sign60")) {
@@ -557,7 +823,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                 .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign60_ss));
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                         LatLng coordinate = new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng));
-                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 16));
                         goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));
 
                     } else if (meterInKm <= seekBar &&  idMap == 4 && strSignName.equals("Sign80")) {
@@ -566,26 +832,32 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                 .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign80_ss));
                         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                         LatLng coordinate = new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng));
-                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
+                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 16));
                         goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));
                     }//if check distance && checked idMap
 
                     Log.d("04FebV3", "" + meterInKm +":"+seekBar+":"+idMap+":"+strSignID+":"+strSignName);
                     mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                    goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng),15);
+                    goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng),16);
 
-                    //set marker from gps device 16/02/17
-                    MarkerOptions options = new MarkerOptions()
-                            .position(new LatLng(gps.getLatitude(), gps.getLongitude()));
-                    marker = mGoogleMap.addMarker(options);
-                    LatLng coordinate = new LatLng (gps.getLatitude(),gps.getLongitude());
-                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 15));
-                    goToLocationZoom(gps.getLatitude(),gps.getLongitude(),15);
-                    Log.d("16FebV2", "Marker" + "Lat:" + gps.getLatitude() + "Lng:" + gps.getLongitude());
+
                     //ปักหมุดในครั้งแรกที่เปิดหน้าแมพ แล้วลบหมุดออกถ้าแลตลองเปลี่ยน
-                    marker.remove();
+                    // marker.remove();
                 }// for
-
+                //ถ้ามีการปักหมุดอยู่แล้ว จะลบหมุดอันเดิมออกจากแผนที่
+                if (marker != null && circle != null) {
+                    marker.remove();
+                    circle.remove();
+                }
+                //set marker from gps device 16/02/17
+                MarkerOptions options = new MarkerOptions()
+                        .position(new LatLng(gps.getLatitude(), gps.getLongitude()));
+                marker = mGoogleMap.addMarker(options);
+                circle = drawCircle(new LatLng(gps.getLatitude(), gps.getLongitude()));
+                LatLng coordinate = new LatLng (gps.getLatitude(),gps.getLongitude());
+                mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 12));
+                goToLocationZoom(gps.getLatitude(),gps.getLongitude(),12);
+                Log.d("16FebV2", "Marker" + "Lat:" + gps.getLatitude() + "Lng:" + gps.getLongitude());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -684,18 +956,21 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                             //แสดงค่าระยะห่างใน textView
                             txt_Distance.setText(min +"");
                             txtSignName.setText(strSignName+"");
+
                             Log.d("01MarV1", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap);
                         } else if (exIntArray[i] < min && strSignName.equals("Sign60")) {
                             min = exIntArray[i];
                             //แสดงค่าระยะห่างใน textView
                             txt_Distance.setText(min +"");
                             txtSignName.setText(strSignName+"");
+
                             Log.d("01MarV2", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap);
                         } else if (exIntArray[i] < min && strSignName.equals("Sign80")) {
                             min = exIntArray[i];
                             //แสดงค่าระยะห่างใน textView
                             txt_Distance.setText(min +"");
                             txtSignName.setText(strSignName+"");
+
                             Log.d("01MarV3", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap);
 
                         }
@@ -726,7 +1001,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                         txtSignName.setText(strSignName+"");
                         Log.d("01MarV4", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap);
                     } else {
-                        txt_Distance.setText("0");
+                        //  txt_Distance.setText("0");
                     }
                 }//for
 
@@ -775,7 +1050,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
     private Circle drawCircle(LatLng latLng) {
         CircleOptions circleOptions = new CircleOptions()
                 .center(latLng)
-                .radius(100)
+                .radius(50)
                 .fillColor(0x6633b5e5)
                 .strokeColor(Color.BLUE)
                 .strokeWidth(1);
@@ -816,89 +1091,4 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
             }
         });*/
     }//onMapReady
-
-    /*//Calculate Speed
-    void checkGps()
-    {
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-        if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-            //Toast.makeText(this, "GPS is Enabled in your devide", Toast.LENGTH_SHORT).show();
-            showGPSDisabledAlertToUser();
-        }
-    }//void checkGps
-    void bindService()
-    {
-        if(status==true)
-            return;
-        Intent i=new Intent(getApplicationContext(),LocationService.class);
-        bindService(i, sc, BIND_AUTO_CREATE);
-        status=true;
-        startTime=System.currentTimeMillis();
-    }//bindService
-    void unbindService()
-    {
-        if(status==false)
-            return;
-        Intent i=new Intent(getApplicationContext(),LocationService.class);
-        unbindService(sc);
-        status=false;
-    }//unbindService
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-    }//onResume
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(status==true)
-            unbindService();
-    }//onDestroy
-    @Override
-    public void onBackPressed() {
-        if(status==false)
-            super.onBackPressed();
-        else
-            moveTaskToBack(true);
-    }//onBackPressed
-    private ServiceConnection sc=new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName name, IBinder service) {
-            LocationService.LocalBinder binder=(LocationService.LocalBinder)service;
-            myService=binder.getService();
-            status=true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            status=false;
-        }
-    };//ServiceConnection
-    private void showGPSDisabledAlertToUser(){
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setMessage("Enable GPS to use application")
-                .setCancelable(false)
-                .setPositiveButton("Enable GPS",
-                        new DialogInterface.OnClickListener(){
-                            public void onClick(DialogInterface dialog, int id){
-                                Intent callGPSSettingIntent = new Intent(
-                                        android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                startActivity(callGPSSettingIntent);
-                            }
-                        });
-        alertDialogBuilder.setNegativeButton("Cancel",
-                new DialogInterface.OnClickListener(){
-                    public void onClick(DialogInterface dialog, int id){
-                        dialog.cancel();
-                    }
-                });
-        AlertDialog alert = alertDialogBuilder.create();
-        alert.show();
-    }//showGPSDisabledAlertToUser*/
-
 }//Main Class

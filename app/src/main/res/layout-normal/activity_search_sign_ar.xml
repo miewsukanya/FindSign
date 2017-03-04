@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_search_sign"
+    android:id="@+id/activity_search_sign_ar"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -10,7 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="miewsukanya.com.findsign.SearchSign"
+    tools:context="miewsukanya.com.findsign.SearchSignAR"
     android:background="@drawable/bg_p2">
 
     <LinearLayout
@@ -27,8 +26,8 @@
             android:layout_height="wrap_content"
             android:id="@+id/textView"
             android:textSize="@dimen/aText"
-            android:layout_marginLeft="20dp"
-            android:textColor="@color/Acolor" />
+            android:textColor="@color/Acolor"
+            android:layout_marginLeft="20dp" />
 
         <SeekBar
             android:layout_width="158dp"
@@ -47,14 +46,13 @@
             android:textColor="@color/Acolor" />
 
         <TextView
-            android:text="กม."
+            android:text="ม."
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/textView3"
             android:textSize="@dimen/aText"
             android:padding="5dp"
             android:layout_marginLeft="5dp"
-            android:layout_weight="0.46"
             android:textColor="@color/Acolor" />
     </LinearLayout>
 
@@ -68,8 +66,8 @@
         <ImageView
             android:layout_width="@dimen/size_button4"
             android:layout_height="@dimen/size_button4"
-            app:srcCompat="@drawable/but_sign"
-            android:id="@+id/SearchSignAll"
+            android:src="@drawable/but_sign"
+            android:id="@+id/SearchSignAllAr"
             android:layout_weight="1"
             android:layout_marginTop="20dp" />
 
@@ -84,8 +82,8 @@
         <ImageView
             android:layout_width="@dimen/size_button5"
             android:layout_height="@dimen/size_button5"
-            app:srcCompat="@drawable/but_45"
-            android:id="@+id/SearchSign45"
+            android:src="@drawable/but_45"
+            android:id="@+id/SearchSign45Ar"
             android:layout_weight="1"
             android:padding="5dp"
             android:layout_marginLeft="12dp"
@@ -94,8 +92,8 @@
         <ImageView
             android:layout_width="@dimen/size_button5"
             android:layout_height="@dimen/size_button5"
-            app:srcCompat="@drawable/but_60"
-            android:id="@+id/SearchSign60"
+            android:src="@drawable/but_60"
+            android:id="@+id/SearchSign60Ar"
             android:layout_weight="1"
             android:padding="5dp"
             android:layout_marginLeft="12dp"
@@ -104,34 +102,12 @@
         <ImageView
             android:layout_width="@dimen/size_button5"
             android:layout_height="@dimen/size_button5"
-            app:srcCompat="@drawable/but_80"
-            android:id="@+id/SearchSign80"
+            android:src="@drawable/but_80"
+            android:id="@+id/SearchSign80Ar"
             android:layout_weight="1"
             android:padding="5dp"
             android:layout_marginLeft="12dp"
             android:layout_marginTop="15dp" />
-    </LinearLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-
-        <TextView
-            android:text="TextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/txtidSignSearchSign"
-            android:layout_marginLeft="10dp"
-            android:textColor="@color/txtBg" />
-
-        <TextView
-            android:text="TextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/txtidDistSearchSign"
-            android:layout_marginLeft="10dp"
-            android:textColor="@color/txtBg" />
     </LinearLayout>
 
 </LinearLayout>

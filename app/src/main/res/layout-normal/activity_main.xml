@@ -17,14 +17,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="15dp">
 
         <ImageView
             android:layout_width="56dp"
             android:layout_height="54dp"
             app:srcCompat="@drawable/btn_setting"
             android:id="@+id/btn_setting"
-            android:layout_marginLeft="300dp" />
+            android:layout_marginLeft="280dp" />
 
         <ImageView
             app:srcCompat="@drawable/btn_searchq"
@@ -32,21 +33,22 @@
             android:layout_marginTop="80dp"
             android:layout_width="@dimen/size_button3"
             android:layout_height="@dimen/size_button3"
-            android:layout_gravity="center"
-            android:layout_marginLeft="12dp" />
+            android:layout_gravity="center" />
 
         <TextView
             android:text="TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/txtidSignPref"
-            android:layout_weight="1" />
+            android:layout_weight="1"
+            android:textColor="@color/txtBg" />
 
         <TextView
             android:text="TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/txtidDistancePref" />
+            android:id="@+id/txtidDistancePref"
+            android:textColor="@color/txtBg" />
 
     </LinearLayout>
 
@@ -54,29 +56,32 @@
         android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentBottom="false"
+        android:layout_alignParentStart="false"
+        android:layout_marginTop="300dp">
 
         <LinearLayout
             android:orientation="horizontal"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="350dp">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
             <ImageView
-                android:layout_width="@dimen/size_button"
-                android:layout_height="@dimen/size_button"
+                android:layout_width="@dimen/size_button4"
                 app:srcCompat="@drawable/btn_select"
                 android:id="@+id/SearchSign"
-                android:layout_marginLeft="15dp" />
+                android:layout_marginLeft="10dp"
+                android:layout_height="@dimen/size_button4"
+                android:layout_marginTop="20dp" />
 
             <ImageView
                 android:layout_width="@dimen/size_button4"
                 android:layout_height="@dimen/size_button4"
                 app:srcCompat="@drawable/btn_know"
                 android:id="@+id/Knowledge"
-                android:layout_marginLeft="50dp" />
+                android:layout_marginLeft="55dp"
+                android:layout_marginTop="20dp" />
 
         </LinearLayout>
     </LinearLayout>
+
 </RelativeLayout>

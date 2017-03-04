@@ -15,22 +15,25 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true">
+        android:layout_alignParentStart="true"
+        android:weightSum="1">
 
         <fragment
             android:layout_width="match_parent"
-            android:layout_height="360dp"
             android:name="com.google.android.gms.maps.MapFragment"
             android:id="@+id/mapFragment"
             android:layout_alignParentBottom="false"
             android:layout_centerHorizontal="false"
-            android:layout_gravity="center_horizontal" />
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="10.74"
+            android:layout_height="360dp" />
 
         <Button
             android:text="AR"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/btnAR" />
+            android:id="@+id/btnAR"
+            android:layout_marginTop="10dp" />
 
     </LinearLayout>
 
@@ -38,7 +41,7 @@
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="410dp">
+        android:layout_marginTop="420dp">
 
         <LinearLayout
             android:orientation="horizontal"
@@ -50,8 +53,8 @@
                 android:text="ชื่อป้าย :"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/textView4"
-                android:textSize="20dp"  />
+                android:id="@+id/textView2"
+                android:textSize="20dp" />
 
             <TextView
                 android:text="TextView"
@@ -60,12 +63,14 @@
                 android:id="@+id/txt_SignNameMS"
                 android:textSize="20dp"
                 android:layout_marginLeft="20dp" />
+
         </LinearLayout>
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:layout_marginTop="5dp">
 
             <TextView
                 android:text="ระยะห่าง : "
@@ -76,7 +81,7 @@
 
             <TextView
                 android:text=""
-                android:layout_width="136dp"
+                android:layout_width="106dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/txt_distance"
                 android:textSize="20dp"
@@ -107,7 +112,7 @@
 
             <TextView
                 android:text=""
-                android:layout_width="127dp"
+                android:layout_width="97dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/txt_speed"
                 android:textColor="@android:color/black"
@@ -120,14 +125,6 @@
                 android:id="@+id/textView8"
                 android:textSize="20dp"/>
 
-            <Button
-                android:text=""
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/btn_getLatLng"
-                android:background="@color/Acolor"
-                android:layout_weight="1"
-                android:layout_marginLeft="40dp" />
         </LinearLayout>
 
     </LinearLayout>
@@ -136,40 +133,39 @@
         android:orientation="horizontal"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true">
+        android:layout_marginTop="540dp">
 
         <TextView
             android:text="TextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/txtView_gpsLat"
-            android:textColor="@color/Acolor"
-            android:layout_marginLeft="5dp" />
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/bt" />
 
         <TextView
             android:text="TextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/txtView_gpsLng"
-            android:textColor="@color/Acolor"
-            android:layout_marginLeft="5dp" />
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/bt" />
 
         <TextView
             android:text="TextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/txtDistance"
-            android:textColor="@color/Acolor"
-            android:layout_marginLeft="5dp" />
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/bt" />
 
         <TextView
             android:text="TextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/txtidSignSetting"
-            android:textColor="@color/Acolor"
-            android:layout_marginLeft="5dp" />
+            android:layout_marginLeft="5dp"
+            android:textColor="@color/bt" />
 
         <TextView
             android:text="TextView"
@@ -177,7 +173,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/txtidDistSetting"
             android:layout_marginLeft="5dp"
-            android:textColor="@color/Acolor"/>
+            android:textColor="@color/bt" />
 
         <TextView
             android:text="TextView"
@@ -185,9 +181,24 @@
             android:layout_height="wrap_content"
             android:id="@+id/txtIDMap"
             android:layout_marginLeft="10dp"
-            android:textColor="@color/Acolor"
-             />
+            android:textColor="@color/bt" />
 
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="560dp">
+
+        <Button
+            android:text=""
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_getLatLng"
+            android:background="@color/bt"
+            android:textColor="@color/bt"
+            android:onClick="getlatlngOnclick" />
     </LinearLayout>
 
 </RelativeLayout>
