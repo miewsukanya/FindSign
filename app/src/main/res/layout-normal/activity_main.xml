@@ -33,7 +33,8 @@
             android:layout_marginTop="80dp"
             android:layout_width="@dimen/size_button3"
             android:layout_height="@dimen/size_button3"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            android:onClick="onSearchQ" />
 
         <TextView
             android:text="TextView"

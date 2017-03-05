@@ -47,6 +47,7 @@ import com.squareup.okhttp.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,LocationListener {
@@ -85,6 +86,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
     Button btn_getLatLng,btn_return,btn_AR;
     TextView txtView_gpsLat,txtView_gpsLng,txt_Distance,txtDistance,txt_speed,txtidMap,txtSignName;
     TextView txtidSignSetting, txtidDistSetting;
+    private static final int REQUEST_CAMERA = 0;
     //GoogleApiClient mGoogleClient;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -244,12 +246,15 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                     }
                                 }
                             } else {
-                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
-                                mp.stop();
+                                try {
+                                //    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                 //   MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                //    mp.stop();
+                                } catch (Exception e) {
+                                }
                             }//if check distance
-
                         }//idSign == 1 idDistance==1
+
                         else if (idSign2 == 1 && idDistance2 == 2) {
                             if (dist > 0.3 && dist <= 0.4) {
                                 if (SignName.equals("Sign45")) {
@@ -293,9 +298,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                     }
                                 }
                             } else {
-                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
-                                mp.stop();
+                              //  Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                              //  MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                              //  mp.stop();
                             }//if check distance
 
                         }//idSign == 1 idDistance==2
@@ -343,9 +348,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                     }
                                 }
                             } else {
-                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
-                                mp.start();
+                             //   Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                             //   MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                             //   mp.start();
                                 // mp.stop();
                             }//if check distance
 
@@ -372,9 +377,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                     }
                                 }
                             } else {
-                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
-                                mp.stop();
+                            //    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                             //   MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                             //   mp.stop();
                                 // mp.stop();
                             }//if check distance
                         }//Distance = 300 m.
@@ -396,9 +401,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                     }
                                 }
                             } else {
-                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
-                                mp.stop();
+                               // Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                               // MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                               // mp.stop();
                                 //  mp.stop();
                             }//if check distance
                         }//Distance = 400 m.
@@ -420,9 +425,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                     }
                                 }
                             } else {
-                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
-                                mp.stop();
+                               // Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                               // MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                               // mp.stop();
                                 //mp.stop();
                             }//if check distance
                         }//Distance = 500 m.
@@ -449,9 +454,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                 }
                             } else {
                                 //mp.stop();
-                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
-                                mp.stop();
+                               /// Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                               // MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                               // mp.stop();
                             }//if check distance
                         }//Distance = 300 m.
                         else if (idSign2 == 2 && idDistance2 == 2) {
@@ -473,9 +478,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                 }
                             } else {
                                 //mp.stop();
-                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
-                                mp.stop();
+                              //  Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                              //  MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                              //  mp.stop();
                             }//if check distance
                         }//Distance = 400 m.
                         else if (idSign2 == 2 && idDistance2 == 3) {
@@ -497,9 +502,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                 }
                             } else {
                                 // mp.stop();
-                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
-                                mp.stop();
+                               // Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                               // MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                               // mp.stop();
                             }//if check distance
                         }//Distance = 500 m.
                     }//idMap2 == 3 ค้นหาเฉพาะป้าย 60
@@ -524,7 +529,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                     }
                                 }
                             } else {
-                                mp.stop();
+                              //  mp.stop();
                             }//if check distance
                         }//Distance = 300 m.
                         else if (idSign2 == 3 && idDistance2 == 2) {
@@ -545,9 +550,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                     }
                                 } else {
                                     //mp.stop();
-                                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                    MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
-                                    mp.stop();
+                                  //  Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                  ///  MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                  //  mp.stop();
                                 }//if check distance
                             }//Distance = 400 m.
                             else if (idSign2 == 3 && idDistance2 == 3) {
@@ -569,9 +574,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                     }
                                 } else {
                                     //mp.stop();
-                                    Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                    MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
-                                    mp.stop();
+                                  //  Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                  //  MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                                  //  mp.stop();
                                 }//if check distance
                             }//Distance = 500 m.
                         }//idMap2 == 4 ค้นหาเฉพาะป้าย 80
@@ -591,10 +596,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                 startActivity(intent);
             }
-            //call permission
-            //requestPermissions(perms, 1);
-            //update location in 0 minute distance 1 meter
-
         };
         btn_AR.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -603,59 +604,51 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                 startActivity(intent);
             }
         });//btnAR
+        try {
+            configure_button() ; //call permission
+            getlatlngOnclick();
+            // locationManager.requestLocationUpdates("gps", 3000, 0, locationListener); //get lat lng in 3 ms.
+            loc_mgr = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+            loc_mgr.requestLocationUpdates( LocationManager.GPS_PROVIDER, update_interval, 0.0f, this );
 
-          configure_button() ; //call permission
-          getlatlngOnclick();
-
-        locationManager.requestLocationUpdates("gps", 3000, 0, locationListener); //get lat lng in 3 ms.
-        loc_mgr = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-        loc_mgr.requestLocationUpdates( LocationManager.GPS_PROVIDER, update_interval, 0.0f, this );
+        } catch (Exception e) {
+        }
         GetMap getMap = new GetMap(MapSearch.this);
         getMap.execute();
         initMap();
         CalculateDistance calculatedistance = new CalculateDistance(MapSearch.this);
         calculatedistance.execute();
+        setRequestCamera(); //ขออนุญาตใช้งานกล้อง permission
     }//Main method
 
     public void getlatlngOnclick(){
-        locationManager.requestLocationUpdates("gps", 3000, 0, locationListener);
+        try {
+            locationManager.requestLocationUpdates("gps", 3000, 0, locationListener); //อัพเดท location in 3 ms.
+        } catch (Exception e) {
+        }
       //  loc_mgr.requestLocationUpdates( LocationManager.GPS_PROVIDER, update_interval, 0.0f, this );
-    }
-
+    }//getlatlngOnclick()
     //New Speed
-    void update_speed( float x )
-    {
+    void update_speed( float x ) {
         speed2= x;
-
         if ( x > speed_max )
             speed_max = x;
 
-        String s = String.format("%.0f"
-                ,
-                speed2 * 3.6f
-        );
-
-        txt_speed.setText( s );
-    }
-
-    public void onLocationChanged( Location loc )
-    {
+        String s = String.format("%.0f", speed2 * 3.6f);
+        txt_speed.setText( s ); //set speed in textView
+    }//update_speed
+    public void onLocationChanged( Location loc ) {
         num_updates++;
-
-        if ( loc == null )
-        {
+        if ( loc == null ) {
             no_loc++;
             return;
         }
-
-        if ( !loc.hasSpeed() )
-        {
+        if ( !loc.hasSpeed() ) {
             no_speed++;
             return;
         }
-
         update_speed( loc.getSpeed() );
-    }
+    }//onLocationChanged speed
 
     public void onStatusChanged( String arg0, int arg1, Bundle arg2 ) {}
     public void onProviderEnabled( String arg0 ) {}
@@ -668,10 +661,13 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
             case 10:
                 configure_button();
                 break;
+            case 11:
+                setRequestCamera();
+                break;
             default:
                 break;
         }
-    }
+    }//onRequestPermissionsResult
 
     void configure_button(){
         // first check for permissions
@@ -690,7 +686,35 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                 locationManager.requestLocationUpdates("gps", 3000, 0, locationListener);
             }
         });
-    }
+    }//configure_button() allow location
+    public void onClickAr(View view) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions();
+        } else {
+            startActivity(new Intent(MapSearch.this,SearchQuick.class));
+        }
+    }//onClickAr button AR
+
+    private void requestPermissions() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.CAMERA)){
+            ActivityCompat.requestPermissions(MapSearch.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
+        } else {
+            ActivityCompat.requestPermissions(MapSearch.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
+        }
+    }//requestPermissions()
+
+    void setRequestCamera(){
+        // first check for permissions
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                requestPermissions(new String[]{Manifest.permission.CAMERA,Manifest.permission.INTERNET}
+                        ,11);
+            }
+            return;
+        }
+        // this code won't execute IF permissions are not allowed, because in the line above there is return statement.
+    }//setRequestCamera() allow Camera
 
     Marker marker;
     Circle circle;
@@ -1091,4 +1115,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
             }
         });*/
     }//onMapReady
+
+
 }//Main Class

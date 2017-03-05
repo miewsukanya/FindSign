@@ -38,16 +38,12 @@ public class OverlayView extends View implements SensorEventListener,
     // Mount Washington, NH: 44.27179, -71.3039, 6288 ft (highest peak
     private final static Location mountWashington = new Location("manual");
     static {
-        //mountWashington.setLatitude(44.27179d);
-        //mountWashington.setLongitude(-71.3039d);
-       // mountWashington.setLatitude(16.4744428d);
-        //mountWashington.setLongitude(102.8230584d);
+
 
         mountWashington.setLatitude(16.47380519669129d);
         mountWashington.setLongitude(102.82246079295874d);
-        //mountWashington.setLatitude(43.998d);
-        //mountWashington.setLongitude(-71.2d);
         mountWashington.setAltitude(1916.5d);
+
     }
 
     String accelData = "Accelerometer Data";
@@ -93,6 +89,7 @@ public class OverlayView extends View implements SensorEventListener,
         startSensors();
         startGPS();
 
+
         // get some camera parameters
        // Camera camera = Camera.open();
         Camera camera = Camera.open();
@@ -136,7 +133,7 @@ public class OverlayView extends View implements SensorEventListener,
 
         Log.v(DEBUG_TAG, "Best provider: " + best);
 
-        locationManager.requestLocationUpdates(best, 500, 0, this);
+       locationManager.requestLocationUpdates(best, 500, 0, this);
     }
 
     @Override
