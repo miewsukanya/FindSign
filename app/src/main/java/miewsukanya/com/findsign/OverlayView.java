@@ -19,6 +19,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Layout.Alignment;
@@ -26,6 +27,19 @@ import android.text.StaticLayout;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.View;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.text.DecimalFormat;
 
 public class OverlayView extends View implements SensorEventListener,
         LocationListener {
@@ -88,10 +102,11 @@ public class OverlayView extends View implements SensorEventListener,
 
         startSensors();
         startGPS();
-
+       // GetMap getMap = new GetMap(OverlayView.this);
+       // getMap.execute();
 
         // get some camera parameters
-       // Camera camera = Camera.open();
+        // Camera camera = Camera.open();
         Camera camera = Camera.open();
         Camera.Parameters params = camera.getParameters();
         verticalFOV = params.getVerticalViewAngle();
@@ -117,8 +132,7 @@ public class OverlayView extends View implements SensorEventListener,
                 SensorManager.SENSOR_DELAY_NORMAL);
         isCompassAvailable = sensors.registerListener(this, compassSensor,
                 SensorManager.SENSOR_DELAY_NORMAL);
-        isGyroAvailable = sensors.registerListener(this, gyroSensor,
-                SensorManager.SENSOR_DELAY_NORMAL);
+        isGyroAvailable = sensors.registerListener(this, gyroSensor,SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     private void startGPS() {
@@ -133,7 +147,7 @@ public class OverlayView extends View implements SensorEventListener,
 
         Log.v(DEBUG_TAG, "Best provider: " + best);
 
-       locationManager.requestLocationUpdates(best, 500, 0, this);
+        locationManager.requestLocationUpdates(best, 3000, 0, this);
     }
 
     @Override
@@ -208,7 +222,6 @@ public class OverlayView extends View implements SensorEventListener,
                 // draw our point -- we've rotated and translated this to the right spot already
                 //canvas.drawCircle(canvas.getWidth()/2, canvas.getHeight()/2, 8.0f, targetPaint);
                 canvas.drawBitmap(img, canvas.getWidth()/2, canvas.getHeight()/2, null);
-
                 canvas.restore();
 
             }
@@ -216,8 +229,7 @@ public class OverlayView extends View implements SensorEventListener,
 
         canvas.save();
         canvas.translate(15.0f, 15.0f);
-        StaticLayout textBox = new StaticLayout(text.toString(), contentPaint,
-                480, Alignment.ALIGN_NORMAL, 1.0f, 0.0f, true);
+        StaticLayout textBox = new StaticLayout(text.toString(), contentPaint, 480, Alignment.ALIGN_NORMAL, 1.0f, 0.0f, true);
         //textBox.draw(canvas);
         canvas.restore();
     }
@@ -281,4 +293,5 @@ public class OverlayView extends View implements SensorEventListener,
         startSensors();
         startGPS();
     }
+
 }

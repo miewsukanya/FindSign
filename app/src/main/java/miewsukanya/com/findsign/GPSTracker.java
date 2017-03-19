@@ -15,6 +15,8 @@ public final class GPSTracker implements LocationListener {
 
     private final Context mContext;
 
+    //private final OverlayView overlayView;
+
     // flag for GPS status
     public boolean isGPSEnabled = false;
 
@@ -40,6 +42,7 @@ public final class GPSTracker implements LocationListener {
 
     public GPSTracker(Context context) {
         this.mContext = context;
+       // this.overlayView = overlayView;
         getLocation();
         stopUsingGPS();
     }

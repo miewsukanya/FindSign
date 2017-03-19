@@ -2,6 +2,7 @@ package miewsukanya.com.findsign;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -23,6 +24,7 @@ public class Showcamera extends SurfaceView implements SurfaceHolder.Callback{
         camera = mycam;
         surfaceHolder = getHolder();
         surfaceHolder.addCallback(this);
+        Log.d("06MarV2", "Camera class");
     }
 
     @Override
@@ -35,6 +37,7 @@ public class Showcamera extends SurfaceView implements SurfaceHolder.Callback{
         try {
             camera.setPreviewDisplay(holder);
             camera.startPreview();
+            Log.d("06MarV3", "Camera class");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -45,6 +48,6 @@ public class Showcamera extends SurfaceView implements SurfaceHolder.Callback{
     public void surfaceDestroyed(SurfaceHolder holder) {
         camera.stopPreview();
         camera.release();
-
+        Log.d("06MarV4", "Camera class");
     }
 }

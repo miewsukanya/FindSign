@@ -11,7 +11,6 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.media.MediaPlayer;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -47,7 +46,6 @@ import com.squareup.okhttp.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,LocationListener {
@@ -196,15 +194,17 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                 dist = Double.valueOf(txt_Distance.getText().toString());
                 seekbarDist = Integer.parseInt(txtDistance.getText().toString());
                 SignName = txtSignName.getText().toString();
-
+                Log.d("19MarV1", "speed:"+dist+":"+seekbarDist);
                 //ค้นหาทุกป้าย แต่เลือกการแจ้งเตือนว่าจะแจ้งป้ายไหน
                 if (dist <= seekbarDist) {
+
                     //-----------------All Sign-----------//
                     if (idMap2 == 1) {
                         //แจ้งเตือนป้าย 45 ขึ้นไป
                         if (idSign2 == 1 && idDistance2 == 1) {
                             if (dist <= 0.3) {
                                 if (SignName.equals("Sign45")) {
+                                   // Log.d("19MarV1", "speed:"+speed);
                                     if (speed >= 45.0) {
 
                                         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -256,7 +256,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                         }//idSign == 1 idDistance==1
 
                         else if (idSign2 == 1 && idDistance2 == 2) {
-                            if (dist > 0.3 && dist <= 0.4) {
+                            if (dist > 0.1 && dist <= 0.4) {
                                 if (SignName.equals("Sign45")) {
                                     if (speed >= 45.0) {
                                         // distance <= 300 m. && speed >= 45.0 km/hr.
@@ -305,7 +305,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
 
                         }//idSign == 1 idDistance==2
                         else if (idSign2 == 1 && idDistance2 == 3) {
-                            if (dist > 0.4 && dist <= 0.5) {
+                            if (dist > 0.1 && dist <= 0.5) {
                                 if (SignName.equals("Sign45")) {
                                     if (speed >= 45.0) {
                                         // distance <= 300 m. && speed >= 45.0 km/hr.
@@ -384,7 +384,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                             }//if check distance
                         }//Distance = 300 m.
                         else if (idSign2 == 1 && idDistance2 == 2) {
-                            if (dist > 0.3 && dist <= 0.4) {
+                            if (dist > 0.1 && dist <= 0.4) {
                                 if (SignName.equals("Sign45")) {
                                     if (speed >= 45.0) {
                                         // distance <= 300 m. && speed >= 45.0 km/hr.
@@ -408,7 +408,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                             }//if check distance
                         }//Distance = 400 m.
                         else if (idSign2 == 1 && idDistance2 == 3) {
-                            if (dist > 0.4 && dist <= 0.5) {
+                            if (dist > 0.1 && dist <= 0.5) {
                                 if (SignName.equals("Sign45")) {
                                     if (speed >= 45.0) {
                                         // distance <= 300 m. && speed >= 45.0 km/hr.
@@ -460,7 +460,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                             }//if check distance
                         }//Distance = 300 m.
                         else if (idSign2 == 2 && idDistance2 == 2) {
-                            if (dist > 0.3 && dist <= 0.4) {
+                            if (dist > 0.1 && dist <= 0.4) {
                                 if (SignName.equals("Sign60")) {
                                     if (speed >= 60.0) {
                                         // distance <= 300 m. && speed >= 45.0 km/hr.
@@ -484,7 +484,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                             }//if check distance
                         }//Distance = 400 m.
                         else if (idSign2 == 2 && idDistance2 == 3) {
-                            if (dist > 0.4 && dist <= 0.5) {
+                            if (dist > 0.1 && dist <= 0.5) {
                                 if (SignName.equals("Sign60")) {
                                     if (speed >= 60.0) {
                                         // distance <= 300 m. && speed >= 45.0 km/hr.
@@ -533,7 +533,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                             }//if check distance
                         }//Distance = 300 m.
                         else if (idSign2 == 3 && idDistance2 == 2) {
-                            if (dist > 0.3 && dist <= 0.4) {
+                            if (dist > 0.1 && dist <= 0.4) {
                                 if (SignName.equals("Sign80")) {
                                     if (speed >= 80.0) {
                                         // distance <= 300 m. && speed >= 45.0 km/hr.
@@ -556,7 +556,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                                 }//if check distance
                             }//Distance = 400 m.
                             else if (idSign2 == 3 && idDistance2 == 3) {
-                                if (dist > 0.4 && dist <= 0.5) {
+                                if (dist > 0.1 && dist <= 0.5) {
                                     if (SignName.equals("Sign80")) {
                                         if (speed >= 80.0) {
                                             // distance <= 300 m. && speed >= 45.0 km/hr.
@@ -690,6 +690,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
     public void onClickAr(View view) {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions();
+
         } else {
             startActivity(new Intent(MapSearch.this,SearchQuick.class));
         }
@@ -861,10 +862,13 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                     }//if check distance && checked idMap
 
                     Log.d("04FebV3", "" + meterInKm +":"+seekBar+":"+idMap+":"+strSignID+":"+strSignName);
+                 //   mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                  //  goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng),16);
+
                     mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-                    goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng),16);
-
-
+                    LatLng coordinate = new LatLng (Double.parseDouble(strLat), Double.parseDouble(strLng));
+                    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 16));
+                    goToLocationZoom(Double.parseDouble(strLat), Double.parseDouble(strLng));
                     //ปักหมุดในครั้งแรกที่เปิดหน้าแมพ แล้วลบหมุดออกถ้าแลตลองเปลี่ยน
                     // marker.remove();
                 }// for
@@ -1085,6 +1089,9 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
+//        LatLng coordinate = new LatLng (gps.getLatitude(),gps.getLongitude());
+    //    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 16));
+//        goToLocationZoom(gps.getLatitude(),gps.getLongitude(),16);
 /*
         mGoogleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
             @Override

@@ -145,9 +145,5 @@ public class SearchSign extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-
     }//Main Method
-
-
 }//Main Class

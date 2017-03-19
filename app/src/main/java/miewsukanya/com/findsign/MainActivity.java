@@ -124,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
                  //   != PackageManager.PERMISSION_GRANTED
             requestPermissions();
         } else {
-            startActivity(new Intent(MainActivity.this,SearchQuick.class));
+            startActivity(new Intent(MainActivity.this,ARView.class));
         }
 
     }//onSearchQ
