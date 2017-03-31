@@ -1,4 +1,4 @@
-package miewsukanya.com.findsign;
+package miewsukanya.com.findsign.arview;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -9,8 +9,7 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.Log;
 
-import miewsukanya.com.findsign.DataView;
-import miewsukanya.com.findsign.PaintUtils;
+import miewsukanya.com.findsign.utils.PaintUtils;
 
 
 public class RadarView implements LocationListener {
@@ -18,6 +17,9 @@ public class RadarView implements LocationListener {
      * The screen
      */
     public DataView view;
+    public DataView2 dataView2;
+    public DataView3 dataView3;
+    public DataView4 dataView4;
     /**
      * The radar's range
      */
@@ -66,14 +68,42 @@ public class RadarView implements LocationListener {
     double[] bearings;
     ARView arView = new ARView();
 
-    public RadarView(Context context, DataView dataView, double[] bearings) {
+    public RadarView(Context context,DataView dataView, double[] bearings) {
         this.bearings = bearings;
         calculateMetrics();
 
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 200, 0, this);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 0, this);
         currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
     }
+
+    public RadarView(Context context, DataView2 dataView2, double[] bearings) {
+        this.bearings = bearings;
+        calculateMetrics();
+
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 0, this);
+        currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+    }
+
+    public RadarView(Context context, DataView3 dataView3, double[] bearings) {
+        this.bearings = bearings;
+        calculateMetrics();
+
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 0, this);
+        currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+    }
+
+    public RadarView(Context context, DataView4 dataView4, double[] bearings) {
+        this.bearings = bearings;
+        calculateMetrics();
+
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 0, this);
+        currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+    }
+
 
     public void calculateMetrics() {
         circleOriginX = originX + RADIUS;

@@ -1,14 +1,23 @@
-package miewsukanya.com.findsign;
+package miewsukanya.com.findsign.arview;
 
+/**
+ * Created by Sukanya Boonpun on 31/03/2560.
+ */
+
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.hardware.Camera;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -24,21 +33,20 @@ import com.squareup.okhttp.Request;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import miewsukanya.com.findsign.GPSTracker;
 import miewsukanya.com.findsign.R;
-import miewsukanya.com.findsign.RadarView;
-import miewsukanya.com.findsign.Camera;
-import miewsukanya.com.findsign.PaintUtils;
-import miewsukanya.com.findsign.RadarLines;
-
+import miewsukanya.com.findsign.utils.PaintUtils;
+import miewsukanya.com.findsign.utils.RadarLines;
 
 /**
  * Currently the markers are plotted with reference to line parallel to the earth surface.
  * We are working to include the elevation and height factors.
  */
 
-public class DataView implements LocationListener {
+public class DataView extends Activity implements LocationListener {
 
     RelativeLayout.LayoutParams[] layoutParams;
     RelativeLayout[] locationMarkerView;
@@ -48,22 +56,82 @@ public class DataView implements LocationListener {
     TextView[] locationTextView;
     RelativeLayout.LayoutParams[] distanceViewParams;
     TextView[] distanceTextView;
-
+    GPSTracker gps;
+    static ARView arView;
     String[] places = new String[1000]; //กำหนดขนาดของอาเรย์
     double[] latitudes = new double[1000]; //กำหนดขนาดของอาเรย์
     double[] longitudes= new double[1000]; //กำหนดขนาดของอาเรย์
+    double[] exIntArray = new  double[1000]; //กำหนดขนาดอาเรย์ของระยะห่างที่ลบจากแลตลองในดาต้าเบส
+    //int idMap;
+        /*     *  Array or Array lists of latitude and longitude to plot
+         *  In your case you can populate with an ArrayList
+         * */
+    protected LocationManager locationManager;
+    int[] nextXofText;
+    ArrayList<Integer> nextYofText = new ArrayList<Integer>();
 
-    /*
-     *  Array or Array lists of latitude and longitude to plot
-     *  In your case you can populate with an ArrayList
-     * */
+    double[] bearings;
+    float angleToShift;
+    float yPosition;
+    Location currentLocation;
+    Location destinedLocation = new Location("provider");
+    /**
+     * is the view Inited?
+     */
+    boolean isInit = false;
+    boolean isDrawing = true;
+    boolean isFirstEntry;
+    Context _context;
+    /**
+     * width and height of the view
+     */
+    int width, height;
+    Camera camera;
+
+    float yawPrevious;
+    float yaw = 0;
+    float pitch = 0;
+    float roll = 0;
+
+    DisplayMetrics displayMetrics;
+    RadarView radarPoints;
+
+    RadarLines lrl = new RadarLines();
+    RadarLines rrl = new RadarLines();
+    float rx = 10, ry = 20;
+    public float addX = 0, addY = 0;
+    public float degreetopixelWidth;
+    public float degreetopixelHeight;
+    public float pixelstodp;
+    public float bearing;
+
+    public int[][] coordinateArray = new int[latitudes.length][2];
+    public int locationBlockWidth;
+    public int locationBlockHeight;
+
+    public float deltaX;
+    public float deltaY;
+    Bitmap bmp;
+
+    public DataView(Context ctx) {
+        this._context = ctx;
+
+        //Get lat Lng
+        GetLocation getLocation = new GetLocation(DataView.this);
+        getLocation.execute();
+
+        //Calculate distance
+        CalculateDistance calculateDistance  = new CalculateDistance(DataView.this);
+        calculateDistance.execute();
+
+        locationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 0, this);
+        currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+    }
 
     private class GetLocation extends AsyncTask<Void, Void, String> {
         //Explicit
         private DataView dataview;
-        double lat[];
-        double lng[];
-        String name[];
         private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getlatlong.php";
         // private Bitmap imge;
 
@@ -91,13 +159,10 @@ public class DataView implements LocationListener {
 
             Log.d("26novV1", "Json ==>" + s);
             try {
-
                 JSONArray jsonArray = new JSONArray(s);
-
                 places = new String[jsonArray.length()];
                 latitudes = new double[jsonArray.length()];
                 longitudes = new double[jsonArray.length()];
-
                 for (int i = 0; i < jsonArray.length(); i += 1) {
 
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -105,85 +170,24 @@ public class DataView implements LocationListener {
                     places[i] = jsonObject.getString("SignName");
                     latitudes[i] = Double.parseDouble(jsonObject.getString("Latitude"));
                     longitudes[i] = Double.parseDouble(jsonObject.getString("Longitude"));
-
                     Log.d("18MarV3", "name:" + latitudes[i] + "lat:" + longitudes[i] + "lng:" + places[i]+":");
-                  //  Log.d("18MarV4", "name:" + places[i]);
+
+
+
                 }//for
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }//onPost
     }//Getlocation
-
-    protected LocationManager locationManager;
-    int[] nextXofText;
-    ArrayList<Integer> nextYofText = new ArrayList<Integer>();
-
-    double[] bearings;
-    float angleToShift;
-    float yPosition;
-    Location currentLocation;
-    Location destinedLocation = new Location("provider");
-
-
-    /**
-     * is the view Inited?
-     */
-    boolean isInit = false;
-    boolean isDrawing = true;
-    boolean isFirstEntry;
-    Context _context;
-    /**
-     * width and height of the view
-     */
-    int width, height;
-    android.hardware.Camera camera;
-
-    float yawPrevious;
-    float yaw = 0;
-    float pitch = 0;
-    float roll = 0;
-
-    DisplayMetrics displayMetrics;
-    RadarView radarPoints;
-
-
-    RadarLines lrl = new RadarLines();
-    RadarLines rrl = new RadarLines();
-    float rx = 10, ry = 20;
-    public float addX = 0, addY = 0;
-    public float degreetopixelWidth;
-    public float degreetopixelHeight;
-    public float pixelstodp;
-    public float bearing;
-
-    public int[][] coordinateArray = new int[latitudes.length][2];
-    public int locationBlockWidth;
-    public int locationBlockHeight;
-
-    public float deltaX;
-    public float deltaY;
-    Bitmap bmp;
-
-    public DataView(Context ctx) {
-        this._context = ctx;
-
-        locationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 200, 0, this);
-        currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
-        //Get lat Lng
-        GetLocation getLocation = new GetLocation(DataView.this);
-        getLocation.execute();
-    }
-
     public boolean isInited() {
         return isInit;
     }
 
+    double seekbar = 5.0;
+    public void init(int widthInit, int heightInit, Camera camera, DisplayMetrics displayMetrics, RelativeLayout rel) {
 
-    public void init(int widthInit, int heightInit, android.hardware.Camera camera, DisplayMetrics displayMetrics, RelativeLayout rel) {
         try {
-
             layoutParams = new RelativeLayout.LayoutParams[latitudes.length];
             locationMarkerView = new RelativeLayout[latitudes.length];
 
@@ -197,34 +201,37 @@ public class DataView implements LocationListener {
             //distanceTextView = new TextView[latitudes.length];
 
             nextXofText = new int[latitudes.length];
-
             /**
              * Set POI's View
              */
             for (int i = 0; i < latitudes.length; i++) {
                 Log.d("18MarV2", "length:" + latitudes.length);
-                // Log.d("15MarV2", "Lat :" + signname+":"+signname.length());
+                Log.d("27MarV2", "length:" + exIntArray.length + "Location:" + exIntArray[i]);
                 /**
                  * POI's Layout Creation
                  */
                 layoutParams[i] = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
                 layoutParams[i].setMargins(displayMetrics.widthPixels / 2, displayMetrics.heightPixels / 2, 0, 0);
                 locationMarkerView[i] = new RelativeLayout(_context);
-               // locationMarkerView[i].setBackgroundResource(R.drawable.but_45);
+                // locationMarkerView[i].setBackgroundResource(R.drawable.but_45);
 
-                if ( places[i].equals("Sign45")) {
+                //set AR Show AR ทั้งหมด ในระยะ 5 km.
+                if ( places[i].equals("Sign45") && exIntArray[i] <= seekbar) {
                     locationMarkerView[i].setBackgroundResource(R.drawable.but_45);
-                    Log.d("17MarV1", "Location:" + latitudes[i]);
-                } else if (places[i].equals("Sign60")){
-                    locationMarkerView[i].setBackgroundResource(R.drawable.but_60);
-                    Log.d("17MarV2", "Location:" + latitudes[i]);
-                }else if (places[i].equals("Sign80")){
-                    locationMarkerView[i].setBackgroundResource(R.drawable.but_80);
-                    Log.d("17MarV3", "Location:" + latitudes[i]);
-                }//*/
+                    Log.d("17MarV1", "Location:" + latitudes[i] +":"+exIntArray[i]);
 
-               locationMarkerView[i].setId(i);
-               locationMarkerView[i].setLayoutParams(layoutParams[i]);
+                } else if (places[i].equals("Sign60") && exIntArray[i] <= seekbar){
+                    locationMarkerView[i].setBackgroundResource(R.drawable.but_60);
+                    Log.d("17MarV2", "Location:" + latitudes[i] +":"+exIntArray[i]);
+
+                }else if (places[i].equals("Sign80") && exIntArray[i] <= seekbar){
+                    locationMarkerView[i].setBackgroundResource(R.drawable.but_80);
+                    Log.d("17MarV3", "Location:" + latitudes[i] +":"+exIntArray[i]);
+                }//
+                //set AR Show AR ทั้งหมด ในระยะ 5 km.
+
+                locationMarkerView[i].setId(i);
+                locationMarkerView[i].setLayoutParams(layoutParams[i]);
 
                 /**
                  * POI's Icon Creation
@@ -293,21 +300,112 @@ public class DataView implements LocationListener {
              * Set Radar's Lines
              */
             lrl.set(0, -RadarView.RADIUS);
-            lrl.rotate(Camera.DEFAULT_VIEW_ANGLE / 2);
+            lrl.rotate(miewsukanya.com.findsign.utils.Camera.DEFAULT_VIEW_ANGLE / 2);
             lrl.add(rx + RadarView.RADIUS, ry + RadarView.RADIUS);
             rrl.set(0, -RadarView.RADIUS);
-            rrl.rotate(-Camera.DEFAULT_VIEW_ANGLE / 2);
+            rrl.rotate(-miewsukanya.com.findsign.utils.Camera.DEFAULT_VIEW_ANGLE / 2);
             rrl.add(rx + RadarView.RADIUS, ry + RadarView.RADIUS);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
-		/*
-         * initialization is done, so dont call init() again.
-		 * */
+            /*
+             * initialization is done, so dont call init() again.
+             * */
         isInit = true;
     }//init
 
+    private class CalculateDistance extends AsyncTask<Void, Void, String> {
+        //Explicit
+        private DataView context;
+        private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getlatlong.php";
+
+        public CalculateDistance(DataView context) {
+            this.context = context;
+
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request.Builder builder = new Request.Builder();
+                Request request = builder.url(urlJSON).build();
+                com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
+                return response.body().string();
+
+            } catch (Exception e) {
+                Log.d("26novV1", "e doIn==>" + e.toString());
+                return null;
+            }
+            //return null;
+        }//doInBack
+
+        @Override
+        protected void onPostExecute(String s) {
+
+            Log.d("26novV1", "Json ==>" + s);
+            try {
+
+                JSONArray jsonArray = new JSONArray(s);
+
+                double max = 0;
+                double min = 100;
+
+                for (int i = 0; i < jsonArray.length(); i += 1) {
+                    //Get Json from Database
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                    String strLat = jsonObject.getString("Latitude");
+                    String strLng = jsonObject.getString("Longitude");
+
+
+                    //gps = new GPSTracker(DataView.this);
+                    // gps.canGetLocation();
+                    double latitude = currentLocation.getLatitude();
+                    double longitude = currentLocation.getLongitude();
+                    Log.d("26MarV8", "Marker" + "Lat:" + latitude + "Lng:" + longitude);
+
+                    int Radius = 6371; // radius of earth in Km
+                    double lat2, lng2;
+                    double lat1 = latitude; //start Lat พิกัดจาก gps มือถือ
+                    double lng1 = longitude; //start Lng พิกัดจาก gps มือถือ
+
+                    lat2 = Double.parseDouble(strLat); //end Lat พิกัดที่ดึงจากดาต้าเบส แปลงสตริงให้เป็น double
+                    lng2 = Double.parseDouble(strLng); //eng Lng พิกัดที่ดึงจากดาต้าเบส แปลงสตริงให้เป็น double
+
+                    //สูตรคำนวณระยะห่างระหว่างพิกัดมือถือกับพิกัดป้ายจากดาต้าเบส
+                    double dLat = Math.toRadians(lat2 - lat1);
+                    double dLon = Math.toRadians(lng2 - lng1);
+                    double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                            + Math.cos(Math.toRadians(lat1))
+                            * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
+                            * Math.sin(dLon / 2);
+                    double c = 2 * Math.asin(Math.sqrt(a));
+                    double valueResult = Radius * c * 1000;
+                    double km = valueResult / 1;
+                    DecimalFormat newFormat = new DecimalFormat("####");
+                    int kmInDec = Integer.valueOf(newFormat.format(km));
+                    double meter = valueResult / 1000;
+                    DecimalFormat newFormat2 = new DecimalFormat("#.##");
+                    double  meterInKm = Double.valueOf(newFormat2.format(meter));
+                    Log.d("26MarV7", " Meter : " + meterInKm);
+                    //เก็บค่า meterInKm เป็นอาเรย์
+                    //เก็บค่า meterInKm เป็นอาเรย์
+                    // exIntArray = new double[jsonArray.length()];
+                    exIntArray[i] = meterInKm;
+                    // double distance[] = {exIntArray[i]};
+                    Log.d("27MarV1", " Meter : " + exIntArray[i] + "==>"+meterInKm);
+                    // distance[i] = exIntArray[i];
+                    //เปรียบเทียบค่าระยะห่างระหว่างป้ายกกับตัวผู้ใช้ แล้วแสดงให้ผู้ใช้เห็นว่าป้ายยที่ใกล้ที่ที่สุดห่างเท่าไหร่   idMap 1 คือหาทุกป้าย ,2 หาแค่ป้าย45 , 3 หาแค่ป้าย60 ,4 หาแค่ป้าย80
+
+                }//for
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }//onPost
+    }//CalculateDistance
     public void draw(PaintUtils dw, float yaw, float pitch, float roll) {
         this.yaw = yaw;
         this.pitch = pitch;
@@ -453,6 +551,7 @@ public class DataView implements LocationListener {
         currentLocation.setLatitude(location.getLatitude());
         currentLocation.setLongitude(location.getLongitude());
         currentLocation.setAltitude((location.getAltitude()));
+        Log.d("26MarV9", "Marker" + "Lat:" + location.getLongitude() + "Lng:" +location.getLatitude());
     }
 
     @Override

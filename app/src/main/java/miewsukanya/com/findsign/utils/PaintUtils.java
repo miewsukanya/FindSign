@@ -1,9 +1,11 @@
-package miewsukanya.com.findsign;
+package miewsukanya.com.findsign.utils;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
+
+import miewsukanya.com.findsign.arview.RadarView;
 
 public class PaintUtils {
 	
@@ -79,7 +81,7 @@ public class PaintUtils {
 	}
 
 	public void paintObj(RadarView obj, float x, float y, float rotation,
-			float scale, float yaw) {
+						 float scale, float yaw) {
 		canvas.save();
 		canvas.translate(x + obj.getWidth() / 2, y + obj.getHeight() / 2);
 		canvas.rotate(rotation);

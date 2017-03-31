@@ -1,4 +1,4 @@
-package miewsukanya.com.findsign;
+package miewsukanya.com.findsign.utils;
 
 public class Camera {
 	

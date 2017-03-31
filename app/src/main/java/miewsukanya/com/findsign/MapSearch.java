@@ -48,9 +48,12 @@ import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 
+import miewsukanya.com.findsign.arview.ARView;
+
+import static miewsukanya.com.findsign.R.array.idDistance;
+import static miewsukanya.com.findsign.R.array.idSign;
+
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,LocationListener {
-
-
     //about calculate speed
     static ProgressDialog locate;
     static int p=0;
@@ -102,7 +105,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
             //No google map layout
         }
 
-
         txtView_gpsLat = (TextView) findViewById(R.id.txtView_gpsLat);
         txtView_gpsLng = (TextView) findViewById(R.id.txtView_gpsLng);
         btn_getLatLng = (Button) findViewById(R.id.btn_getLatLng);
@@ -117,7 +119,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
         txtidDistSetting = (TextView) findViewById(R.id.txtidDistSetting);
         txtSignName = (TextView) findViewById(R.id.txt_SignNameMS);
         btn_AR = (Button) findViewById(R.id.btnAR);
-
 
         //sound alert
         final MediaPlayer mp = MediaPlayer.create(this, R.raw.dog);
@@ -597,13 +598,13 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                 startActivity(intent);
             }
         };
-        btn_AR.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick (View v){
-                Intent intent = new Intent(getApplicationContext(), SearchQuick.class);
-                startActivity(intent);
-            }
-        });//btnAR
+        //btn_AR.setOnClickListener(new View.OnClickListener(){
+         //   @Override
+          //  public void onClick (View v){
+          //      Intent intent = new Intent(getApplicationContext(), ARView.class);
+          //      startActivity(intent);
+          //  }
+       // });//btnAR
         try {
             configure_button() ; //call permission
             getlatlngOnclick();
@@ -619,6 +620,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
         CalculateDistance calculatedistance = new CalculateDistance(MapSearch.this);
         calculatedistance.execute();
         setRequestCamera(); //ขออนุญาตใช้งานกล้อง permission
+
     }//Main method
 
     public void getlatlngOnclick(){
@@ -688,11 +690,25 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
         });
     }//configure_button() allow location
     public void onClickAr(View view) {
+        try {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions();
 
         } else {
-            startActivity(new Intent(MapSearch.this,SearchQuick.class));
+            //จะส่งค่าไปหน้า ARView
+            //intent data from MapSearch to ARView  31/03/2017
+            String distance = txtDistance.getText().toString();
+            String idMap = txtidMap.getText().toString();
+
+            Intent intent = new Intent(getApplicationContext(), ARView.class);
+            intent.putExtra("distance",distance);
+            intent.putExtra("idMap", idMap);
+
+            Log.d("31MarV3", "idMap: " + idMap + "Distance:" + distance);
+            startActivity(intent);
+            //startActivity(new Intent(MapSearch.this,ARView.class));
+        }
+        } catch (Exception e) {
         }
     }//onClickAr button AR
 
@@ -760,12 +776,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                     String strLat = jsonObject.getString("Latitude");
                     String strLng = jsonObject.getString("Longitude");
 
-                   /* String[] latArr = new String[jsonArray.length()];
-                    latArr[i] = strLat;
-                    String[] lngArr = new String[jsonArray.length()];
-                    lngArr[i] = strLng;
-                    Log.d("20FebV5", "Marker" + "Lat:" + latArr[i] + "Lng:" + lngArr[i]);*/
-
                     gps = new GPSTracker(MapSearch.this);
                     gps.canGetLocation();
                     double latitude = gps.getLatitude();
@@ -823,8 +833,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                         } else {
                             mGoogleMap.addMarker(new MarkerOptions()
                                     .position(new LatLng(Double.parseDouble(strLat), Double.parseDouble(strLng))))
-                                    // .title(strSignName)
-                                    // .snippet(String.valueOf(meterInKm)))
                                     .setIcon(BitmapDescriptorFactory.fromResource(R.drawable.sign80_ss));
                         }
 
@@ -1000,7 +1008,6 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                             txtSignName.setText(strSignName+"");
 
                             Log.d("01MarV3", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap);
-
                         }
 
                     } else if (exIntArray[i] <= seekBar && idMap == 2 && strSignName.equals("Sign45")) {
@@ -1088,40 +1095,5 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-
-//        LatLng coordinate = new LatLng (gps.getLatitude(),gps.getLongitude());
-    //    mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(coordinate, 16));
-//        goToLocationZoom(gps.getLatitude(),gps.getLongitude(),16);
-/*
-        mGoogleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-            @Override
-            public View getInfoWindow(Marker marker) {
-                return null;
-            }
-            @Override
-            public View getInfoContents(Marker marker) {
-                //blind widget
-                final EditText lat = (EditText) findViewById(R.id.edt_lat);
-                final EditText lng = (EditText) findViewById(R.id.edt_lng);
-               final EditText signName = (EditText) findViewById(R.id.edtSignName);
-                View v = getLayoutInflater().inflate(R.layout.info_window,null);
-                TextView tvLocality = (TextView) v.findViewById(R.id.tv_locality);
-                TextView tvLat = (TextView) v.findViewById(R.id.tv_lat);
-                TextView tvLng = (TextView) v.findViewById(R.id.tv_lng);
-                // TextView tvSnippet = (TextView) v.findViewById(R.id.tv_snippet);
-                LatLng latLng = marker.getPosition();
-                tvLocality.setText(marker.getTitle());
-                tvLat.setText("Latitude: "+latLng.latitude);
-                tvLng.setText("Longitude: "+latLng.longitude);
-                tvSnippet.setText(marker.getSnippet());
-                txt_Distance.setText(marker.getSnippet());
-                //show lat long in edit text
-                lat.setText(latLng.latitude+"");
-                lng.setText(latLng.longitude+"");
-                return v;
-            }
-        });*/
     }//onMapReady
-
-
 }//Main Class

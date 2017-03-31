@@ -4,6 +4,9 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
@@ -17,7 +20,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+import miewsukanya.com.findsign.arview.ARView;
+
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     //Explicit
 
@@ -53,15 +58,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-
-        //search quick controller
-        //searchQuickImageView.setOnClickListener(new View.OnClickListener() {
-         //   @Override
-          //  public void onClick(View v) {
-               // startActivity(new Intent(MainActivity.this,SearchQuick.class));
-         //   }
-       // });
-
         //search sign controller
         searchSignImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,51 +113,56 @@ public class MainActivity extends AppCompatActivity {
     }//loadPref
 
     public void onSearchQ(View view) {
+        try {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            //&& ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                //    != PackageManager.PERMISSION_GRANTED
-                //    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-                 //   != PackageManager.PERMISSION_GRANTED
             requestPermissions();
         } else {
-            startActivity(new Intent(MainActivity.this,ARView.class));
-        }
 
+            String idMap = "1";
+            Intent intent = new Intent(getApplicationContext(), ARView.class);
+            intent.putExtra("idMap", idMap);
+            Log.d("29MarV1","idMap:" +idMap);
+            startActivity(intent);
+          //  startActivity(new Intent(MainActivity.this,ARView.class));
+//            Log.d("29Mar1","Select idSign :"+ idSign + "idDistance:" + idDistance);
+        }
+        } catch (Exception e) {
+
+        }
     }//onSearchQ
 
     private void requestPermissions() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.CAMERA)){
-        //&& ActivityCompat.shouldShowRequestPermissionRationale(this,
-             //   Manifest.permission.ACCESS_FINE_LOCATION)
-              //  && ActivityCompat.shouldShowRequestPermissionRationale(this,
-              //  Manifest.permission.ACCESS_COARSE_LOCATION)
 
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
-            //ActivityCompat.requestPermissions(MainActivity.this,new String[]{
-                 //   Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION,
-                 //   Manifest.permission.INTERNET},REQUEST_LOCATION);
+
         } else {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
-          //  ActivityCompat.requestPermissions(MainActivity.this,new String[]{
-                  //  Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.ACCESS_FINE_LOCATION,
-                  //  Manifest.permission.INTERNET},REQUEST_LOCATION);
+
         }
     }//requestPermissions()
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         //super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        try {
         if (requestCode == REQUEST_CAMERA) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
-                startActivity(new Intent(MainActivity.this, SearchQuick.class)); //หลังจากอนุญาตใช้งานกล้องแล้วจะเช้าหน้า  SearchQuick
+                String idMap = "1";
+                Intent intent = new Intent(getApplicationContext(), ARView.class);
+                intent.putExtra("idMap", idMap);
+                Log.d("29MarV1","idMap:" +idMap);
                 configure_button(); //ขออนุญาตใช้งาน location
+                startActivity(intent);
+                //startActivity(new Intent(MainActivity.this, ARView.class)); //หลังจากอนุญาตใช้งานกล้องแล้วจะเช้าหน้า  ARView
             } else {
                 Log.d("06MarchV1", "CAMERA was not open");
             }
         }
-
+        } catch (Exception e) {
+        }
     }//onRequestPermissionsResult
 
     void configure_button(){
@@ -174,5 +175,15 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
         // this code won't execute IF permissions are not allowed, because in the line above there is return statement.
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+
     }
 }//Main Class
