@@ -391,7 +391,6 @@ public class DataView2 extends Activity implements LocationListener {
             }
         }//onPost
     }//CalculateDistance
-
     public void draw(PaintUtils dw, float yaw, float pitch, float roll) {
         this.yaw = yaw;
         this.pitch = pitch;

@@ -127,7 +127,6 @@ public class SearchSign extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
         //SearchSign80
         searchSign80ImageView.setOnClickListener(new View.OnClickListener() {
             @Override

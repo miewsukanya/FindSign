@@ -213,7 +213,6 @@ public class DataView3 extends Activity implements LocationListener {
                     locationMarkerView[i].setBackgroundResource(R.drawable.but_60);
                     Log.d("17MarV1", "Location:" + latitudes[i] +":"+exIntArray[i]);
 
-
                 }
                 //set AR Show AR ทั้งหมด ในระยะ 5 km.
 
