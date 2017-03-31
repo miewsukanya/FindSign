@@ -105,6 +105,7 @@ public class RadarView implements LocationListener {
     }
 
 
+
     public void calculateMetrics() {
         circleOriginX = originX + RADIUS;
         circleOriginY = originY + RADIUS;

@@ -46,6 +46,7 @@ import miewsukanya.com.findsign.utils.PaintUtils;
 
 public class ARView extends Activity implements SensorEventListener,LocationListener {
 
+
     private static Context _context;
     WakeLock mWakeLock;
     CameraView cameraView;

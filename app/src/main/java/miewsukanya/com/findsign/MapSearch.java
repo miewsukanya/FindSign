@@ -162,6 +162,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                 txtView_gpsLng.setText(location.getLongitude() + "");
                 Log.d("Location", "Lat:" + location.getLatitude() + "Lng:" + location.getLongitude());
 
+
                 double lat = location.getLatitude();
                 double lng = location.getLongitude();
 

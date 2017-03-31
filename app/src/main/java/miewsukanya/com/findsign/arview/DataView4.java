@@ -126,6 +126,7 @@ public class DataView4 extends Activity implements LocationListener {
         currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
     }
 
+
     private class GetLocation extends AsyncTask<Void, Void, String> {
         //Explicit
         private DataView4 dataview;

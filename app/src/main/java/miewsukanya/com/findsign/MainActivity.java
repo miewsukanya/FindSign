@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     //Explicit
 
+
     private ImageView searchQuickImageView,searchSignImageView, knowLedgeImageView,btn_setting;
     TextView txtidSignPref,txtidDistancePref;
     private static final int REQ_LOAD_PREF = 103; //ตั้งรหัสสำหรับส่งค่ากลับ
