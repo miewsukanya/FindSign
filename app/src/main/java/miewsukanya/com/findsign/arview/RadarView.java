@@ -1,14 +1,26 @@
 package miewsukanya.com.findsign.arview;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import miewsukanya.com.findsign.GPSTracker;
 import miewsukanya.com.findsign.utils.PaintUtils;
 
 
@@ -17,9 +29,6 @@ public class RadarView implements LocationListener {
      * The screen
      */
     public DataView view;
-    public DataView2 dataView2;
-    public DataView3 dataView3;
-    public DataView4 dataView4;
     /**
      * The radar's range
      */
@@ -47,11 +56,17 @@ public class RadarView implements LocationListener {
     /*
      * pass the same set of coordinates to plot POI's on radar
      * */
-    double[] latitudes = new double[]{50.622647, 50.62209};
-    double[] longitudes = new double[]{3.039774, 3.045477};
+
+    /*double[] latitudes = new double[]{16.32348644175188,16.480202875616925,16.464869183517187,16.4593155,16.4708212,16.458162964453987,16.442553,16.466050472661454,16.42827363024214,16.437217117208423,16.4744147}; //กำหนดขนาดของอาเรย์
+    double[] longitudes= new double[]{102.79603835195304,102.83281110227108,102.81515311449766,102.8119574,102.8113152,102.83159136772156,102.8297802,102.83200711011888,102.82246414572,102.82639861106873,102.8231184}; //กำหนดขนาดของอาเรย์*/
+    /*double[] latitudes = new double[100];
+    double[] longitudes = new double[100];*/
+    double latitudes[]; //กำหนดขนาดของอาเรย์
+    double longitudes[]; //กำหนดขนาดของอาเรย์
+    double lat[];
     protected LocationManager locationManager;
 
-    public float[][] coordinateArray = new float[latitudes.length][2];
+    public float[][] coordinateArray = new float[1000][2];
 
     float angleToShift;
     public float degreetopixel;
@@ -67,43 +82,94 @@ public class RadarView implements LocationListener {
     float yaw = 0;
     double[] bearings;
     ARView arView = new ARView();
+    final int update_interval = 1000; // milliseconds
+    //Location location; // location
 
-    public RadarView(Context context,DataView dataView, double[] bearings) {
+    Location locNetwork;
+    Location locGps;
+    LocationListener netListener;
+    LocationListener gpsListener;
+    public DataView2 dataView2;
+    public DataView3 dataView3;
+    public DataView4 dataView4;
+
+    public RadarView(Context context, DataView dataView, double[] bearings) {
         this.bearings = bearings;
         calculateMetrics();
 
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 0, this);
-        currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
-    }
+        //Get lat Lng
+        GetLocation getLocation = new GetLocation(RadarView.this);
+        getLocation.execute();
 
-    public RadarView(Context context, DataView2 dataView2, double[] bearings) {
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, update_interval, 0.0f, this);
+            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, update_interval, 0.0f, netListener);
+            currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
+            // currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+        } catch (Exception e) {
+
+        }
+
+    }//RadarView AR_all
+    //RadarView Sign45
+    public RadarView(Context context, DataView2 dataView, double[] bearings) {
         this.bearings = bearings;
         calculateMetrics();
 
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 0, this);
-        currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
-    }
+        //Get lat Lng
+        GetLocation45 getLocation45 = new GetLocation45(RadarView.this);
+        getLocation45.execute();
 
-    public RadarView(Context context, DataView3 dataView3, double[] bearings) {
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, update_interval, 0.0f, this);
+            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, update_interval, 0.0f, netListener);
+            currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
+            // currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+        } catch (Exception e) {
+
+        }
+
+    }//RadarView AR_all
+    //RadarView Sign60
+    public RadarView(Context context, DataView3 dataView, double[] bearings) {
         this.bearings = bearings;
         calculateMetrics();
 
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 0, this);
-        currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
-    }
+        //Get lat Lng
+        GetLocation getLocation60 = new GetLocation(RadarView.this);
+        getLocation60.execute();
 
-    public RadarView(Context context, DataView4 dataView4, double[] bearings) {
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, update_interval, 0.0f, this);
+            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, update_interval, 0.0f, netListener);
+            currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
+            // currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+        } catch (Exception e) {
+
+        }
+    }//RadarView AR_all
+    //RadarView Sign80
+    public RadarView(Context context, DataView4 dataView, double[] bearings) {
         this.bearings = bearings;
         calculateMetrics();
 
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 3000, 0, this);
-        currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
-    }
+        //Get lat Lng
+        GetLocation getLocation80 = new GetLocation(RadarView.this);
+        getLocation80.execute();
 
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, update_interval, 0.0f, this);
+            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, update_interval, 0.0f, netListener);
+            currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
+            // currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+        } catch (Exception e) {
+
+        }
+    }//RadarView AR_all
 
     public void calculateMetrics() {
         circleOriginX = originX + RADIUS;
@@ -118,24 +184,22 @@ public class RadarView implements LocationListener {
 
     public void paint(PaintUtils dw, float yaw) {
 
-//		circleOriginX = originX + RADIUS;
-//		circleOriginY = originY + RADIUS;
         this.yaw = yaw;
-//		range = arView.convertToPix(10) * 1000;		/** Draw the radar */
         dw.setFill(true);
         dw.setColor(radarColor);
         dw.paintCircle(originX + RADIUS, originY + RADIUS, RADIUS);
 
         /** put the markers in it */
-//		float scale = range / arView.convertToPix((int)RADIUS);
-
         /**
          * Draw dots for each POI
          */
-        for (int i = 0; i < latitudes.length; i++) {
+        for (int i = 0; i < lat.length; i++) {
+            Log.d("28AprV6", "length:" + lat.length);
+
             destinedLocation.setLatitude(latitudes[i]);
             destinedLocation.setLongitude(longitudes[i]);
             convLocToVec(currentLocation, destinedLocation);
+
             float x = this.x / mscale;
             float y = this.z / mscale;
 
@@ -147,10 +211,10 @@ public class RadarView implements LocationListener {
         }
     }
 
-    public void calculateDistances(PaintUtils dw, float yaw) {
-        /**
-         * Calculate the distance from currentLocation to each POI's one
-         */
+    /*public void calculateDistances(PaintUtils dw, float yaw) {
+
+          //Calculate the distance from currentLocation to each POI's one
+
         for (int i = 0; i < latitudes.length; i++) {
             if (bearings[i] < 0) {
                 bearings[i] = 360 - bearings[i];
@@ -180,7 +244,7 @@ public class RadarView implements LocationListener {
                 dw.paintRect(x + RADIUS - 1, y + RADIUS - 1, 2, 2);
             }
         }
-    }
+    }*/
 
     /**
      * Width on screen
@@ -195,7 +259,6 @@ public class RadarView implements LocationListener {
     public float getHeight() {
         return RADIUS * 2;
     }
-
 
     public void set(float x, float y, float z) {
         this.x = x;
@@ -222,13 +285,10 @@ public class RadarView implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-
-        /**
-         *  Your current location coordinate here.
-         * */
+         // Your current location coordinate here.
         currentLocation.setLatitude(location.getLatitude());
         currentLocation.setLongitude(location.getLongitude());
-        currentLocation.setAltitude(location.getAltitude());
+        currentLocation.setAltitude((location.getAltitude()));
     }
 
     @Override
@@ -258,4 +318,215 @@ public class RadarView implements LocationListener {
                 break;
         }
     }
-}
+
+
+    private class GetLocation extends AsyncTask<Void, Void, String> {
+        //Explicit
+        private RadarView dataview;
+        private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getlatlong.php";
+        // private Bitmap imge;
+
+        public GetLocation(RadarView dataview) {
+            this.dataview = dataview;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request.Builder builder = new Request.Builder();
+                Request request = builder.url(urlJSON).build();
+                com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
+                return response.body().string();
+
+            } catch (Exception e) {
+                Log.d("26novV1", "e doIn==>" + e.toString());
+                return null;
+            }
+            //return null;
+        }//doInBack
+        @Override
+        public void onPostExecute(String s) {
+
+            Log.d("26novV1", "Json ==>" + s);
+            try {
+                JSONArray jsonArray = new JSONArray(s);
+               // places = new String[jsonArray.length()];
+                latitudes = new double[jsonArray.length()];
+                longitudes = new double[jsonArray.length()];
+
+                lat = new double[jsonArray.length()];
+                for (int i = 0; i < jsonArray.length(); i += 1) {
+
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    // places[i] = jsonObject.getString("SignName");
+                    latitudes[i] = Double.parseDouble(jsonObject.getString("Latitude"));
+                    longitudes[i] = Double.parseDouble(jsonObject.getString("Longitude"));
+
+                    lat[i] = Double.parseDouble(jsonObject.getString("Latitude"));
+                    Log.d("04ArpV3", "lat:" + latitudes[i] + "lng:" + longitudes[i]);
+
+                }//for
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }//onPost
+    }//Getlocation
+
+    private class GetLocation45 extends AsyncTask<Void, Void, String> {
+        //Explicit
+        private RadarView dataview;
+        private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getsign45.php";
+        // private Bitmap imge;
+
+        public GetLocation45(RadarView dataview) {
+            this.dataview = dataview;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request.Builder builder = new Request.Builder();
+                Request request = builder.url(urlJSON).build();
+                com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
+                return response.body().string();
+
+            } catch (Exception e) {
+                Log.d("26novV1", "e doIn==>" + e.toString());
+                return null;
+            }
+            //return null;
+        }//doInBack
+        @Override
+        public void onPostExecute(String s) {
+
+            Log.d("26novV1", "Json ==>" + s);
+            try {
+                JSONArray jsonArray = new JSONArray(s);
+                // places = new String[jsonArray.length()];
+                latitudes = new double[jsonArray.length()];
+                longitudes = new double[jsonArray.length()];
+
+                lat = new double[jsonArray.length()];
+                for (int i = 0; i < jsonArray.length(); i += 1) {
+
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    // places[i] = jsonObject.getString("SignName");
+                    latitudes[i] = Double.parseDouble(jsonObject.getString("Latitude"));
+                    longitudes[i] = Double.parseDouble(jsonObject.getString("Longitude"));
+
+                    lat[i] = Double.parseDouble(jsonObject.getString("Latitude"));
+                    Log.d("04ArpV3", "lat:" + latitudes[i] + "lng:" + longitudes[i]);
+
+                }//for
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }//onPost
+    }//Getlocation
+    private class GetLocation60 extends AsyncTask<Void, Void, String> {
+        //Explicit
+        private RadarView dataview;
+        private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getsign60.php";
+        // private Bitmap imge;
+
+        public GetLocation60(RadarView dataview) {
+            this.dataview = dataview;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request.Builder builder = new Request.Builder();
+                Request request = builder.url(urlJSON).build();
+                com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
+                return response.body().string();
+
+            } catch (Exception e) {
+                Log.d("26novV1", "e doIn==>" + e.toString());
+                return null;
+            }
+            //return null;
+        }//doInBack
+        @Override
+        public void onPostExecute(String s) {
+
+            Log.d("26novV1", "Json ==>" + s);
+            try {
+                JSONArray jsonArray = new JSONArray(s);
+                // places = new String[jsonArray.length()];
+                latitudes = new double[jsonArray.length()];
+                longitudes = new double[jsonArray.length()];
+
+                lat = new double[jsonArray.length()];
+                for (int i = 0; i < jsonArray.length(); i += 1) {
+
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    // places[i] = jsonObject.getString("SignName");
+                    latitudes[i] = Double.parseDouble(jsonObject.getString("Latitude"));
+                    longitudes[i] = Double.parseDouble(jsonObject.getString("Longitude"));
+
+                    lat[i] = Double.parseDouble(jsonObject.getString("Latitude"));
+                    Log.d("04ArpV3", "lat:" + latitudes[i] + "lng:" + longitudes[i]);
+
+                }//for
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }//onPost
+    }//Getlocation
+    private class GetLocation80 extends AsyncTask<Void, Void, String> {
+        //Explicit
+        private RadarView dataview;
+        private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getsign80.php";
+        // private Bitmap imge;
+
+        public GetLocation80(RadarView dataview) {
+            this.dataview = dataview;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request.Builder builder = new Request.Builder();
+                Request request = builder.url(urlJSON).build();
+                com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
+                return response.body().string();
+
+            } catch (Exception e) {
+                Log.d("26novV1", "e doIn==>" + e.toString());
+                return null;
+            }
+            //return null;
+        }//doInBack
+        @Override
+        public void onPostExecute(String s) {
+
+            Log.d("26novV1", "Json ==>" + s);
+            try {
+                JSONArray jsonArray = new JSONArray(s);
+                // places = new String[jsonArray.length()];
+                latitudes = new double[jsonArray.length()];
+                longitudes = new double[jsonArray.length()];
+
+                lat = new double[jsonArray.length()];
+                for (int i = 0; i < jsonArray.length(); i += 1) {
+
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    // places[i] = jsonObject.getString("SignName");
+                    latitudes[i] = Double.parseDouble(jsonObject.getString("Latitude"));
+                    longitudes[i] = Double.parseDouble(jsonObject.getString("Longitude"));
+
+                    lat[i] = Double.parseDouble(jsonObject.getString("Latitude"));
+                    Log.d("04ArpV3", "lat:" + latitudes[i] + "lng:" + longitudes[i]);
+
+                }//for
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }//onPost
+    }//Getlocation
+}//RadarView

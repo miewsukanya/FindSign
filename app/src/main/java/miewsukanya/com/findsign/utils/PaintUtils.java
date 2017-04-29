@@ -10,7 +10,7 @@ import miewsukanya.com.findsign.arview.RadarView;
 public class PaintUtils {
 	
 	public static int XPADDING = 0;
-	public static int YPADDING = 2550;
+	public static int YPADDING = 50;
 	
 	Canvas canvas;
 	int width, height;

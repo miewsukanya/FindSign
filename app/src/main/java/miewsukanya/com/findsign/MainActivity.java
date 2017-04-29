@@ -19,10 +19,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import miewsukanya.com.findsign.arview.ARView;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
+
+    //280417 Check internet
+    ConnectionDetector connectionDetector;
 
     //Explicit
     private ImageView searchQuickImageView,searchSignImageView, knowLedgeImageView,btn_setting;
@@ -37,6 +41,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        connectionDetector = new ConnectionDetector(this); ////280417 Check internet
         //Bind widget
         searchQuickImageView = (ImageView) findViewById(R.id.SearchSignQuick);
         searchSignImageView = (ImageView) findViewById(R.id.SearchSign);
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
 
         configure_button();
+
     }//Main Method
 
     @Override
@@ -115,12 +121,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         try {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions();
-        } else {
+            check();
 
+        } else {
+            check();
+            //configure_button();
             String idMap = "1";
+            String distance = "5";
+            String sign45 = "Sign45";
+            String sign60 = "Sign60";
+            String sign80 = "Sign80";
             Intent intent = new Intent(getApplicationContext(), ARView.class);
             intent.putExtra("idMap", idMap);
-            Log.d("29MarV1","idMap:" +idMap);
+            intent.putExtra("distance", distance);
+            intent.putExtra("sign45", sign45);
+            intent.putExtra("sign60", sign60);
+            intent.putExtra("sign80", sign80);
+            Log.d("29MarV1","idMap:" +idMap+":"+distance);
             startActivity(intent);
           //  startActivity(new Intent(MainActivity.this,ARView.class));
 //            Log.d("29Mar1","Select idSign :"+ idSign + "idDistance:" + idDistance);
@@ -130,12 +147,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }//onSearchQ
 
+    public void check() {
+        if (connectionDetector.isConnected()) {
+            Toast.makeText(MainActivity.this, "Conneted", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(MainActivity.this, "not Conneted", Toast.LENGTH_LONG).show();
+        }
+    }
     private void requestPermissions() {
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.CAMERA)){
 
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
-
+            //ActivityCompat.requestPermissions(MainActivity.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},REQUEST_LOCATION);
         } else {
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
 
@@ -153,7 +177,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 Intent intent = new Intent(getApplicationContext(), ARView.class);
                 intent.putExtra("idMap", idMap);
                 Log.d("29MarV1","idMap:" +idMap);
-                configure_button(); //ขออนุญาตใช้งาน location
+               // configure_button(); //ขออนุญาตใช้งาน location
                 startActivity(intent);
                 //startActivity(new Intent(MainActivity.this, ARView.class)); //หลังจากอนุญาตใช้งานกล้องแล้วจะเช้าหน้า  ARView
             } else {

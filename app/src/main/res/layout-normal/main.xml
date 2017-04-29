@@ -4,14 +4,14 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
 
-    <miewsukanya.com.findsign.arview.OverlayView
-        android:layout_width="fill_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/surface_overlay" />
+                <miewsukanya.com.findsign.arview.OverlayView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/surface_overlay" />
 
-    <miewsukanya.com.findsign.arview.SurfaceView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/surface_camera" />
+                <miewsukanya.com.findsign.arview.SurfaceView
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:id="@+id/surface_camera" />
 
 </FrameLayout>

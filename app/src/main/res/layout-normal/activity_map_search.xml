@@ -29,12 +29,12 @@
             android:layout_height="360dp" />
 
         <Button
-            android:text="AR"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:id="@+id/btnAR"
             android:layout_marginTop="10dp"
-            android:onClick="onClickAr" />
+            android:onClick="onClickAr"
+            android:background="@drawable/but_ar_grey"
+            android:layout_height="75dp" />
 
     </LinearLayout>
 
@@ -42,13 +42,13 @@
         android:orientation="vertical"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="420dp">
+        android:layout_marginTop="440dp">
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="30dp">
 
             <TextView
                 android:text="ชื่อป้าย :"

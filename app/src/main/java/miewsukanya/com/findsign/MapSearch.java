@@ -50,10 +50,9 @@ import java.text.DecimalFormat;
 
 import miewsukanya.com.findsign.arview.ARView;
 
-import static miewsukanya.com.findsign.R.array.idDistance;
-import static miewsukanya.com.findsign.R.array.idSign;
-
 public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,LocationListener {
+    //280417 Check internet
+    ConnectionDetector connectionDetector;
     //about calculate speed
     static ProgressDialog locate;
     static int p=0;
@@ -104,6 +103,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
         } else {
             //No google map layout
         }
+        connectionDetector = new ConnectionDetector(this); ////280417 Check internet
 
         txtView_gpsLat = (TextView) findViewById(R.id.txtView_gpsLat);
         txtView_gpsLng = (TextView) findViewById(R.id.txtView_gpsLng);
@@ -160,7 +160,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                 //set marker when lat && lng changed
                 txtView_gpsLat.setText(location.getLatitude() + "");
                 txtView_gpsLng.setText(location.getLongitude() + "");
-                Log.d("Location", "Lat:" + location.getLatitude() + "Lng:" + location.getLongitude());
+                Log.d("LocationV1", "Lat:" + location.getLatitude() + "Lng:" + location.getLongitude());
 
                 double lat = location.getLatitude();
                 double lng = location.getLongitude();
@@ -598,13 +598,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                 startActivity(intent);
             }
         };
-        //btn_AR.setOnClickListener(new View.OnClickListener(){
-         //   @Override
-          //  public void onClick (View v){
-          //      Intent intent = new Intent(getApplicationContext(), ARView.class);
-          //      startActivity(intent);
-          //  }
-       // });//btnAR
+
         try {
             configure_button() ; //call permission
             getlatlngOnclick();
@@ -621,8 +615,16 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
         calculatedistance.execute();
         setRequestCamera(); //ขออนุญาตใช้งานกล้อง permission
 
+
     }//Main method
 
+    public void check() {
+        if (connectionDetector.isConnected()) {
+            Toast.makeText(MapSearch.this, "Conneted", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(MapSearch.this, "not Conneted", Toast.LENGTH_LONG).show();
+        }
+    }
     public void getlatlngOnclick(){
         try {
             locationManager.requestLocationUpdates("gps", 3000, 0, locationListener); //อัพเดท location in 3 ms.
@@ -693,18 +695,21 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
         try {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions();
+            check(); //check connection Internet
 
         } else {
+            check(); //check connection Internet
             //จะส่งค่าไปหน้า ARView
             //intent data from MapSearch to ARView  31/03/2017
             String distance = txtDistance.getText().toString();
             String idMap = txtidMap.getText().toString();
-
+            String signName = txtSignName.getText().toString();
             Intent intent = new Intent(getApplicationContext(), ARView.class);
             intent.putExtra("distance",distance);
             intent.putExtra("idMap", idMap);
-
-            Log.d("31MarV3", "idMap: " + idMap + "Distance:" + distance);
+            intent.putExtra("signName", signName);
+            configure_button();
+            Log.d("31MarV3", "idMap: " + idMap + "Distance:" + distance+"SignName:"+signName);
             startActivity(intent);
             //startActivity(new Intent(MapSearch.this,ARView.class));
         }
@@ -1024,7 +1029,7 @@ public class MapSearch extends AppCompatActivity implements OnMapReadyCallback,L
                         //แสดงค่าระยะห่างใน textView
                         txt_Distance.setText(min+"");
                         txtSignName.setText(strSignName+"");
-                        Log.d("01MarV3", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap);
+                        Log.d("01MarV3", "distance:" + distance[0] + "id: " + strSignID + "signName:" + strSignName+":"+idMap+":"+min);
 
                     } else if (exIntArray[i] <= seekBar && idMap == 4 && strSignName.equals("Sign80")) {
                         // if (exIntArray[i] > max)

@@ -14,6 +14,10 @@ import android.hardware.SensorManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.media.MediaPlayer;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
@@ -36,6 +40,13 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -43,6 +54,7 @@ import java.util.List;
 import miewsukanya.com.findsign.GPSTracker;
 import miewsukanya.com.findsign.utils.Compatibility;
 import miewsukanya.com.findsign.utils.PaintUtils;
+
 
 public class ARView extends Activity implements SensorEventListener,LocationListener {
 
@@ -64,7 +76,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
     public static float pitch;
     public static float roll;
     public double latitudeprevious;
-    public double longitude;
+    //public double longitude;
     String locationContext;
     String provider;
     DisplayMetrics displayMetrics;
@@ -85,12 +97,10 @@ public class ARView extends Activity implements SensorEventListener,LocationList
     static final float ALPHA = 0.25f;
     protected float[] gravSensorVals;
     protected float[] magSensorVals;
-    GPSTracker gps;
-
     //New speed 01/04/17
     private LocationManager locationManager;
     private LocationListener locationListener;
-    final int update_interval = 3000; // milliseconds
+    final int update_interval = 1000; // milliseconds
     // Data shown to user
     float speed2 = 0.0f;
     float speed_max = 0.0f;
@@ -98,29 +108,46 @@ public class ARView extends Activity implements SensorEventListener,LocationList
     int no_loc = 0; // Number of null GPS updates
     int no_speed = 0; // Number of GPS updates which don't have speed
     LocationManager loc_mgr;
-    String s;
+    //New speed 01/04/17
+
+    GPSTracker gps;
+    double distanceArr[] = new double[1000];
+    String SignNameArr;
+    int seekBar = 5; //distance default 5 km.
+    double min2;
+    String speed;
+    double Speed;
+    int idSign, idDistance;
+    String idMap1, idMap2,distance,sign45,sign60,sign80,signName;
+    TextView titleTextView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         //ดึงข้อมูลจากหน้าตั้งค่า
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        int idSign = Integer.valueOf(sharedPreferences.getString("idSign", "1"));
-        int idDistance = Integer.valueOf(sharedPreferences.getString("idDistance", "1"));
+         idSign = Integer.valueOf(sharedPreferences.getString("idSign", "1"));
+         idDistance = Integer.valueOf(sharedPreferences.getString("idDistance", "1"));
         Log.d("28MarV1", "idSign:" + idSign + "idDistance:" + idDistance);
 
         //ค่าที่รับมาจากหน้า MainActivity เพื่อที่จะใช้ในการค้นหาทุกป้าย
         Intent intent = getIntent();
-        String idMap = intent.getStringExtra("idMap"); //ใช้ในการกำหนดการค้นหาทุกป้าย
-        Log.d("29MarV2", "Select idSign :" + idSign + "idDistance:" + idDistance + "idMap:" + idMap);
+        idMap1 = intent.getStringExtra("idMap"); //ใช้ในการกำหนดการค้นหาทุกป้าย
+        distance = intent.getStringExtra("distance"); //ระยะที่จะใช้ในการค้นหาา AR ที่ส่งมาจากหน้า MainActivity
+        sign45 = intent.getStringExtra("sign45");
+        sign60 = intent.getStringExtra("sign60");
+        sign80 = intent.getStringExtra("sign80");
+        Log.d("29MarV2", "idSign :" + idSign + "idDistance: " + idDistance + "idMap1 :" + idMap1);
 
         //ค่าที่รับมาจาก MapSearch  31/03/2017
         Intent intent2 = getIntent();
-        idMap = intent2.getStringExtra("idMap");
-        String distance = intent2.getStringExtra("distance");
-        Log.d("31MarV3", "idMap: " + idMap + "Distance: " + distance);
+        idMap2 = intent2.getStringExtra("idMap");
+        distance = intent2.getStringExtra("distance");
+        signName = intent2.getStringExtra("signName");
+        Log.d("31MarV3", "idMap2: " + idMap2 + "Distance: " + distance+"signName: "+signName);
+
 
         final PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        this.mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK, "");
+        this.mWakeLock = pm.newWakeLock(PowerManager.SCREEN_BRIGHT_WAKE_LOCK,"");
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         displayMetrics = new DisplayMetrics();
@@ -145,24 +172,20 @@ public class ARView extends Activity implements SensorEventListener,LocationList
         RelativeLayout headerRelativeLayout = new RelativeLayout(this);
         RelativeLayout.LayoutParams relaLayoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.FILL_PARENT, RelativeLayout.LayoutParams.FILL_PARENT);
 
-          headerRelativeLayout.setBackgroundColor(Color.WHITE);
-          headerRelativeLayout.setLayoutParams(relaLayoutParams);
-        /*//  Button button = new Button(this);
-         RelativeLayout.LayoutParams buttonparams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-         buttonparams.addRule(RelativeLayout.ALIGN_PARENT_LEFT, RelativeLayout.TRUE);
-        button.setLayoutParams(buttonparams);
-        button.setText("Cancel");
-        button.setPadding(15, 0, 15, 0);//*/
+        headerRelativeLayout.setBackgroundColor(Color.WHITE);
+        headerRelativeLayout.setLayoutParams(relaLayoutParams);
 
-        TextView titleTextView = new TextView(this);
+
+        //
+        setAr();
+
+        titleTextView = new TextView(this);
         RelativeLayout.LayoutParams textparams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         textparams.addRule(RelativeLayout.CENTER_HORIZONTAL, RelativeLayout.TRUE);
         textparams.addRule(RelativeLayout.CENTER_VERTICAL, RelativeLayout.TRUE);
         titleTextView.setLayoutParams(textparams);
-        titleTextView.setText("Speed: "+String.format("%.0f", speed2 * 3.6f)); //set speed in textView
-       // titleTextView.setTextColor();
+        titleTextView.setTextSize(20);
 
-       // headerRelativeLayout.addView(button);
         headerRelativeLayout.addView(titleTextView);
         headerFrameLayout.addView(headerRelativeLayout);
 
@@ -170,281 +193,12 @@ public class ARView extends Activity implements SensorEventListener,LocationList
         addContentView(radarMarkerView, new LayoutParams(
                 LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
         addContentView(headerFrameLayout, new FrameLayout.LayoutParams(
-                LayoutParams.FILL_PARENT, 500,
+                LayoutParams.FILL_PARENT, 300,
                 Gravity.BOTTOM));
         addContentView(upperLayerLayout, upperLayerLayoutParams);
 
-        //ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch
-        if (!isInited && idMap.equals("1")) {
-            if (idSign == 1 && idDistance == 1) {
-                //ค้นหาทุกป้าย
-                dataView = new DataView(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 1 && idDistance == 2) {
-                //ค้นหาทุกป้าย
-                dataView = new DataView(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 1 && idDistance == 3) {
-                //ค้นหาทุกป้าย
-                dataView = new DataView(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 2 && idDistance == 1) {
-                //ค้นหาทุกป้าย
-                dataView = new DataView(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 2 && idDistance == 2) {
-                //ค้นหาทุกป้าย
-                dataView = new DataView(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 2 && idDistance == 3) {
-                //ค้นหาทุกป้าย
-                dataView = new DataView(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 3 && idDistance == 1) {
-                //ค้นหาทุกป้าย
-                dataView = new DataView(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 3 && idDistance == 2) {
-                //ค้นหาทุกป้าย
-                dataView = new DataView(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 3 && idDistance == 3) {
-                //ค้นหาทุกป้าย
-                dataView = new DataView(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            }
-        }//ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch
-
-        //ค้นหาป้าย45
-        else if (!isInited && idMap.equals("2")) {
-            if (idSign == 1 && idDistance == 1) {
-                //ค้นหาทุกป้าย45
-                dataView2 = new DataView2(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited2 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 1 && idDistance == 2) {
-                //ค้นหาทุกป้าย45
-                dataView2 = new DataView2(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited2 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 1 && idDistance == 3) {
-                //ค้นหาทุกป้าย45
-                dataView2 = new DataView2(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited2 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 2 && idDistance == 1) {
-                //ค้นหาทุกป้าย45
-                dataView2 = new DataView2(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited2 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 2 && idDistance == 2) {
-                //ค้นหาทุกป้าย45
-                dataView2 = new DataView2(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited2 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 2 && idDistance == 3) {
-                //ค้นหาทุกป้าย45
-                dataView2 = new DataView2(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited2 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 3 && idDistance == 1) {
-                //ค้นหาทุกป้าย45
-                dataView2 = new DataView2(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited2 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 3 && idDistance == 2) {
-                //ค้นหาทุกป้าย45
-                dataView2 = new DataView2(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited2 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 3 && idDistance == 3) {
-                //ค้นหาทุกป้าย45
-                dataView2 = new DataView2(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited2 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            }
-        }//ค้นหาป้าย45
-
-        //ค้นหาป้าย60
-        else if (!isInited && idMap.equals("3")) {
-            if (idSign == 1 && idDistance == 1) {
-                //ค้นหาทุกป้าย60
-                dataView3 = new DataView3(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited3 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 1 && idDistance == 2) {
-                //ค้นหาทุกป้าย60
-                dataView3 = new DataView3(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited3 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 1 && idDistance == 3) {
-                //ค้นหาทุกป้าย60
-                dataView3 = new DataView3(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited3 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 2 && idDistance == 1) {
-                //ค้นหาทุกป้าย60
-                dataView3 = new DataView3(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited3 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 2 && idDistance == 2) {
-                //ค้นหาทุกป้าย60
-                dataView3 = new DataView3(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited3 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 2 && idDistance == 3) {
-                //ค้นหาทุกป้าย60
-                dataView3 = new DataView3(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited3 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 3 && idDistance == 1) {
-                //ค้นหาทุกป้าย60
-                dataView3 = new DataView3(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited3 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 3 && idDistance == 2) {
-                //ค้นหาทุกป้าย60
-                dataView3 = new DataView3(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited3 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 3 && idDistance == 3) {
-                //ค้นหาทุกป้าย60
-                dataView3 = new DataView3(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited3 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            }
-        }//ค้นหาป้าย60
-
-        //ค้นหาป้าย80
-        else if (!isInited && idMap.equals("4")) {
-            if (idSign == 1 && idDistance == 1) {
-                //ค้นหาทุกป้าย80
-                dataView4 = new DataView4(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited4 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 1 && idDistance == 2) {
-                //ค้นหาทุกป้าย80
-                dataView4 = new DataView4(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited4 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 1 && idDistance == 3) {
-                //ค้นหาทุกป้าย80
-                dataView4 = new DataView4(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited4 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 2 && idDistance == 1) {
-                //ค้นหาทุกป้าย80
-                dataView4 = new DataView4(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited4 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 2 && idDistance == 2) {
-                //ค้นหาทุกป้าย80
-                dataView4 = new DataView4(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited4 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 2 && idDistance == 3) {
-                //ค้นหาทุกป้าย80
-                dataView4 = new DataView4(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited4 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 3 && idDistance == 1) {
-                //ค้นหาทุกป้าย80
-                dataView4 = new DataView4(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited4 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 3 && idDistance == 2) {
-                //ค้นหาทุกป้าย80
-                dataView4 = new DataView4(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited4 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            } else if (idSign == 3 && idDistance == 3) {
-                //ค้นหาทุกป้าย80
-                dataView4 = new DataView4(ARView.this);
-                paintScreen = new PaintUtils();
-                isInited4 = true;
-                Log.d("31MarV1", "idDistance:" + idDistance);
-            }
-        }//ค้นหาป้าย80
-
-        update_speed(0.0f); //update speed
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                double lat = location.getLatitude();
-                double lng = location.getLongitude();
-                Log.d("01ApV1", "Lat:" + lat + "Lng:" + lng);
-
-            }
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-            }
-            @Override
-            public void onProviderEnabled(String provider) {
-            }
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
-
-        try {
-            // locationManager.requestLocationUpdates("gps", 3000, 0, locationListener); //get lat lng in 3 ms.
-            loc_mgr = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
-            loc_mgr.requestLocationUpdates( LocationManager.GPS_PROVIDER, update_interval, 0.0f, this );
-
-        } catch (Exception e) {
-
-        }
-
-
 
         upperLayerLayout.setOnClickListener(new OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 Toast.makeText(_context, "RELATIVE LAYOUT CLICKED", Toast.LENGTH_SHORT).show();
@@ -466,8 +220,58 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//onTouch
         });
 
+        //calDist
+        CalculateDistance calculateDistance = new CalculateDistance(ARView.this);
+        calculateDistance.execute();
+
+        //15Apr2017 Calculate Speed and Distance
+        update_speed(0.0f); //update speed
+        try {
+            loc_mgr = (LocationManager) getSystemService( Context.LOCATION_SERVICE ); //speed
+            loc_mgr.requestLocationUpdates( LocationManager.GPS_PROVIDER, update_interval, 0.0f, this ); //speed
+        } catch (Exception e) {
+
+        }
+
     }//Main method
 
+    public void setAr() {
+        //ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch
+        if (!isInited && idMap1.equals("1") && idMap2.equals("1")) {
+            //ค้นหาทุกป้าย
+            dataView = new DataView(ARView.this);
+            paintScreen = new PaintUtils();
+            isInited = true;
+            Log.d("28AprV1", "idMap2: " + idMap2 + "idMap1: " + idMap1 + isInited);
+        }//ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch
+
+        //ค้นหาป้าย45
+        else if (!isInited && idMap2.equals("2") && idMap1.equals("2")) {
+            //ค้นหาทุกป้าย45
+            dataView2 = new DataView2(ARView.this);
+            paintScreen = new PaintUtils();
+            isInited2 = true;
+            Log.d("28AprV2", "idMap2: " + idMap2 + "idMap1: " + idMap1+isInited2);
+        }//ค้นหาป้าย45
+
+        //ค้นหาป้าย60
+        else if (!isInited && idMap2.equals("3") && idMap1.equals("3")) {
+            //ค้นหาทุกป้าย60
+            dataView3 = new DataView3(ARView.this);
+            paintScreen = new PaintUtils();
+            isInited3 = true;
+            Log.d("28AprV3", "idMap2: " + idMap2 + "idMap1: " + idMap1);
+        }//ค้นหาป้าย60
+
+        //ค้นหาป้าย80
+        else if (!isInited &&  idMap2.equals("4") && idMap1.equals("4")) {
+            //ค้นหาทุกป้าย80
+            dataView4 = new DataView4(ARView.this);
+            paintScreen = new PaintUtils();
+            isInited4 = true;
+            Log.d("28AprV4", "idMap2: " + idMap2 + "idMap1: " + idMap1);
+        }//ค้นหาป้าย80
+    }
     public static Context getContext() {
         return _context;
     }
@@ -562,14 +366,428 @@ public class ARView extends Activity implements SensorEventListener,LocationList
 
     //New Speed
     void update_speed( float x ) {
+
         speed2= x;
         if ( x > speed_max )
             speed_max = x;
+        speed = String.format("%.0f", speed2 * 3.6f);
+        Speed = Double.parseDouble(speed);
+        Log.d("21AprV1", "Speed: " + Speed+":"+min2);
 
-         //s = String.format("%.0f", speed2 * 3.6f);
-        //txt_speed.setText( s ); //set speed in textView
     }//update_speed
+
+    void AlertSpeed() {
+        //ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch
+        if (idMap1.equals("1") || idMap1 == null || idMap2.equals("1") || idMap2 == null) {
+            if (idSign == 1 && idDistance == 1) {
+                if (min2 <= 0.3) {
+                    if (signName == null || signName.equals("Sign45") || sign45.equals("Sign45") || sign45 == null) {
+                        if (Speed >= 45.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed >=45.0
+                    }//signName45
+                    else if (signName == null || signName.equals("Sign60") || sign60.equals("Sign60") || sign60 == null) {
+                        if (Speed >= 60.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed >=60.0
+                    }//signName60
+                    else if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                        if (Speed >= 80.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed >=80.0
+                    }//signName80
+                }//min or distance
+            }//idSign=1 && idDistance=1
+            else if (idSign == 1 && idDistance == 2) {
+                if (min2 > 0.1 && min2 <= 0.4) {
+                    if (signName == null || signName.equals("Sign45") || sign45.equals("Sign45") || sign45 == null) {
+                        if (Speed >= 45.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName45
+                    else if (signName == null || signName.equals("Sign60") || sign60.equals("Sign60") || sign60 == null) {
+                        if (Speed >= 60.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName60
+                    else if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                        if (Speed >= 80.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName80
+                }//min or distance
+            } //idSign == 1 idDistance==2
+            else if (idSign == 1 && idDistance == 3) {
+                if (min2 > 0.1 && min2 <= 0.5) {
+                    if (signName == null || signName.equals("Sign45") || sign45.equals("Sign45") || sign45 == null) {
+                        if (Speed >= 45.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName45
+                    else if (signName == null || signName.equals("Sign60") || sign60.equals("Sign60") || sign60 == null) {
+                        if (Speed >= 60.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName60
+                    else if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                        if (Speed >= 80.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName80
+                }//min or distance
+            }//idSign == 1 idDistance==3
+            else if (idSign == 2 && idDistance == 1) {
+                if (min2 <= 0.3) {
+                    if (signName == null || signName.equals("Sign60") || sign60.equals("Sign60") || sign60 == null) {
+                        if (Speed >= 60.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName60
+                    else if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                        if (Speed >= 80.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName80
+                }//min or distance
+            }//idSign ==2 ,idDistance==1
+            else if (idSign == 2 && idDistance == 2) {
+                if (min2 > 0.1 && min2 <= 0.4) {
+                    if (signName == null || signName.equals("Sign60") || sign60.equals("Sign60") || sign60 == null) {
+                        if (Speed >= 60.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName60
+                    else if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                        if (Speed >= 80.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName80
+                }//min or distance
+            }//idSign ==2,idDistance==2
+            else if (idSign == 2 && idDistance == 3) {
+                if (min2 > 0.1 && min2 <= 0.5) {
+                    if (signName == null || signName.equals("Sign60") || sign60.equals("Sign60") || sign60 == null) {
+                        if (Speed >= 60.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName60
+                    else if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                        if (Speed >= 80.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName80
+                }//min or distance
+            }//idSign == 2 && idDistance == 3
+            else if (idSign == 3 && idDistance == 1) {
+                if (min2 <= 0.3) {
+                    if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                        if (Speed >= 80.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName80
+                }//min or distance
+            }//idSign == 3 && idDistance == 1
+            else if (idSign == 3 && idDistance == 2) {
+                if (min2 > 0.1 && min2 <= 0.4) {
+                    if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                        if (Speed >= 80.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName80
+                }//min or distance
+            } else if (idSign == 3 && idDistance == 3) {
+                if (min2 > 0.1 && min2 <= 0.5) {
+                    if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                        if (Speed >= 80.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName80
+                }//min or distance
+            }//idSign == 3 && idDistance == 3
+       }//ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch*/
+
+        //ค้นหาป้าย45
+       else if (idMap2.equals("1")) {
+            if (idSign == 1 && idDistance == 1) {
+                if (min2 <= 0.3) {
+                    if (signName == null || signName.equals("Sign45")) {
+                        if (Speed >= 45.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName45
+                }//min or distance
+            }//idSign ==1 ,idDistance==1
+            else if (idSign == 1 && idDistance == 2) {
+                if (min2 > 0.1 && min2 <= 0.4) {
+                    if (signName == null || signName.equals("Sign45")) {
+                        if (Speed >= 45.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName45
+                }//min or distance
+            }//idSign ==1,idDistance==2
+            else if (idSign == 1 && idDistance == 3) {
+                if (min2 > 0.1 && min2 <= 0.5) {
+                    if (signName == null || signName.equals("Sign45")) {
+                        if (Speed >= 45.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName45
+                }//min or distance
+            }//idSign == 1 && idDistance == 3
+        }//ค้นหาป้าย45
+
+        //ค้นหาป้าย60
+        else if (idMap2.equals("3")) {
+            if (idSign == 2 && idDistance == 1) {
+                if (min2 <= 0.3) {
+                    if (signName == null || signName.equals("Sign60")) {
+                        if (Speed >= 60.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName60
+                }//min or distance
+            }//idSign ==2 ,idDistance==1
+            else if (idSign == 2 && idDistance == 2) {
+                if (min2 > 0.1 && min2 <= 0.4) {
+                    if (signName == null || signName.equals("Sign60")) {
+                        if (Speed >= 60.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName60
+                }//min or distance
+            }//idSign ==2,idDistance==2
+            else if (idSign == 2 && idDistance == 3) {
+                if (min2 > 0.1 && min2 <= 0.5) {
+                    if (signName == null || signName.equals("Sign60")) {
+                        if (Speed >= 60.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName60
+                }//min or distance
+            }//idSign == 2 && idDistance == 3
+       }//ค้นหาป้าย60
+
+        //ค้นหาป้าย80
+      else if (idMap2.equals("4")) {
+            if (idSign == 3 && idDistance == 1) {
+                if (min2 <= 0.3) {
+                    if (signName == null || signName.equals("Sign80")) {
+                        if (Speed >= 80.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName80
+                }//min or distance
+            }//idSign ==2 ,idDistance==1
+            else if (idSign == 3 && idDistance == 2) {
+                if (min2 > 0.1 && min2 <= 0.4) {
+                    if (signName == null || signName.equals("Sign80")) {
+                        if (Speed >= 80.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName80
+                }//min or distance
+            }//idSign ==2,idDistance==2
+            else if (idSign == 3 && idDistance == 3) {
+                if (min2 > 0.1 && min2 <= 0.5) {
+                    if (signName == null || signName.equals("Sign80")) {
+                        if (Speed >= 80.0) {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.start();
+
+                        } else {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+                            mp.stop();
+                        }//speed
+                    }//signName80
+                }//min or distance
+            }//idSign == 2 && idDistance == 3
+        }//ค้นหาป้าย80
+    }//AlertSpeed
     public void onLocationChanged( Location loc ) {
+
         num_updates++;
         if ( loc == null ) {
             no_loc++;
@@ -579,12 +797,172 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             no_speed++;
             return;
         }
-        update_speed( loc.getSpeed() );
+
+        //setAr(); //setAr on camera
+        update_speed( loc.getSpeed() ); //update speed
+
+        //calDist location changed distance update for get SignName min distance
+        CalculateDistance calculateDistance = new CalculateDistance(ARView.this);
+        calculateDistance.execute();
+
+        AlertSpeed(); //แจ้งเตือนความเร็วเมื่อขับเกิน
+
     }//onLocationChanged speed
     public void onStatusChanged( String arg0, int arg1, Bundle arg2 ) {}
     public void onProviderEnabled( String arg0 ) {}
     public void onProviderDisabled( String arg0 ) {}
     //NewSpeed
+
+    //15Apr2017
+    private class CalculateDistance extends AsyncTask<Void, Void, String> {
+        //Explicit
+        private Context context;
+        private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getlatlong.php";
+
+        public CalculateDistance(Context context) {
+            this.context = context;
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            try {
+                OkHttpClient okHttpClient = new OkHttpClient();
+                Request.Builder builder = new Request.Builder();
+                Request request = builder.url(urlJSON).build();
+                com.squareup.okhttp.Response response = okHttpClient.newCall(request).execute();
+                return response.body().string();
+
+            } catch (Exception e) {
+                Log.d("26novV1", "e doIn==>" + e.toString());
+                return null;
+            }
+            //return null;
+        }//doInBack
+
+        @Override
+        protected void onPostExecute(String s) {
+
+            Log.d("26novV1", "Json ==>" + s);
+            try {
+
+                JSONArray jsonArray = new JSONArray(s);
+
+                double min = 100; //ใช้ในการเปรียบเทียบนระยะห่าง
+
+                for (int i = 0; i < jsonArray.length(); i += 1) {
+                    //Get Json from Database
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+
+                    String strSignID = jsonObject.getString("SignID");
+                    String strSignName = jsonObject.getString("SignName");
+                    String strLat = jsonObject.getString("Latitude");
+                    String strLng = jsonObject.getString("Longitude");
+
+
+                    //ดึงข้อมูลจากหน้าตั้งค่า
+                    SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    int idSign = Integer.valueOf(sharedPreferences.getString("idSign", "1"));
+                    int idDistance = Integer.valueOf(sharedPreferences.getString("idDistance", "1"));
+                    //ค่าที่รับมาจากหน้า MainActivity เพื่อที่จะใช้ในการค้นหาทุกป้าย
+                    Intent intent = getIntent();
+                    String idMap = intent.getStringExtra("idMap"); //ใช้ในการกำหนดการค้นหาทุกป้าย
+                    Log.d("15AprV4", "Select idSign :" + idSign + "idDistance:" + idDistance + "idMap:" + idMap);
+                    //ค่าที่รับมาจาก MapSearch  31/03/2017
+                    Intent intent2 = getIntent();
+                    idMap = intent2.getStringExtra("idMap");
+                    String distance = intent2.getStringExtra("distance");
+                    Log.d("15AprV5", "Select idSign :" + idSign + "idDistance:" + idDistance + "idMap:" + idMap+"Distance:"+distance);
+
+                    gps = new GPSTracker(ARView.this);
+                    gps.canGetLocation();
+                    double latitude = gps.getLatitude();
+                    double longitude = gps.getLongitude();
+                    Log.d("15AprV1", "Marker" + "Lat:" + latitude + "Lng:" + longitude);
+
+                    int Radius = 6371; // radius of earth in Km
+                    double lat2, lng2;
+                    double lat1 = latitude; //start Lat พิกัดจาก gps มือถือ
+                    double lng1 = longitude; //start Lng พิกัดจาก gps มือถือ
+
+                    lat2 = Double.parseDouble(strLat); //end Lat พิกัดที่ดึงจากดาต้าเบส แปลงสตริงให้เป็น double
+                    lng2 = Double.parseDouble(strLng); //eng Lng พิกัดที่ดึงจากดาต้าเบส แปลงสตริงให้เป็น double
+
+                    //สูตรคำนวณระยะห่างระหว่างพิกัดมือถือกับพิกัดป้ายจากดาต้าเบส
+                    double dLat = Math.toRadians(lat2 - lat1);
+                    double dLon = Math.toRadians(lng2 - lng1);
+                    double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+                            + Math.cos(Math.toRadians(lat1))
+                            * Math.cos(Math.toRadians(lat2)) * Math.sin(dLon / 2)
+                            * Math.sin(dLon / 2);
+                    double c = 2 * Math.asin(Math.sqrt(a));
+                    double valueResult = Radius * c * 1000;
+                    double km = valueResult / 1;
+                    DecimalFormat newFormat = new DecimalFormat("####");
+                    int kmInDec = Integer.valueOf(newFormat.format(km));
+                    double meter = valueResult / 1000;
+                    DecimalFormat newFormat2 = new DecimalFormat("#.##");
+                    double meterInKm = Double.valueOf(newFormat2.format(meter));
+                    Log.d("15AprV2", "" + valueResult + "   KM  " + kmInDec
+                            + " Meter   " + meterInKm);
+                    //เก็บค่า meterInKm เป็นอาเรย์
+                    double[] exIntArray = new double[jsonArray.length()];
+                    exIntArray[i] = meterInKm;
+                    //double distance[] = {exIntArray[i]}; //ใช่เปรียบเทียบระยะห่าางมากน้อย
+                    distanceArr[i] = exIntArray[i];
+                    Log.d("15AprV3", "Distance: " +distanceArr[i]);
+                    //เปรียบเทียบค่าระยะห่างระหว่างป้ายกกับตัวผู้ใช้ แล้วแสดงให้ผู้ใช้เห็นว่าป้ายยที่ใกล้ที่ที่สุดห่างเท่าไหร่   idMap 1 คือหาทุกป้าย ,2 หาแค่ป้าย45 , 3 หาแค่ป้าย60 ,4 หาแค่ป้าย80
+                    int idMap2;
+                    idMap2 = Integer.parseInt(idMap);
+                    //15Apr2017 Calculate distance && calculate distance min
+                    if (exIntArray[i] <= seekBar && idMap2 ==1) {
+                        if (exIntArray[i] < min && strSignName.equals("Sign45")) {
+                            min = exIntArray[i];
+                            min2 = min;
+                            SignNameArr = strSignName;
+                            titleTextView.setText("ชื่อป้าย: "+SignNameArr+"\n"+"ระยะห่าง: "+min2+"\n"+"ความเร็ว: "+Speed);
+
+                        } else if (exIntArray[i] < min && strSignName.equals("Sign60")) {
+                            min = exIntArray[i];
+                            min2 = min;
+                            SignNameArr = strSignName;
+                            titleTextView.setText("ชื่อป้าย: "+SignNameArr+"\n"+"ระยะห่าง: "+min2+"\n"+"ความเร็ว: "+Speed);
+                        } else if (exIntArray[i] < min && strSignName.equals("Sign80")) {
+                            min = exIntArray[i];
+                            min2 = min;
+                            SignNameArr = strSignName;
+                            titleTextView.setText("ชื่อป้าย: "+SignNameArr+"\n"+"ระยะห่าง: "+min2+"\n"+"ความเร็ว: "+Speed);
+                        }
+                        Log.d("23AprV5", "distance:" + min2+":"+SignNameArr+":"+Speed+":"+min); //ระยะห่างที่ใกล้ที่สุด
+                    }//if idMap =1
+
+                    else if (exIntArray[i] <= seekBar && idMap2 ==2 && strSignName.equals("Sign45")) {
+                        if (exIntArray[i] < min)
+                        min = exIntArray[i];
+                        min2 = min;
+                        SignNameArr = strSignName;
+                        titleTextView.setText("ชื่อป้าย: "+SignNameArr+"\n"+"ระยะห่าง: "+min2+"\n"+"ความเร็ว: "+Speed);
+                    }
+                    else if (exIntArray[i] <= seekBar && idMap2 ==3 && strSignName.equals("Sign60")) {
+                        if (exIntArray[i] < min)
+                        min = exIntArray[i];
+                        min2 = min;
+                        SignNameArr = strSignName;
+                        titleTextView.setText("ชื่อป้าย: "+SignNameArr+"\n"+"ระยะห่าง: "+min2+"\n"+"ความเร็ว: "+Speed);
+                    }
+                    else if (exIntArray[i] <= seekBar && idMap2 ==4 && strSignName.equals("Sign80")) {
+                        if (exIntArray[i] < min)
+                            min = exIntArray[i];
+                            min2 = min;
+                        SignNameArr = strSignName;
+                        titleTextView.setText("ชื่อป้าย: "+SignNameArr+"\n"+"ระยะห่าง: "+min2+"\n"+"ความเร็ว: "+Speed);
+                    }
+                }//for
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        }//onPost
+    }//CalculateDistance
 }//Main Class
 
 class CameraView extends SurfaceView implements SurfaceHolder.Callback {
@@ -705,18 +1083,17 @@ class RadarMarkerView extends View {
     protected void onDraw(Canvas canvas) {
         try {
             //26/03/17
-        super.onDraw(canvas);
-        ARView.paintScreen.setWidth(canvas.getWidth());
-        ARView.paintScreen.setHeight(canvas.getHeight());
-        ARView.paintScreen.setCanvas(canvas);
+            super.onDraw(canvas);
+            ARView.paintScreen.setWidth(canvas.getWidth());
+            ARView.paintScreen.setHeight(canvas.getHeight());
+            ARView.paintScreen.setCanvas(canvas);
 
             //show all arSign
             if (!ARView.dataView.isInited()) {
                 ARView.dataView.init(ARView.paintScreen.getWidth(), ARView.paintScreen.getHeight(), arView.camera, displayMetrics, upperLayoutView);
-            } else {
+            }else {
                 ARView.dataView.draw(ARView.paintScreen, ARView.azimuth, ARView.pitch, ARView.roll);
             }
-
             //show arSign45
             if (!ARView.dataView2.isInited2()) {
                 ARView.dataView2.init2(ARView.paintScreen.getWidth(), ARView.paintScreen.getHeight(), arView.camera, displayMetrics, upperLayoutView);
@@ -739,13 +1116,14 @@ class RadarMarkerView extends View {
             }
 
         } catch (Exception e) {
-     }
-    }
-}
+        }
+    }//onDraw
+}//radarView
 
 class ResolutionsOrder implements java.util.Comparator<Camera.Size> {
     public int compare(Camera.Size left, Camera.Size right) {
 
         return Float.compare(left.width + left.height, right.width + right.height);
     }
+
 }
