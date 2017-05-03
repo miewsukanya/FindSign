@@ -1,9 +1,13 @@
 package miewsukanya.com.findsign.arview;
 
 /**
+ * Created by Sukanya Boonpun on 01/05/2560.
+ */
+
+/**
  * Created by Sukanya Boonpun on 31/03/2560.
  */
-//ค้นหาทุกป้ายในระยะ 5 Km.
+//ค้นหาทุกป้ายในระยะ 1 Km.
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -35,9 +39,7 @@ import miewsukanya.com.findsign.R;
 import miewsukanya.com.findsign.utils.PaintUtils;
 import miewsukanya.com.findsign.utils.RadarLines;
 
-import static miewsukanya.com.findsign.R.id.seekBar;
-
-public class DataView extends Activity implements LocationListener{
+public class DataViewDist4 extends Activity implements LocationListener{
 
     RelativeLayout.LayoutParams[] layoutParams;
     RelativeLayout[] locationMarkerView;
@@ -56,9 +58,9 @@ public class DataView extends Activity implements LocationListener{
     public int[][] coordinateArray = new int[100][2];
     double[] exIntArray = new  double[1000]; //กำหนดขนาดอาเรย์ของระยะห่างที่ลบจากแลตลองในดาต้าเบส
 
-        /*     *  Array or Array lists of latitude and longitude to plot
-         *  In your case you can populate with an ArrayList
-         * */
+    /*     *  Array or Array lists of latitude and longitude to plot
+     *  In your case you can populate with an ArrayList
+     * */
     protected LocationManager locationManager;
     protected LocationListener locationListener;
     int[] nextXofText;
@@ -72,8 +74,7 @@ public class DataView extends Activity implements LocationListener{
     /**
      * is the view Inited?
      */
-    boolean isInit = false;
-    boolean isInit1 = false;
+    boolean isInitDist4 = false;
     boolean isDrawing = true;
     boolean isFirstEntry;
     Context _context;
@@ -108,15 +109,15 @@ public class DataView extends Activity implements LocationListener{
     public float deltaY;
     Bitmap bmp;
     final int update_interval = 1000; // milliseconds
-    double seekbar = 1.5; //ระยะในากรค้นหาเท่ากับ 1km
-    public DataView(Context ctx) {
+
+    public DataViewDist4(Context ctx) {
         this._context = ctx;
 
         //Get lat Lng
-        GetLocation getLocation = new GetLocation(DataView.this);
+        GetLocation getLocation = new GetLocation(DataViewDist4.this);
         getLocation.execute();
 
-        CalculateDistance calculateDistance = new CalculateDistance(DataView.this);
+        CalculateDistance calculateDistance = new CalculateDistance(DataViewDist4.this);
         calculateDistance.execute();
 
         locationManager = (LocationManager) ctx.getSystemService(Context.LOCATION_SERVICE);
@@ -134,7 +135,6 @@ public class DataView extends Activity implements LocationListener{
         currentLocation.setLatitude(location.getLatitude());
         currentLocation.setLongitude(location.getLongitude());
         currentLocation.setAltitude((location.getAltitude()));
-
     }
 
     @Override
@@ -166,11 +166,11 @@ public class DataView extends Activity implements LocationListener{
     }
     class GetLocation extends AsyncTask<Void, Void, String> {
         //Explicit
-        private DataView dataview;
+        private DataViewDist4 dataview;
         private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getlatlong.php";
         // private Bitmap imge;
 
-        public GetLocation(DataView dataview) {
+        public GetLocation(DataViewDist4 dataview) {
             this.dataview = dataview;
         }
 
@@ -195,7 +195,7 @@ public class DataView extends Activity implements LocationListener{
             Log.d("26novV1", "Json ==>" + s);
             try {
                 JSONArray jsonArray = new JSONArray(s);
-                double min = 100; //ใช้ในการเปรียบเทียบนระยะห่าง
+
                 places = new String[jsonArray.length()];
                 latitudes = new double[jsonArray.length()];
                 longitudes = new double[jsonArray.length()];
@@ -205,15 +205,14 @@ public class DataView extends Activity implements LocationListener{
 
                     JSONObject jsonObject = jsonArray.getJSONObject(i);
 
-
                     places[i] = jsonObject.getString("SignName").trim();
                     latitudes[i] = Double.parseDouble(jsonObject.getString("Latitude"));
                     longitudes[i] = Double.parseDouble(jsonObject.getString("Longitude"));
 
                     lat[i] = Double.parseDouble(jsonObject.getString("Latitude"));
-                    Log.d("24AprV7", "name:" + places[i]+":"+latitudes[i]+":"+longitudes[i] +":"+lat.length +":"+jsonObject.getString("SignName"));
-                    Log.d("28AprV9", String.valueOf(lat[i]));
 
+                    Log.d("24AprV5", "name:" + places[i]+":"+latitudes[i]+":"+longitudes[i] +":"+lat.length +":"+jsonObject.getString("SignName"));
+                    Log.d("28AprV7", String.valueOf(lat[i]));
                 }//for
             } catch (Exception e) {
                 e.printStackTrace();
@@ -222,14 +221,16 @@ public class DataView extends Activity implements LocationListener{
         }//onPost
     }//Getlocation
 
-    public boolean isInited() {
-        return isInit;
+    public boolean isInitDist4() {
+        return isInitDist4;
     }
 
-
-    public void init(int widthInit, int heightInit, Camera camera, DisplayMetrics displayMetrics, RelativeLayout rel) {
+    double seekbar = 6.0;
+    double seekbar2 = 10.0;
+    public void init4(int widthInit, int heightInit, Camera camera, DisplayMetrics displayMetrics, RelativeLayout rel) {
         Log.d("okmiew", String.valueOf(lat.length)); //เบรคข้อมูลก่อนเข้าฟังก์ชันวาดเออาร์
-        Log.d("okmiew2", String.valueOf(isInit)); //เบรคข้อมูลก่อนเข้าฟังก์ชันวาดเออาร์
+        Log.d("okmiew2", String.valueOf(isInitDist4)); //เบรคข้อมูลก่อนเข้าฟังก์ชันวาดเออาร์
+
         try {
             layoutParams = new RelativeLayout.LayoutParams[lat.length];
             locationMarkerView = new RelativeLayout[lat.length];
@@ -253,19 +254,11 @@ public class DataView extends Activity implements LocationListener{
                 layoutParams[i] = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
                 layoutParams[i].setMargins(displayMetrics.widthPixels / 2, displayMetrics.heightPixels / 2, 0, 0);
                 locationMarkerView[i] = new RelativeLayout(_context);
-                Log.d("17MarV4", "Location:" + lat[i] +":"+exIntArray[i]);
-                //set AR Show AR ทั้งหมด ในระยะที่น้อยกว่า 5 km.
-                if ( places[i].equals("Sign45") && exIntArray[i] <= seekbar) {
-                    locationMarkerView[i].setBackgroundResource(R.drawable.but_45);
-                    Log.d("17MarV1", "Location:" + lat[i] +":"+exIntArray[i]);
 
-                } else if (places[i].equals("Sign60") && exIntArray[i] <= seekbar){
-                    locationMarkerView[i].setBackgroundResource(R.drawable.but_60);
-                    Log.d("17MarV2", "Location:" + lat[i] +":"+exIntArray[i]);
-
-                }else if (places[i].equals("Sign80") && exIntArray[i] <= seekbar){
+                //set AR Show AR ทั้งหมด ในระยะ 5 km.
+                if ( places[i].equals("Sign80") && exIntArray[i] < seekbar && exIntArray[i] <= seekbar2)  {
                     locationMarkerView[i].setBackgroundResource(R.drawable.but_80);
-                    Log.d("17MarV3", "Location:" + lat[i] +":"+exIntArray[i]);
+                    Log.d("17MarV1", "Location:" + lat[i] +":"+exIntArray[i]);
                 }
                 //set AR Show AR ทั้งหมด ในระยะ 5 km.
 
@@ -341,14 +334,14 @@ public class DataView extends Activity implements LocationListener{
             /*
              * initialization is done, so dont call init() again.
              * */
-        isInit = true;
+        isInitDist4 = true;
     }//init
     private class CalculateDistance extends AsyncTask<Void, Void, String> {
         //Explicit
-        private DataView context;
+        private DataViewDist4 context;
         private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getlatlong.php";
 
-        public CalculateDistance(DataView context) {
+        public CalculateDistance(DataViewDist4 context) {
             this.context = context;
 
         }
@@ -442,7 +435,7 @@ public class DataView extends Activity implements LocationListener{
         else if (range == 11 || range == 12) dirTxt = "W";
         else if (range == 13 || range == 14) dirTxt = "NW";
 
-        radarPoints.view = this;
+        radarPoints.dataViewDist4 = this;
 
         dw.paintObj(radarPoints, rx + PaintUtils.XPADDING, ry + PaintUtils.YPADDING, -this.yaw, 1, this.yaw);
         dw.setFill(false);
@@ -558,37 +551,4 @@ public class DataView extends Activity implements LocationListener{
             }
         }
     }
-
-    /*public class NearbyPlacesList extends BaseAdapter {
-
-        ArrayList<Integer> matchIDs = new ArrayList<Integer>();
-
-        public NearbyPlacesList(ArrayList<Integer> matchID) {
-            matchIDs = matchID;
-        }
-
-        @Override
-        public int getCount() {
-            // TODO Auto-generated method stub
-            return matchIDs.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            // TODO Auto-generated method stub
-            return 0;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            // TODO Auto-generated method stub
-            return null;
-        }
-    }*/
 }//DataView

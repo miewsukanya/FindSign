@@ -83,15 +83,13 @@ public class RadarView implements LocationListener {
     double[] bearings;
     ARView arView = new ARView();
     final int update_interval = 1000; // milliseconds
-    //Location location; // location
-
-    Location locNetwork;
-    Location locGps;
-    LocationListener netListener;
-    LocationListener gpsListener;
     public DataView2 dataView2;
     public DataView3 dataView3;
     public DataView4 dataView4;
+    public DataViewDist1 dataViewDist1;
+    public DataViewDist2 dataViewDist2;
+    public DataViewDist3 dataViewDist3;
+    public DataViewDist4 dataViewDist4;
 
     public RadarView(Context context, DataView dataView, double[] bearings) {
         this.bearings = bearings;
@@ -170,6 +168,78 @@ public class RadarView implements LocationListener {
 
         }
     }//RadarView AR_all
+    public RadarView(Context context, DataViewDist1 dataViewDist1, double[] bearings) {
+        this.bearings = bearings;
+        calculateMetrics();
+
+        //Get lat Lng
+        GetLocation getLocation80 = new GetLocation(RadarView.this);
+        getLocation80.execute();
+
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, update_interval, 0.0f, this);
+            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, update_interval, 0.0f, netListener);
+            currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
+            // currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+        } catch (Exception e) {
+
+        }
+    }//RadarView AR_all
+    public RadarView(Context context, DataViewDist2 dataViewDist2, double[] bearings) {
+        this.bearings = bearings;
+        calculateMetrics();
+
+        //Get lat Lng
+        GetLocation getLocation80 = new GetLocation(RadarView.this);
+        getLocation80.execute();
+
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, update_interval, 0.0f, this);
+            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, update_interval, 0.0f, netListener);
+            currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
+            // currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+        } catch (Exception e) {
+
+        }
+    }//RadarView AR_all
+    public RadarView(Context context, DataViewDist3 dataViewDist3, double[] bearings) {
+        this.bearings = bearings;
+        calculateMetrics();
+
+        //Get lat Lng
+        GetLocation getLocation80 = new GetLocation(RadarView.this);
+        getLocation80.execute();
+
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, update_interval, 0.0f, this);
+            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, update_interval, 0.0f, netListener);
+            currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
+            // currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+        } catch (Exception e) {
+
+        }
+    }//RadarView AR_all
+    public RadarView(Context context, DataViewDist4 dataViewDist4, double[] bearings) {
+        this.bearings = bearings;
+        calculateMetrics();
+
+        //Get lat Lng
+        GetLocation getLocation80 = new GetLocation(RadarView.this);
+        getLocation80.execute();
+
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, update_interval, 0.0f, this);
+            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, update_interval, 0.0f, netListener);
+            currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
+            // currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
+        } catch (Exception e) {
+
+        }
+    }//RadarView AR_all
 
     public void calculateMetrics() {
         circleOriginX = originX + RADIUS;
@@ -212,9 +282,7 @@ public class RadarView implements LocationListener {
     }
 
     /*public void calculateDistances(PaintUtils dw, float yaw) {
-
           //Calculate the distance from currentLocation to each POI's one
-
         for (int i = 0; i < latitudes.length; i++) {
             if (bearings[i] < 0) {
                 bearings[i] = 360 - bearings[i];
@@ -225,19 +293,14 @@ public class RadarView implements LocationListener {
             } else {
                 angleToShift = (float) bearings[i] - coordinateArray[i][0];
             }
-
             destinedLocation.setLatitude(latitudes[i]);
             destinedLocation.setLongitude(longitudes[i]);
             float[] z = new float[1];
             z[0] = 0;
-
             Location.distanceBetween(currentLocation.getLatitude(), currentLocation.getLongitude(), destinedLocation.getLatitude(), destinedLocation.getLongitude(), z);
             bearing = currentLocation.bearingTo(destinedLocation);
-
             this.x = (float) (circleOriginX + 40 * (Math.cos(angleToShift)));
             this.y = (float) (circleOriginY + 40 * (Math.sin(angleToShift)));
-
-
             if (x * x + y * y < RADIUS * RADIUS) {
                 dw.setFill(true);
                 dw.setColor(Color.rgb(255, 255, 255));
@@ -285,7 +348,7 @@ public class RadarView implements LocationListener {
 
     @Override
     public void onLocationChanged(Location location) {
-         // Your current location coordinate here.
+        // Your current location coordinate here.
         currentLocation.setLatitude(location.getLatitude());
         currentLocation.setLongitude(location.getLongitude());
         currentLocation.setAltitude((location.getAltitude()));
@@ -351,7 +414,7 @@ public class RadarView implements LocationListener {
             Log.d("26novV1", "Json ==>" + s);
             try {
                 JSONArray jsonArray = new JSONArray(s);
-               // places = new String[jsonArray.length()];
+                // places = new String[jsonArray.length()];
                 latitudes = new double[jsonArray.length()];
                 longitudes = new double[jsonArray.length()];
 

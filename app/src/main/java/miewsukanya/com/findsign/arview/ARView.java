@@ -68,15 +68,24 @@ public class ARView extends Activity implements SensorEventListener,LocationList
     static DataView2 dataView2;
     static DataView3 dataView3;
     static DataView4 dataView4;
+    static DataViewDist1 dataViewDist1;
+    static DataViewDist2 dataViewDist2;
+    static DataViewDist3 dataViewDist3;
+    static DataViewDist4 dataViewDist4;
+
     boolean isInited = false;
     boolean isInited2 = false;
     boolean isInited3 = false;
     boolean isInited4 = false;
+    boolean isInitDist1 = false;
+    boolean isInitDist2 = false;
+    boolean isInitDist3 = false;
+    boolean isInitDist4= false;
+
     public static float azimuth;
     public static float pitch;
     public static float roll;
     public double latitudeprevious;
-    //public double longitude;
     String locationContext;
     String provider;
     DisplayMetrics displayMetrics;
@@ -125,8 +134,8 @@ public class ARView extends Activity implements SensorEventListener,LocationList
         super.onCreate(savedInstanceState);
         //ดึงข้อมูลจากหน้าตั้งค่า
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-         idSign = Integer.valueOf(sharedPreferences.getString("idSign", "1"));
-         idDistance = Integer.valueOf(sharedPreferences.getString("idDistance", "1"));
+        idSign = Integer.valueOf(sharedPreferences.getString("idSign", "1"));
+        idDistance = Integer.valueOf(sharedPreferences.getString("idDistance", "1"));
         Log.d("28MarV1", "idSign:" + idSign + "idDistance:" + idDistance);
 
         //ค่าที่รับมาจากหน้า MainActivity เพื่อที่จะใช้ในการค้นหาทุกป้าย
@@ -176,8 +185,9 @@ public class ARView extends Activity implements SensorEventListener,LocationList
         headerRelativeLayout.setLayoutParams(relaLayoutParams);
 
 
-        //
-        setAr();
+
+        setAr();  //เรียกใช้ฟังก์ชันวาดเออาร์
+
 
         titleTextView = new TextView(this);
         RelativeLayout.LayoutParams textparams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -235,43 +245,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
 
     }//Main method
 
-    public void setAr() {
-        //ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch
-        if (!isInited && idMap1.equals("1") && idMap2.equals("1")) {
-            //ค้นหาทุกป้าย
-            dataView = new DataView(ARView.this);
-            paintScreen = new PaintUtils();
-            isInited = true;
-            Log.d("28AprV1", "idMap2: " + idMap2 + "idMap1: " + idMap1 + isInited);
-        }//ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch
 
-        //ค้นหาป้าย45
-        else if (!isInited && idMap2.equals("2") && idMap1.equals("2")) {
-            //ค้นหาทุกป้าย45
-            dataView2 = new DataView2(ARView.this);
-            paintScreen = new PaintUtils();
-            isInited2 = true;
-            Log.d("28AprV2", "idMap2: " + idMap2 + "idMap1: " + idMap1+isInited2);
-        }//ค้นหาป้าย45
-
-        //ค้นหาป้าย60
-        else if (!isInited && idMap2.equals("3") && idMap1.equals("3")) {
-            //ค้นหาทุกป้าย60
-            dataView3 = new DataView3(ARView.this);
-            paintScreen = new PaintUtils();
-            isInited3 = true;
-            Log.d("28AprV3", "idMap2: " + idMap2 + "idMap1: " + idMap1);
-        }//ค้นหาป้าย60
-
-        //ค้นหาป้าย80
-        else if (!isInited &&  idMap2.equals("4") && idMap1.equals("4")) {
-            //ค้นหาทุกป้าย80
-            dataView4 = new DataView4(ARView.this);
-            paintScreen = new PaintUtils();
-            isInited4 = true;
-            Log.d("28AprV4", "idMap2: " + idMap2 + "idMap1: " + idMap1);
-        }//ค้นหาป้าย80
-    }
     public static Context getContext() {
         return _context;
     }
@@ -628,10 +602,10 @@ public class ARView extends Activity implements SensorEventListener,LocationList
                     }//signName80
                 }//min or distance
             }//idSign == 3 && idDistance == 3
-       }//ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch*/
+        }//ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch*/
 
         //ค้นหาป้าย45
-       else if (idMap2.equals("1")) {
+        else if (idMap2.equals("1")) {
             if (idSign == 1 && idDistance == 1) {
                 if (min2 <= 0.3) {
                     if (signName == null || signName.equals("Sign45")) {
@@ -732,10 +706,10 @@ public class ARView extends Activity implements SensorEventListener,LocationList
                     }//signName60
                 }//min or distance
             }//idSign == 2 && idDistance == 3
-       }//ค้นหาป้าย60
+        }//ค้นหาป้าย60
 
         //ค้นหาป้าย80
-      else if (idMap2.equals("4")) {
+        else if (idMap2.equals("4")) {
             if (idSign == 3 && idDistance == 1) {
                 if (min2 <= 0.3) {
                     if (signName == null || signName.equals("Sign80")) {
@@ -786,6 +760,45 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign == 2 && idDistance == 3
         }//ค้นหาป้าย80
     }//AlertSpeed
+
+    public void setAr() {
+        //ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch
+        if (!isInited && idMap1.equals("1") && idMap2.equals("1")) {
+            //ค้นหาทุกป้าย
+            dataView = new DataView(ARView.this);
+            paintScreen = new PaintUtils();
+            isInited = true;
+            Log.d("28AprV1", "idMap2: " + idMap2 + "idMap1: " + idMap1 + isInited);
+        }//ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch
+
+        //ค้นหาป้าย45
+        else if (!isInited && idMap2.equals("2") && idMap1.equals("2") && signName.equals("Sign45")) {
+            //ค้นหาทุกป้าย45
+            dataView2 = new DataView2(ARView.this);
+            paintScreen = new PaintUtils();
+            isInited2 = true;
+            Log.d("28AprV2", "idMap2: " + idMap2 + "idMap1: " + idMap1+isInited2);
+        }//ค้นหาป้าย45
+
+        //ค้นหาป้าย60
+        else if (!isInited && idMap2.equals("3") && idMap1.equals("3") && signName.equals("Sign60")) {
+            //ค้นหาทุกป้าย60
+            dataView3 = new DataView3(ARView.this);
+            paintScreen = new PaintUtils();
+            isInited3 = true;
+            Log.d("28AprV3", "idMap2: " + idMap2 + "idMap1: " + idMap1 +isInited3);
+        }//ค้นหาป้าย60
+
+        //ค้นหาป้าย80
+        else if (!isInited &&  idMap2.equals("4") && idMap1.equals("4") && signName.equals("Sign80")) {
+            //ค้นหาทุกป้าย80
+            dataView4 = new DataView4(ARView.this);
+            paintScreen = new PaintUtils();
+            isInited4 = true;
+            Log.d("28AprV4", "idMap2: " + idMap2 + "idMap1: " + idMap1+isInited4);
+        }//ค้นหาป้าย80
+    }//setAR
+
     public void onLocationChanged( Location loc ) {
 
         num_updates++;
@@ -798,20 +811,21 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             return;
         }
 
-        //setAr(); //setAr on camera
+        setAr(); //setAr on camera
         update_speed( loc.getSpeed() ); //update speed
 
         //calDist location changed distance update for get SignName min distance
         CalculateDistance calculateDistance = new CalculateDistance(ARView.this);
         calculateDistance.execute();
-
         AlertSpeed(); //แจ้งเตือนความเร็วเมื่อขับเกิน
+
 
     }//onLocationChanged speed
     public void onStatusChanged( String arg0, int arg1, Bundle arg2 ) {}
     public void onProviderEnabled( String arg0 ) {}
     public void onProviderDisabled( String arg0 ) {}
     //NewSpeed
+
 
     //15Apr2017
     private class CalculateDistance extends AsyncTask<Void, Void, String> {
@@ -920,41 +934,46 @@ public class ARView extends Activity implements SensorEventListener,LocationList
                             min2 = min;
                             SignNameArr = strSignName;
                             titleTextView.setText("ชื่อป้าย: "+SignNameArr+"\n"+"ระยะห่าง: "+min2+"\n"+"ความเร็ว: "+Speed);
-
+                            //setAr(); //set AR
                         } else if (exIntArray[i] < min && strSignName.equals("Sign60")) {
                             min = exIntArray[i];
                             min2 = min;
                             SignNameArr = strSignName;
                             titleTextView.setText("ชื่อป้าย: "+SignNameArr+"\n"+"ระยะห่าง: "+min2+"\n"+"ความเร็ว: "+Speed);
+                           // setAr(); //set AR
                         } else if (exIntArray[i] < min && strSignName.equals("Sign80")) {
                             min = exIntArray[i];
                             min2 = min;
                             SignNameArr = strSignName;
                             titleTextView.setText("ชื่อป้าย: "+SignNameArr+"\n"+"ระยะห่าง: "+min2+"\n"+"ความเร็ว: "+Speed);
+                           // setAr(); //set AR
                         }
                         Log.d("23AprV5", "distance:" + min2+":"+SignNameArr+":"+Speed+":"+min); //ระยะห่างที่ใกล้ที่สุด
                     }//if idMap =1
 
                     else if (exIntArray[i] <= seekBar && idMap2 ==2 && strSignName.equals("Sign45")) {
                         if (exIntArray[i] < min)
-                        min = exIntArray[i];
+                            min = exIntArray[i];
                         min2 = min;
                         SignNameArr = strSignName;
                         titleTextView.setText("ชื่อป้าย: "+SignNameArr+"\n"+"ระยะห่าง: "+min2+"\n"+"ความเร็ว: "+Speed);
+                        //setAr(); //set AR
                     }
                     else if (exIntArray[i] <= seekBar && idMap2 ==3 && strSignName.equals("Sign60")) {
                         if (exIntArray[i] < min)
-                        min = exIntArray[i];
+                            min = exIntArray[i];
                         min2 = min;
                         SignNameArr = strSignName;
                         titleTextView.setText("ชื่อป้าย: "+SignNameArr+"\n"+"ระยะห่าง: "+min2+"\n"+"ความเร็ว: "+Speed);
+                        //setAr(); //set AR
                     }
                     else if (exIntArray[i] <= seekBar && idMap2 ==4 && strSignName.equals("Sign80")) {
                         if (exIntArray[i] < min)
                             min = exIntArray[i];
-                            min2 = min;
+                        min2 = min;
                         SignNameArr = strSignName;
                         titleTextView.setText("ชื่อป้าย: "+SignNameArr+"\n"+"ระยะห่าง: "+min2+"\n"+"ความเร็ว: "+Speed);
+                       // setAr(); //set AR
                     }
                 }//for
             }
@@ -1080,7 +1099,7 @@ class RadarMarkerView extends View {
     }
 
     @Override
-    protected void onDraw(Canvas canvas) {
+    public void onDraw(Canvas canvas) {
         try {
             //26/03/17
             super.onDraw(canvas);
@@ -1091,30 +1110,55 @@ class RadarMarkerView extends View {
             //show all arSign
             if (!ARView.dataView.isInited()) {
                 ARView.dataView.init(ARView.paintScreen.getWidth(), ARView.paintScreen.getHeight(), arView.camera, displayMetrics, upperLayoutView);
-            }else {
+            } else {
                 ARView.dataView.draw(ARView.paintScreen, ARView.azimuth, ARView.pitch, ARView.roll);
             }
+            /*//show all arSign
+            if (!ARView.dataViewDist1.isInitDist1()) {
+                ARView.dataViewDist1.init(ARView.paintScreen.getWidth(), ARView.paintScreen.getHeight(), arView.camera, displayMetrics, upperLayoutView);
+            } else {
+                ARView.dataViewDist1.draw(ARView.paintScreen, ARView.azimuth, ARView.pitch, ARView.roll);
+            }*/
+        //===============================================//
             //show arSign45
             if (!ARView.dataView2.isInited2()) {
                 ARView.dataView2.init2(ARView.paintScreen.getWidth(), ARView.paintScreen.getHeight(), arView.camera, displayMetrics, upperLayoutView);
             } else {
                 ARView.dataView2.draw(ARView.paintScreen, ARView.azimuth, ARView.pitch, ARView.roll);
             }
-
+            /*//show arSign45
+            if (!ARView.dataViewDist2.isInitDist2()) {
+                ARView.dataViewDist2.init2(ARView.paintScreen.getWidth(), ARView.paintScreen.getHeight(), arView.camera, displayMetrics, upperLayoutView);
+            } else {
+                ARView.dataViewDist2.draw(ARView.paintScreen, ARView.azimuth, ARView.pitch, ARView.roll);
+            }*/
+        //===============================================//
             //show arSign60
             if (!ARView.dataView3.isInited3()) {
                 ARView.dataView3.init3(ARView.paintScreen.getWidth(), ARView.paintScreen.getHeight(), arView.camera, displayMetrics, upperLayoutView);
             } else {
                 ARView.dataView3.draw(ARView.paintScreen, ARView.azimuth, ARView.pitch, ARView.roll);
             }
-
+            /*//show arSign60
+            if (!ARView.dataViewDist3.isInitDist3()) {
+                ARView.dataViewDist3.init3(ARView.paintScreen.getWidth(), ARView.paintScreen.getHeight(), arView.camera, displayMetrics, upperLayoutView);
+            } else {
+                ARView.dataViewDist3.draw(ARView.paintScreen, ARView.azimuth, ARView.pitch, ARView.roll);
+            }*/
+        //===============================================//
             //show arSign80
             if (!ARView.dataView4.isInited4()) {
                 ARView.dataView4.init4(ARView.paintScreen.getWidth(), ARView.paintScreen.getHeight(), arView.camera, displayMetrics, upperLayoutView);
             } else {
                 ARView.dataView4.draw(ARView.paintScreen, ARView.azimuth, ARView.pitch, ARView.roll);
             }
-
+            /*//show arSign80
+            if (!ARView.dataViewDist4.isInitDist4()) {
+                ARView.dataViewDist4.init4(ARView.paintScreen.getWidth(), ARView.paintScreen.getHeight(), arView.camera, displayMetrics, upperLayoutView);
+            } else {
+                ARView.dataViewDist4.draw(ARView.paintScreen, ARView.azimuth, ARView.pitch, ARView.roll);
+            }*/
+        //===============================================//
         } catch (Exception e) {
         }
     }//onDraw
