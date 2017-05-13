@@ -107,8 +107,8 @@ public class DataView extends Activity implements LocationListener{
     public float deltaX;
     public float deltaY;
     Bitmap bmp;
-    final int update_interval = 1000; // milliseconds
-    double seekbar = 1.5; //ระยะในากรค้นหาเท่ากับ 1km
+    final int update_interval = 5000; // milliseconds
+    double seekbar = 1.0; //ระยะในากรค้นหาเท่ากับ 1km
     public DataView(Context ctx) {
         this._context = ctx;
 
@@ -134,6 +134,13 @@ public class DataView extends Activity implements LocationListener{
         currentLocation.setLatitude(location.getLatitude());
         currentLocation.setLongitude(location.getLongitude());
         currentLocation.setAltitude((location.getAltitude()));
+
+        //Get lat Lng
+        GetLocation getLocation = new GetLocation(DataView.this);
+        getLocation.execute();
+
+        CalculateDistance calculateDistance = new CalculateDistance(DataView.this);
+        calculateDistance.execute();
 
     }
 

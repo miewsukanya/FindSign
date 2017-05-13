@@ -68,19 +68,13 @@ public class ARView extends Activity implements SensorEventListener,LocationList
     static DataView2 dataView2;
     static DataView3 dataView3;
     static DataView4 dataView4;
-    static DataViewDist1 dataViewDist1;
-    static DataViewDist2 dataViewDist2;
-    static DataViewDist3 dataViewDist3;
-    static DataViewDist4 dataViewDist4;
+
 
     boolean isInited = false;
     boolean isInited2 = false;
     boolean isInited3 = false;
     boolean isInited4 = false;
-    boolean isInitDist1 = false;
-    boolean isInitDist2 = false;
-    boolean isInitDist3 = false;
-    boolean isInitDist4= false;
+
 
     public static float azimuth;
     public static float pitch;
@@ -186,7 +180,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
 
 
 
-        setAr();  //เรียกใช้ฟังก์ชันวาดเออาร์
+        //setAr();  //เรียกใช้ฟังก์ชันวาดเออาร์
 
 
         titleTextView = new TextView(this);
@@ -233,6 +227,8 @@ public class ARView extends Activity implements SensorEventListener,LocationList
         //calDist
         CalculateDistance calculateDistance = new CalculateDistance(ARView.this);
         calculateDistance.execute();
+
+        setAr();  //เรียกใช้ฟังก์ชันวาดเออาร์
 
         //15Apr2017 Calculate Speed and Distance
         update_speed(0.0f); //update speed
@@ -351,15 +347,19 @@ public class ARView extends Activity implements SensorEventListener,LocationList
     }//update_speed
 
     void AlertSpeed() {
+        String name = titleTextView.getText().toString().trim();
+        Log.d("06MayV4", "Name: " + name + ":"+SignNameArr);
         //ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch
-        if (idMap1.equals("1") || idMap1 == null || idMap2.equals("1") || idMap2 == null) {
+        if (idMap1.equals("1") && idMap2.equals("1")) {
             if (idSign == 1 && idDistance == 1) {
                 if (min2 <= 0.3) {
-                    if (signName == null || signName.equals("Sign45") || sign45.equals("Sign45") || sign45 == null) {
+                    if (SignNameArr.equals("Sign45")) {
                         if (Speed >= 45.0) {
+
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
                             mp.start();
+                            Log.d("06MayV1", "Speed: " + Speed + ":"+SignNameArr);
 
                         } else {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -367,24 +367,24 @@ public class ARView extends Activity implements SensorEventListener,LocationList
                             mp.stop();
                         }//speed >=45.0
                     }//signName45
-                    else if (signName == null || signName.equals("Sign60") || sign60.equals("Sign60") || sign60 == null) {
+                    else if (SignNameArr.equals("Sign60")) {
                         if (Speed >= 60.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
                             mp.start();
-
+                            Log.d("06MayV2", "Speed: " + Speed + ":"+SignNameArr);
                         } else {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
                             mp.stop();
                         }//speed >=60.0
                     }//signName60
-                    else if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                    else if (SignNameArr.equals("Sign80")) {
                         if (Speed >= 80.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
                             mp.start();
-
+                            Log.d("06MayV3", "Speed: " + ":"+SignNameArr);
                         } else {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -395,19 +395,19 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign=1 && idDistance=1
             else if (idSign == 1 && idDistance == 2) {
                 if (min2 > 0.1 && min2 <= 0.4) {
-                    if (signName == null || signName.equals("Sign45") || sign45.equals("Sign45") || sign45 == null) {
+                    if (SignNameArr.equals("Sign45")) {
                         if (Speed >= 45.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
                             mp.start();
-
+                            Log.d("06MayV4", "Speed: " + ":"+SignNameArr);
                         } else {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
                             mp.stop();
                         }//speed
                     }//signName45
-                    else if (signName == null || signName.equals("Sign60") || sign60.equals("Sign60") || sign60 == null) {
+                    else if (SignNameArr.equals("Sign60")) {
                         if (Speed >= 60.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -419,7 +419,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
                             mp.stop();
                         }//speed
                     }//signName60
-                    else if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                    else if (SignNameArr.equals("Sign80")) {
                         if (Speed >= 80.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -434,7 +434,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             } //idSign == 1 idDistance==2
             else if (idSign == 1 && idDistance == 3) {
                 if (min2 > 0.1 && min2 <= 0.5) {
-                    if (signName == null || signName.equals("Sign45") || sign45.equals("Sign45") || sign45 == null) {
+                    if (SignNameArr.equals("Sign45")) {
                         if (Speed >= 45.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -446,7 +446,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
                             mp.stop();
                         }//speed
                     }//signName45
-                    else if (signName == null || signName.equals("Sign60") || sign60.equals("Sign60") || sign60 == null) {
+                    else if (SignNameArr.equals("Sign60")) {
                         if (Speed >= 60.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -458,7 +458,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
                             mp.stop();
                         }//speed
                     }//signName60
-                    else if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                    else if (SignNameArr.equals("Sign80")) {
                         if (Speed >= 80.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -473,7 +473,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign == 1 idDistance==3
             else if (idSign == 2 && idDistance == 1) {
                 if (min2 <= 0.3) {
-                    if (signName == null || signName.equals("Sign60") || sign60.equals("Sign60") || sign60 == null) {
+                    if (SignNameArr.equals("Sign60")) {
                         if (Speed >= 60.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -485,7 +485,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
                             mp.stop();
                         }//speed
                     }//signName60
-                    else if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                    else if (SignNameArr.equals("Sign80")) {
                         if (Speed >= 80.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -501,7 +501,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign ==2 ,idDistance==1
             else if (idSign == 2 && idDistance == 2) {
                 if (min2 > 0.1 && min2 <= 0.4) {
-                    if (signName == null || signName.equals("Sign60") || sign60.equals("Sign60") || sign60 == null) {
+                    if (SignNameArr.equals("Sign60")) {
                         if (Speed >= 60.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -513,7 +513,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
                             mp.stop();
                         }//speed
                     }//signName60
-                    else if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                    else if (SignNameArr.equals("Sign80")) {
                         if (Speed >= 80.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -529,7 +529,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign ==2,idDistance==2
             else if (idSign == 2 && idDistance == 3) {
                 if (min2 > 0.1 && min2 <= 0.5) {
-                    if (signName == null || signName.equals("Sign60") || sign60.equals("Sign60") || sign60 == null) {
+                    if (SignNameArr.equals("Sign60")) {
                         if (Speed >= 60.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -541,7 +541,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
                             mp.stop();
                         }//speed
                     }//signName60
-                    else if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                    else if (SignNameArr.equals("Sign80")) {
                         if (Speed >= 80.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -557,7 +557,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign == 2 && idDistance == 3
             else if (idSign == 3 && idDistance == 1) {
                 if (min2 <= 0.3) {
-                    if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                    if (SignNameArr.equals("Sign80")) {
                         if (Speed >= 80.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -573,7 +573,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign == 3 && idDistance == 1
             else if (idSign == 3 && idDistance == 2) {
                 if (min2 > 0.1 && min2 <= 0.4) {
-                    if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                    if (SignNameArr.equals("Sign80")) {
                         if (Speed >= 80.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -588,7 +588,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
                 }//min or distance
             } else if (idSign == 3 && idDistance == 3) {
                 if (min2 > 0.1 && min2 <= 0.5) {
-                    if (signName == null || signName.equals("Sign80") || sign80.equals("Sign80") || sign80 == null) {
+                    if (SignNameArr.equals("Sign80")) {
                         if (Speed >= 80.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -608,7 +608,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
         else if (idMap2.equals("1")) {
             if (idSign == 1 && idDistance == 1) {
                 if (min2 <= 0.3) {
-                    if (signName == null || signName.equals("Sign45")) {
+                    if (SignNameArr.equals("Sign45")) {
                         if (Speed >= 45.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -624,7 +624,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign ==1 ,idDistance==1
             else if (idSign == 1 && idDistance == 2) {
                 if (min2 > 0.1 && min2 <= 0.4) {
-                    if (signName == null || signName.equals("Sign45")) {
+                    if (SignNameArr.equals("Sign45")) {
                         if (Speed >= 45.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -640,7 +640,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign ==1,idDistance==2
             else if (idSign == 1 && idDistance == 3) {
                 if (min2 > 0.1 && min2 <= 0.5) {
-                    if (signName == null || signName.equals("Sign45")) {
+                    if (SignNameArr.equals("Sign45")) {
                         if (Speed >= 45.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -660,7 +660,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
         else if (idMap2.equals("3")) {
             if (idSign == 2 && idDistance == 1) {
                 if (min2 <= 0.3) {
-                    if (signName == null || signName.equals("Sign60")) {
+                    if (SignNameArr.equals("Sign60")) {
                         if (Speed >= 60.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -676,7 +676,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign ==2 ,idDistance==1
             else if (idSign == 2 && idDistance == 2) {
                 if (min2 > 0.1 && min2 <= 0.4) {
-                    if (signName == null || signName.equals("Sign60")) {
+                    if (SignNameArr.equals("Sign60")) {
                         if (Speed >= 60.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -692,7 +692,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign ==2,idDistance==2
             else if (idSign == 2 && idDistance == 3) {
                 if (min2 > 0.1 && min2 <= 0.5) {
-                    if (signName == null || signName.equals("Sign60")) {
+                    if (SignNameArr.equals("Sign60")) {
                         if (Speed >= 60.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -712,7 +712,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
         else if (idMap2.equals("4")) {
             if (idSign == 3 && idDistance == 1) {
                 if (min2 <= 0.3) {
-                    if (signName == null || signName.equals("Sign80")) {
+                    if (SignNameArr.equals("Sign80")) {
                         if (Speed >= 80.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -728,7 +728,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign ==2 ,idDistance==1
             else if (idSign == 3 && idDistance == 2) {
                 if (min2 > 0.1 && min2 <= 0.4) {
-                    if (signName == null || signName.equals("Sign80")) {
+                    if (SignNameArr.equals("Sign80")) {
                         if (Speed >= 80.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -744,7 +744,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             }//idSign ==2,idDistance==2
             else if (idSign == 3 && idDistance == 3) {
                 if (min2 > 0.1 && min2 <= 0.5) {
-                    if (signName == null || signName.equals("Sign80")) {
+                    if (SignNameArr.equals("Sign80")) {
                         if (Speed >= 80.0) {
                             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
                             MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
@@ -762,6 +762,7 @@ public class ARView extends Activity implements SensorEventListener,LocationList
     }//AlertSpeed
 
     public void setAr() {
+        Log.d("06MayV5", "SignName: " + signName);
         //ค้นหาทุกป้าย SearchQuick ค้นหาด่วน && MapSearch
         if (!isInited && idMap1.equals("1") && idMap2.equals("1")) {
             //ค้นหาทุกป้าย
@@ -811,12 +812,15 @@ public class ARView extends Activity implements SensorEventListener,LocationList
             return;
         }
 
-        setAr(); //setAr on camera
+
         update_speed( loc.getSpeed() ); //update speed
 
         //calDist location changed distance update for get SignName min distance
         CalculateDistance calculateDistance = new CalculateDistance(ARView.this);
         calculateDistance.execute();
+
+        setAr(); //setAr on camera
+
         AlertSpeed(); //แจ้งเตือนความเร็วเมื่อขับเกิน
 
 

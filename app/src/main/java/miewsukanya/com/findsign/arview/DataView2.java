@@ -245,12 +245,12 @@ public class DataView2 extends Activity implements LocationListener{
             }
         }//onPost
     }//Getlocation
-    double seekbar = 1.5; //ระยะในากรค้นหาเท่ากับ 1km
+    double seekbar = 1.0; //ระยะในากรค้นหาเท่ากับ 1km
     double[] exIntArray = new  double[1000]; //กำหนดขนาดอาเรย์ของระยะห่างที่ลบจากแลตลองในดาต้าเบส
     private class CalculateDistance extends AsyncTask<Void, Void, String> {
         //Explicit
         private DataView2 context;
-        private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getlatlong.php";
+        private static final String urlJSON = "http://202.28.94.32/2559/563020232-9/getsign45.php";
 
         public CalculateDistance(DataView2 context) {
             this.context = context;

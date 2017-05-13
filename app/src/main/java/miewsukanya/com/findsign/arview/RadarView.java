@@ -86,10 +86,7 @@ public class RadarView implements LocationListener {
     public DataView2 dataView2;
     public DataView3 dataView3;
     public DataView4 dataView4;
-    public DataViewDist1 dataViewDist1;
-    public DataViewDist2 dataViewDist2;
-    public DataViewDist3 dataViewDist3;
-    public DataViewDist4 dataViewDist4;
+
 
     public RadarView(Context context, DataView dataView, double[] bearings) {
         this.bearings = bearings;
@@ -108,7 +105,6 @@ public class RadarView implements LocationListener {
         } catch (Exception e) {
 
         }
-
     }//RadarView AR_all
     //RadarView Sign45
     public RadarView(Context context, DataView2 dataView, double[] bearings) {
@@ -136,7 +132,7 @@ public class RadarView implements LocationListener {
         calculateMetrics();
 
         //Get lat Lng
-        GetLocation getLocation60 = new GetLocation(RadarView.this);
+        GetLocation60 getLocation60 = new GetLocation60(RadarView.this);
         getLocation60.execute();
 
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -155,7 +151,7 @@ public class RadarView implements LocationListener {
         calculateMetrics();
 
         //Get lat Lng
-        GetLocation getLocation80 = new GetLocation(RadarView.this);
+        GetLocation80 getLocation80 = new GetLocation80(RadarView.this);
         getLocation80.execute();
 
         locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -168,78 +164,7 @@ public class RadarView implements LocationListener {
 
         }
     }//RadarView AR_all
-    public RadarView(Context context, DataViewDist1 dataViewDist1, double[] bearings) {
-        this.bearings = bearings;
-        calculateMetrics();
 
-        //Get lat Lng
-        GetLocation getLocation80 = new GetLocation(RadarView.this);
-        getLocation80.execute();
-
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, update_interval, 0.0f, this);
-            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, update_interval, 0.0f, netListener);
-            currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
-            // currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
-        } catch (Exception e) {
-
-        }
-    }//RadarView AR_all
-    public RadarView(Context context, DataViewDist2 dataViewDist2, double[] bearings) {
-        this.bearings = bearings;
-        calculateMetrics();
-
-        //Get lat Lng
-        GetLocation getLocation80 = new GetLocation(RadarView.this);
-        getLocation80.execute();
-
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, update_interval, 0.0f, this);
-            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, update_interval, 0.0f, netListener);
-            currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
-            // currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
-        } catch (Exception e) {
-
-        }
-    }//RadarView AR_all
-    public RadarView(Context context, DataViewDist3 dataViewDist3, double[] bearings) {
-        this.bearings = bearings;
-        calculateMetrics();
-
-        //Get lat Lng
-        GetLocation getLocation80 = new GetLocation(RadarView.this);
-        getLocation80.execute();
-
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, update_interval, 0.0f, this);
-            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, update_interval, 0.0f, netListener);
-            currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
-            // currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
-        } catch (Exception e) {
-
-        }
-    }//RadarView AR_all
-    public RadarView(Context context, DataViewDist4 dataViewDist4, double[] bearings) {
-        this.bearings = bearings;
-        calculateMetrics();
-
-        //Get lat Lng
-        GetLocation getLocation80 = new GetLocation(RadarView.this);
-        getLocation80.execute();
-
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        try {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, update_interval, 0.0f, this);
-            //locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, update_interval, 0.0f, netListener);
-            currentLocation = locationManager.getLastKnownLocation(locationManager.GPS_PROVIDER);
-            // currentLocation = locationManager.getLastKnownLocation(locationManager.NETWORK_PROVIDER);
-        } catch (Exception e) {
-
-        }
-    }//RadarView AR_all
 
     public void calculateMetrics() {
         circleOriginX = originX + RADIUS;
@@ -352,6 +277,10 @@ public class RadarView implements LocationListener {
         currentLocation.setLatitude(location.getLatitude());
         currentLocation.setLongitude(location.getLongitude());
         currentLocation.setAltitude((location.getAltitude()));
+
+        //Get lat Lng
+        /*GetLocation getLocation = new GetLocation(RadarView.this);
+        getLocation.execute();*/
     }
 
     @Override

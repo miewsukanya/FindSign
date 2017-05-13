@@ -17,7 +17,7 @@ public class SwipeAdapter extends PagerAdapter{
     private int[] image_resource = new int[] {R.drawable.page6,R.drawable.page6_2,
             R.drawable.page6_3,R.drawable.page6_4,
             R.drawable.page6_5,R.drawable.page6_6,
-            R.drawable.page6_7
+            R.drawable.page6_7,R.drawable.pageinfo
             };
     private Context context;
     private LayoutInflater layoutInflater;
